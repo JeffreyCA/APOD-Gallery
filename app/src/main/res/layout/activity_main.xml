@@ -1,66 +1,111 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:sothree="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="jeffrey.astronomypictureofthedaynasa.MainActivity">
 
-    <LinearLayout
+    <com.sothree.slidinguppanel.SlidingUpPanelLayout
+        android:id="@+id/sliding_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/background_floating_material_dark"
-        android:orientation="vertical">
+        android:gravity="bottom"
+        sothree:umanoDragView="@id/title"
+        sothree:umanoFadeColor="@android:color/transparent"
+        sothree:umanoPanelHeight="78dp"
+        sothree:umanoShadowHeight="0dp">
 
         <LinearLayout
-            android:id="@+id/viewA"
+            android:id="@+id/main_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="0.2"
-            android:background="@android:color/holo_purple"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/textView"
-                android:layout_width="wrap_content"
+            <RelativeLayout
+                android:id="@+id/date_nav"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="@dimen/activity_vertical_margin"
-                android:layout_marginTop="@dimen/activity_vertical_margin"
-                android:text="July 15, 2016"
-                android:textColor="@color/abc_primary_text_material_dark"
-                android:textSize="32sp" />
+                android:background="@color/colorPurple"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/left_chevron"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerInParent="true"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                    android:gravity="center"
+                    android:minHeight="36dp"
+                    android:minWidth="36dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/chevron_left"
+                    android:tint="@android:color/white" />
+
+                <ImageView
+                    android:id="@+id/right_chevron"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerInParent="true"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginRight="@dimen/activity_horizontal_margin"
+                    android:gravity="center"
+                    android:minHeight="36dp"
+                    android:minWidth="36dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/chevron_right"
+                    android:tint="@android:color/white" />
+
+                <TextView
+                    android:id="@+id/date"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginBottom="@dimen/activity_vertical_margin"
+                    android:layout_marginTop="@dimen/activity_vertical_margin"
+                    android:layout_toLeftOf="@id/right_chevron"
+                    android:layout_toRightOf="@id/left_chevron"
+                    android:gravity="center"
+                    android:text="September 15, 2016"
+                    android:textColor="@color/abc_primary_text_material_dark"
+                    android:textSize="32sp" />
+
+            </RelativeLayout>
 
             <ImageView
-                android:id="@+id/imageView"
+                android:id="@+id/image"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-
                 android:scaleType="centerCrop"
                 android:src="@drawable/space" />
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/viewB"
+            android:id="@+id/desc"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="0.9"
-            android:background="@android:color/holo_orange_light"
+            android:layout_weight="0.877"
+            android:background="@color/colorPrimary"
             android:orientation="vertical">
 
             <TextView
                 android:id="@+id/title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_marginTop="@dimen/activity_horizontal_margin"
                 android:text="Nebula"
                 android:textColor="@color/abc_primary_text_material_dark"
-                android:textSize="32sp"
-                android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                android:layout_marginTop="32dp"
-                android:layout_gravity="center_vertical" />
+                android:textSize="32sp" />
 
         </LinearLayout>
-    </LinearLayout>
+
+    </com.sothree.slidinguppanel.SlidingUpPanelLayout>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
@@ -68,21 +113,9 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:clickable="true"
-        android:src="@drawable/arrow_right"
+        android:src="@drawable/image_area"
         android:tint="@android:color/white"
-        app:layout_anchor="@id/viewA"
+        app:layout_anchor="@id/main_view"
         app:layout_anchorGravity="bottom|right|end" />
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:clickable="true"
-        android:src="@drawable/arrow_left"
-        android:tint="@android:color/white"
-        app:layout_anchor="@id/viewA"
-        app:layout_anchorGravity="bottom|left|end"
-        android:visibility="gone" />
 
 </android.support.design.widget.CoordinatorLayout>
