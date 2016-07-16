@@ -70,8 +70,7 @@
                     android:layout_toLeftOf="@id/right_chevron"
                     android:layout_toRightOf="@id/left_chevron"
                     android:gravity="center"
-                    android:text="September 15, 2016"
-                    android:textColor="@color/abc_primary_text_material_dark"
+                    android:textColor="@android:color/white"
                     android:textSize="32sp" />
 
             </RelativeLayout>
@@ -100,7 +99,7 @@
                 android:layout_marginLeft="@dimen/activity_horizontal_margin"
                 android:layout_marginTop="@dimen/activity_horizontal_margin"
                 android:text="Nebula"
-                android:textColor="@color/abc_primary_text_material_dark"
+                android:textColor="@android:color/white"
                 android:textSize="32sp" />
 
         </LinearLayout>
