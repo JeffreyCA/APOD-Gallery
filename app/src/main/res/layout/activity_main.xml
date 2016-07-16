@@ -13,10 +13,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="bottom"
-        sothree:umanoDragView="@id/title"
-        sothree:umanoFadeColor="@android:color/transparent"
         sothree:umanoPanelHeight="78dp"
-        sothree:umanoShadowHeight="0dp">
+        sothree:umanoShadowHeight="0dp"
+        sothree:umanoOverlay="true">
+        <!-- sothree:umanoOverlay="true" -->
 
         <LinearLayout
             android:id="@+id/main_view"
@@ -93,8 +93,7 @@
                 android:id="@+id/image"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:scaleType="centerCrop"
-                android:src="@drawable/space" />
+                android:scaleType="centerCrop" />
         </LinearLayout>
 
         <LinearLayout
@@ -102,12 +101,12 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="0.803"
-            android:background="@color/colorPrimary"
+            android:background="@color/transparentPrimary"
             android:orientation="vertical">
 
             <TextView
                 android:id="@+id/title"
-                android:layout_width="wrap_content"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="@dimen/activity_horizontal_margin"

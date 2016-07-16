@@ -12,6 +12,7 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.text.ParseException;
@@ -23,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
     String today;
     String current_date;
     TextView date;
+    final private String API_KEY = "***REMOVED***";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +33,9 @@ public class MainActivity extends AppCompatActivity {
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         myToolbar.showOverflowMenu();
         setSupportActionBar(myToolbar);
+
+        ImageView imageView = (ImageView) findViewById(R.id.image);
+        Glide.with(this).load("http://apod.nasa.gov/apod/image/1607/ayiomamitis-star-trails-marathon-oinoe-2016.jpg").into(imageView);
 
         date = (TextView) findViewById(R.id.date);
         today = current_date = dateToString();
@@ -71,10 +76,12 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onPanelStateChanged(View panel, SlidingUpPanelLayout.PanelState previousState, SlidingUpPanelLayout.PanelState newState) {
-                if (newState== SlidingUpPanelLayout.PanelState.COLLAPSED)
+                if (newState == SlidingUpPanelLayout.PanelState.COLLAPSED)
                     button.show();
             }
         });
+
+
     }
 
     private String dateToString() {
