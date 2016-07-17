@@ -1,25 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.sothree.slidinguppanel.FloatingActionButtonLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:sothree="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fab_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    sothree:umanoFabMode="circular_reveal"
     tools:context="jeffrey.astronomypictureofthedaynasa.MainActivity">
 
     <com.sothree.slidinguppanel.SlidingUpPanelLayout
         android:id="@+id/sliding_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@android:color/black"
         android:gravity="bottom"
+        sothree:umanoFadeColor="@android:color/transparent"
+        sothree:umanoInitialState="collapsed"
+        sothree:umanoOverlay="true"
         sothree:umanoPanelHeight="78dp"
-        sothree:umanoShadowHeight="0dp"
-        sothree:umanoOverlay="true">
-        <!-- sothree:umanoOverlay="true" -->
+        sothree:umanoParallaxOffset="60dp"
+        sothree:umanoShadowHeight="0dp">
 
-        <LinearLayout
-            android:id="@+id/main_view"
+        <!-- MAIN CONTENT -->
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
@@ -35,73 +39,86 @@
                     android:layout_height="?attr/actionBarSize"
                     android:background="?attr/colorPrimary"
                     app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+
             </android.support.design.widget.AppBarLayout>
 
-            <RelativeLayout
-                android:id="@+id/date_nav"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/colorPurple"
-                android:orientation="horizontal">
+            <LinearLayout
+                android:id="@+id/main_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="56dp"
+                android:orientation="vertical">
+
+                <RelativeLayout
+                    android:id="@+id/date_nav"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/colorPurple"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/left_chevron"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:layout_centerInParent="true"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                        android:gravity="center"
+                        android:minHeight="36dp"
+                        android:minWidth="36dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/chevron_left"
+                        android:tint="@android:color/white" />
+
+                    <ImageView
+                        android:id="@+id/right_chevron"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerInParent="true"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginRight="@dimen/activity_horizontal_margin"
+                        android:gravity="center"
+                        android:minHeight="36dp"
+                        android:minWidth="36dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/chevron_right"
+                        android:tint="@android:color/white" />
+
+                    <TextView
+                        android:id="@+id/date"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginBottom="@dimen/activity_vertical_margin"
+                        android:layout_marginTop="@dimen/activity_vertical_margin"
+                        android:layout_toLeftOf="@id/right_chevron"
+                        android:layout_toRightOf="@id/left_chevron"
+                        android:gravity="center"
+                        android:textColor="@android:color/white"
+                        android:textSize="32sp" />
+
+                </RelativeLayout>
 
                 <ImageView
-                    android:id="@+id/left_chevron"
+                    android:id="@+id/image"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:layout_centerInParent="true"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                    android:gravity="center"
-                    android:minHeight="36dp"
-                    android:minWidth="36dp"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/chevron_left"
-                    android:tint="@android:color/white" />
+                    android:scaleType="centerCrop" />
 
-                <ImageView
-                    android:id="@+id/right_chevron"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerInParent="true"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginRight="@dimen/activity_horizontal_margin"
-                    android:gravity="center"
-                    android:minHeight="36dp"
-                    android:minWidth="36dp"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/chevron_right"
-                    android:tint="@android:color/white" />
+            </LinearLayout>
+        </FrameLayout>
 
-                <TextView
-                    android:id="@+id/date"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginBottom="@dimen/activity_vertical_margin"
-                    android:layout_marginTop="@dimen/activity_vertical_margin"
-                    android:layout_toLeftOf="@id/right_chevron"
-                    android:layout_toRightOf="@id/left_chevron"
-                    android:gravity="center"
-                    android:textColor="@android:color/white"
-                    android:textSize="32sp" />
-
-            </RelativeLayout>
-
-            <ImageView
-                android:id="@+id/image"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:scaleType="centerCrop" />
-        </LinearLayout>
-
+        <!-- SLIDING LAYOUT -->
         <LinearLayout
             android:id="@+id/desc"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="0.803"
+            android:layout_height="0dp"
+            android:layout_weight="0.8928"
             android:background="@color/transparentPrimary"
+            android:clickable="true"
+            android:focusable="false"
             android:orientation="vertical">
 
             <TextView
@@ -123,11 +140,11 @@
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
+        android:layout_gravity="bottom|right"
+        android:layout_marginBottom="16dp"
+        android:layout_marginRight="16dp"
         android:clickable="true"
         android:src="@drawable/image_area"
-        android:tint="@android:color/white"
-        app:layout_anchor="@id/main_view"
-        app:layout_anchorGravity="bottom|right|end" />
+        android:tint="@android:color/white" />
 
-</android.support.design.widget.CoordinatorLayout>
+</com.sothree.slidinguppanel.FloatingActionButtonLayout>
