@@ -24,12 +24,22 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
+
+    // NASA API key
     final private String API_KEY = "***REMOVED***";
+    // Logging tag for listeners
+    final String TAG = "LISTENER";
+
     String today;
     String current_date;
+
     TextView date;
+    SlidingUpPanelLayout sliding_panel;
     FloatingActionButton fab;
     FloatingActionButtonLayout fab_layout;
+    ImageView image_view;
+    ImageView tomorrow;
+    ImageView yesterday;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,20 +49,25 @@ public class MainActivity extends AppCompatActivity {
         myToolbar.showOverflowMenu();
         setSupportActionBar(myToolbar);
 
+        // Initiate image views
+         image_view = (ImageView) findViewById(R.id.image);
+         yesterday = (ImageView) findViewById(R.id.left_chevron);
+         tomorrow = (ImageView) findViewById(R.id.right_chevron);
+
+        // Other views
+        date = (TextView) findViewById(R.id.date);
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab_layout = (FloatingActionButtonLayout) findViewById(R.id.fab_layout);
 
-        ImageView imageView = (ImageView) findViewById(R.id.image);
-        Glide.with(this).load("http://apod.nasa.gov/apod/image/1607/ayiomamitis-star-trails-marathon-oinoe-2016.jpg").into(imageView);
+        // Retrieve image from server
+        Glide.with(this).load("http://apod.nasa.gov/apod/image/1607/ayiomamitis-star-trails-marathon-oinoe-2016.jpg").into(image_view);
 
-        date = (TextView) findViewById(R.id.date);
+        // Set date view
         today = current_date = dateToString();
         date.setText(current_date);
 
-        ImageView yesterday = (ImageView) findViewById(R.id.left_chevron);
-        final ImageView tomorrow = (ImageView) findViewById(R.id.right_chevron);
+        // No "tomorrow" image available if default day is "today"
         tomorrow.setVisibility(View.INVISIBLE);
-
         tomorrow.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 current_date = nextDay(current_date);
@@ -65,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
 
         yesterday.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                // Display previous date
                 current_date = prevDay(current_date);
                 date.setText(current_date);
 
@@ -73,16 +89,18 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        final String TAG = "LISTENER";
-        SlidingUpPanelLayout sliding_panel = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
+
+        // Sliding up panel listener
+        sliding_panel = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
 
         sliding_panel.setPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
-            FloatingActionButton fabe = (FloatingActionButton) findViewById(R.id.fab);
 
+            // Hide FAB while expanded
             @Override
             public void onPanelExpanded(View panel) {
                 Log.i(TAG, "onPanelExpanded");
-                fabe.hide();
+                fab.hide();
             }
 
             @Override
@@ -90,10 +108,11 @@ public class MainActivity extends AppCompatActivity {
 
             }
 
+            // Show FAB while collapsed
             @Override
             public void onPanelCollapsed(View panel) {
                 Log.i(TAG, "onPanelCollapsed");
-                fabe.show();
+                fab.show();
             }
 
             @Override
@@ -131,16 +150,26 @@ public class MainActivity extends AppCompatActivity {
                 Log.i(TAG, "onPanelLayout");
             }
         });
-    }
 
+    } // End onCreate method
+
+    /**
+     * Convert current day to string format
+     * @return Today's date as string
+     */
     private String dateToString() {
         return new SimpleDateFormat("MMMM d, y").format(new Date());
     }
 
+    /**
+     * Calculate the day after the given date
+     * @param date formatted date
+     * @return the next day after the provided date
+     */
     private String nextDay(String date) {
-        final Calendar calendar = Calendar.getInstance();
-        final Date next_date;
-        final SimpleDateFormat format = new SimpleDateFormat("MMMM d, y");
+        Calendar calendar = Calendar.getInstance();
+        Date next_date;
+        SimpleDateFormat format = new SimpleDateFormat("MMMM d, y");
 
         try {
             next_date = format.parse(date);
@@ -154,10 +183,15 @@ public class MainActivity extends AppCompatActivity {
         return null;
     }
 
+    /**
+     * Calculate the day before the given date
+     * @param date formatted date
+     * @return the previous day before the provided date
+     */
     private String prevDay(String date) {
-        final Calendar calendar = Calendar.getInstance();
-        final Date next_date;
-        final SimpleDateFormat format = new SimpleDateFormat("MMMM d, y");
+        Calendar calendar = Calendar.getInstance();
+        Date next_date;
+        SimpleDateFormat format = new SimpleDateFormat("MMMM d, y");
 
         try {
             next_date = format.parse(date);
@@ -171,6 +205,7 @@ public class MainActivity extends AppCompatActivity {
         return null;
     }
 
+    // Inflate options menu
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -178,6 +213,7 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    // Manage menu selection
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
