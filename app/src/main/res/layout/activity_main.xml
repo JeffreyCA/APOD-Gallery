@@ -107,6 +107,13 @@
                     android:layout_height="wrap_content"
                     android:scaleType="centerCrop" />
 
+                <ProgressBar
+                    android:id="@+id/progress"
+                    style="?android:attr/progressBarStyleLarge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:visibility="visible" />
             </LinearLayout>
         </FrameLayout>
 
