@@ -18,7 +18,7 @@
         sothree:umanoFadeColor="@android:color/transparent"
         sothree:umanoInitialState="collapsed"
         sothree:umanoOverlay="true"
-        sothree:umanoPanelHeight="78dp"
+        sothree:umanoPanelHeight="108dp"
         sothree:umanoParallaxOffset="60dp"
         sothree:umanoShadowHeight="0dp">
 
@@ -134,10 +134,10 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                android:layout_marginTop="@dimen/activity_horizontal_margin"
-                android:text="Nebula"
+                android:layout_marginRight="@dimen/activity_horizontal_margin"
+                android:layout_marginTop="24dp"
                 android:textColor="@android:color/white"
-                android:textSize="32sp" />
+                android:textSize="24sp" />
 
         </LinearLayout>
 

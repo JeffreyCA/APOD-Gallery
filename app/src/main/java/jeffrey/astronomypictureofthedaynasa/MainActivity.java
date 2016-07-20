@@ -9,6 +9,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
 import android.view.animation.Interpolator;
 import android.widget.AdapterView;
 import android.widget.ImageView;
@@ -63,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
     String date;
 
     TextView dateText;
+    TextView titleText;
     SlidingUpPanelLayout slidingPanel;
     FloatingActionButton fab;
     FloatingActionButtonLayout fabLayout;
@@ -89,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Other views
         dateText = (TextView) findViewById(R.id.date);
+        titleText = (TextView) findViewById(R.id.title);
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fabLayout = (FloatingActionButtonLayout) findViewById(R.id.fab_layout);
         progressBar = (ProgressBar) findViewById(R.id.progress);
@@ -333,7 +336,7 @@ public class MainActivity extends AppCompatActivity {
                     String explanation = response.getString("explanation");
                     String hdUrl = response.getString("hdurl");
                     String sdUrl = response.getString("url");
-                    String title = response.getString("title");
+                    final String title = response.getString("title");
                     String copyright = "";
 
                     if (response.has("copyright"))
@@ -355,7 +358,7 @@ public class MainActivity extends AppCompatActivity {
                     // Load lower-resolution image by default
                     Glide.with(MainActivity.this).load(sdUrl) // Load from URL
                             .diskCacheStrategy(DiskCacheStrategy.SOURCE) // Or .RESULT
-                            // .dontAnimate() // No cross-fade
+                            .dontAnimate() // No cross-fade
                             .skipMemoryCache(true) // Use disk cache only
                             .listener(new RequestListener<String, GlideDrawable>() {
                                 @Override
@@ -372,6 +375,8 @@ public class MainActivity extends AppCompatActivity {
                                                                        isFirstResource) {
                                     Log.i("MEM_CACHE", "" + isFromMemoryCache);
                                     // progressBar.setVisibility(View.GONE);
+
+                                    titleText.setText(title);
                                     return false;
                                 }
 
