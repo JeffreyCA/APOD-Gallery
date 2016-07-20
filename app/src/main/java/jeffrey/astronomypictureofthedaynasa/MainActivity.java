@@ -14,6 +14,7 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Cache;
@@ -34,6 +35,7 @@ import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
@@ -54,13 +56,13 @@ public class MainActivity extends AppCompatActivity {
     // Logging tag for listeners
     final String TAG = "LISTENER";
     final String DATE_FORMAT = "MMMM d, y";
-    final String apiDate_FORMAT = "y-MM-dd";
+    final String API_DATE_FORMAT = "y-MM-dd";
     // NASA API key
     final private String API_KEY = "***REMOVED***";
     String today;
-    String currentDate;
+    String date;
 
-    TextView date;
+    TextView dateText;
     SlidingUpPanelLayout slidingPanel;
     FloatingActionButton fab;
     FloatingActionButtonLayout fabLayout;
@@ -74,8 +76,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
-        myToolbar.showOverflowMenu();
         setSupportActionBar(myToolbar);
+
+        if (myToolbar != null) {
+            myToolbar.showOverflowMenu();
+        }
 
         // Initiate image views
         imageView = (ImageView) findViewById(R.id.image);
@@ -83,59 +88,50 @@ public class MainActivity extends AppCompatActivity {
         tomorrow = (ImageView) findViewById(R.id.right_chevron);
 
         // Other views
-        date = (TextView) findViewById(R.id.date);
+        dateText = (TextView) findViewById(R.id.date);
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fabLayout = (FloatingActionButtonLayout) findViewById(R.id.fab_layout);
         progressBar = (ProgressBar) findViewById(R.id.progress);
 
         // Set date view
-        today = currentDate = dateToString();
-        date.setText(currentDate);
+        today = date = dateToString();
+        dateText.setText(date);
 
         // Set image
-        getImageData(currentDate, imageView);
-
-        // Retrieve image from server
-        // Glide.with(this).load(gethdUrl()).into(imageView);
+        getImageData(date);
 
         // No "tomorrow" image available if default day is "today"
         tomorrow.setVisibility(View.INVISIBLE);
         tomorrow.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                currentDate = nextDay(currentDate);
-                date.setText(currentDate);
+                date = nextDay(date);
+                dateText.setText(date);
 
-                if (currentDate.equals(today))
+                if (date.equals(today))
                     tomorrow.setVisibility(View.INVISIBLE);
 
+                // Animations are smooth enough with progress bar running behind image
                 // imageView.setImageResource(0);
-                progressBar.setVisibility(View.VISIBLE);
+                // progressBar.setVisibility(View.VISIBLE); // pBar never set to INVISIBLE
 
                 // Set image
-                getImageData(currentDate, imageView);
-
-                // Retrieve image from server
-                // Glide.with(MainActivity.this).load(gethdUrl()).into(imageView);
+                getImageData(date);
             }
         });
 
         yesterday.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // Display previous date
-                currentDate = prevDay(currentDate);
-                date.setText(currentDate);
+                date = prevDay(date);
+                dateText.setText(date);
 
                 if (tomorrow.getVisibility() == View.INVISIBLE)
                     tomorrow.setVisibility(View.VISIBLE);
 
-                imageView.setImageResource(0);
-                progressBar.setVisibility(View.VISIBLE);
+                // imageView.setImageResource(0);
 
                 // Set image
-                getImageData(currentDate, imageView);
-
-                // Retrieve image from server
-                // Glide.with(MainActivity.this).load(gethdUrl()).into(imageView);
+                getImageData(date);
             }
         });
 
@@ -167,42 +163,37 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onPanelAnchored(View panel) {
-                Log.i(TAG, "onPanelAnchored");
             }
 
             @Override
             public void onPanelHidden(View panel) {
-                Log.i(TAG, "onPanelHidden");
             }
 
             @Override
             public void onPanelHiddenExecuted(View panel, Interpolator interpolator, int duration) {
-                Log.i(TAG, "onPanelHiddenExecuted");
+                // Log.i(TAG, "onPanelHiddenExecuted");
             }
 
             @Override
             public void onPanelShownExecuted(View panel, Interpolator interpolator, int duration) {
-                Log.i(TAG, "onPanelShownExecuted");
+                // Log.i(TAG, "onPanelShownExecuted");
             }
 
             @Override
             public void onPanelExpandedStateY(View panel, boolean reached) {
-                Log.i(TAG, "onPanelExpandedStateY");
+                // Log.i(TAG, "onPanelExpandedStateY");
             }
 
             @Override
             public void onPanelCollapsedStateY(View panel, boolean reached) {
-                Log.i(TAG, "onPanelCollapsedStateY");
+                // Log.i(TAG, "onPanelCollapsedStateY");
+                fab.hide();
             }
 
             @Override
             public void onPanelLayout(View panel, SlidingUpPanelLayout.PanelState state) {
-                Log.i(TAG, "onPanelLayout");
             }
         });
-
-        // getHdImage(date.getText().toString());
-
     } // End onCreate method
 
     /**
@@ -279,7 +270,6 @@ public class MainActivity extends AppCompatActivity {
                 .getMenuInfo();
         switch (item.getItemId()) {
             case R.id.action_settings:
-                // editNote(info.id);
                 return true;
             default:
                 return super.onContextItemSelected(item);
@@ -292,8 +282,7 @@ public class MainActivity extends AppCompatActivity {
         slidingPanel = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
 
         if (slidingPanel != null && (slidingPanel.getPanelState() == SlidingUpPanelLayout
-                .PanelState.EXPANDED || slidingPanel.getPanelState() == SlidingUpPanelLayout
-                .PanelState.ANCHORED)) {
+                .PanelState.EXPANDED)) {
             slidingPanel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
         }
         else {
@@ -301,10 +290,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void getImageData(String date, ImageView imageView1) {
+    private void getImageData(String date) {
+        // TODO Use locale date formatting
         // Parse date
         SimpleDateFormat format = new SimpleDateFormat(DATE_FORMAT);
-        SimpleDateFormat apiFormat = new SimpleDateFormat(apiDate_FORMAT);
+        SimpleDateFormat apiFormat = new SimpleDateFormat(API_DATE_FORMAT);
         String apiDate = "";
 
         // Convert date formats to yyyy-mm-dd
@@ -315,7 +305,6 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        final JSONObject object;
         RequestQueue queue;
 
         // Instantiate the cache
@@ -336,6 +325,7 @@ public class MainActivity extends AppCompatActivity {
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url,
                 null, new Response.Listener<JSONObject>() {
+
             @Override
             public void onResponse(JSONObject response) {
                 try {
@@ -351,33 +341,41 @@ public class MainActivity extends AppCompatActivity {
 
                     boolean hdAvailable = !(hdUrl.equals(sdUrl));
 
+                    /*
                     Log.i("REQUEST", "Date: " + date);
                     Log.i("REQUEST", "Title: " + title);
                     Log.i("REQUEST", "Explanation: " + explanation);
                     Log.i("REQUEST", "HD URL: " + hdUrl);
-                    // Log.i("REQUEST", "SD URL: " + sdUrl);
-                    // Log.i("REQUEST", "Diff URL: " + hdAvailable);
-                    // Log.i("REQUEST", "Copyright: " + copyright);
+                    Log.i("REQUEST", "SD URL: " + sdUrl);
+                    Log.i("REQUEST", "Diff URL: " + hdAvailable);
+                    Log.i("REQUEST", "Copyright: " + copyright);
+                    */
 
                     // TODO Clear cache option
-                    Glide.with(MainActivity.this).load(hdUrl).listener(new RequestListener<String, GlideDrawable>() {
-                        @Override
-                        public boolean onException(Exception e, String model,
-                                                   Target<GlideDrawable> target, boolean
-                                                           isFirstResource) {
-                            return false;
-                        }
+                    // Load lower-resolution image by default
+                    Glide.with(MainActivity.this).load(sdUrl) // Load from URL
+                            .diskCacheStrategy(DiskCacheStrategy.SOURCE) // Or .RESULT
+                            // .dontAnimate() // No cross-fade
+                            .skipMemoryCache(true) // Use disk cache only
+                            .listener(new RequestListener<String, GlideDrawable>() {
+                                @Override
+                                public boolean onException(Exception e, String model,
+                                                           Target<GlideDrawable> target, boolean
+                                                                   isFirstResource) {
+                                    return false;
+                                }
 
-                        @Override
-                        public boolean onResourceReady(GlideDrawable resource, String model,
-                                                       Target<GlideDrawable> target, boolean
-                                                               isFromMemoryCache, boolean
-                                                               isFirstResource) {
-                            progressBar.setVisibility(View.GONE);
-                            return false;
-                        }
+                                @Override
+                                public boolean onResourceReady(GlideDrawable resource, String
+                                        model, Target<GlideDrawable> target, boolean
+                                                                       isFromMemoryCache, boolean
+                                                                       isFirstResource) {
+                                    Log.i("MEM_CACHE", "" + isFromMemoryCache);
+                                    // progressBar.setVisibility(View.GONE);
+                                    return false;
+                                }
 
-                    }).into(imageView);
+                            }).into(imageView);
                 }
                 catch (JSONException e) {
                     e.printStackTrace();
@@ -390,26 +388,26 @@ public class MainActivity extends AppCompatActivity {
             public void onErrorResponse(VolleyError error) {
                 String message = "";
 
+                imageView.setImageResource(0);
+
                 if (error instanceof TimeoutError || error instanceof NoConnectionError) {
-                    message = "No Internet access, Check your Internet connection.";
+                    message = "No Internet access, check your Internet connection.";
                 }
                 else if (error instanceof AuthFailureError) {
-                    // TODO
                 }
                 else if (error instanceof ServerError) {
-                    // TODO
+                    Toast.makeText(MainActivity.this, "Today's photo is not available yet.",
+                            Toast.LENGTH_SHORT).show();
                 }
                 else if (error instanceof NetworkError) {
-                    // TODO
                 }
                 else if (error instanceof ParseError) {
-                    // TODO
                 }
 
                 Log.i("VOLLEY_ERROR", message);
                 progressBar.setVisibility(View.INVISIBLE);
 
-                // TODO Error picture?
+                // TODO Add error picture
             }
 
         }) {
@@ -473,17 +471,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void deliverError(VolleyError error) {
                 super.deliverError(error);
-            }
-
-            @Override
-            protected VolleyError parseNetworkError(VolleyError volleyError) {
-                if (volleyError.networkResponse != null && volleyError.networkResponse.data !=
-                        null) {
-                    VolleyError error = new VolleyError(new String(volleyError.networkResponse
-                            .data));
-                    volleyError = error;
-                }
-                return super.parseNetworkError(volleyError);
             }
         };
 

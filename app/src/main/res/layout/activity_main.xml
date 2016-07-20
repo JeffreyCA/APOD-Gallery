@@ -6,7 +6,7 @@
     android:id="@+id/fab_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    sothree:umanoFabMode="circular_reveal"
+    sothree:umanoFabMode="leave_behind"
     tools:context="jeffrey.astronomypictureofthedaynasa.MainActivity">
 
     <com.sothree.slidinguppanel.SlidingUpPanelLayout
