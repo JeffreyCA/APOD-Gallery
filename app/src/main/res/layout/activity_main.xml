@@ -11,7 +11,8 @@
     tools:context="jeffrey.astronomypictureofthedaynasa.MainActivity">
 
     <!-- umanoOverlay allows for transparent background when panel is extended
-         umanoPanelHeight is the height of the panel when collapsed -->
+         umanoPanelHeight is the height of the panel when collapsed
+         umanoParallaxOffset is how much the top view moves up when panel is extended -->
     <com.sothree.slidinguppanel.SlidingUpPanelLayout
         android:id="@+id/sliding_layout"
         android:layout_width="match_parent"
@@ -21,7 +22,7 @@
         sothree:umanoFadeColor="@android:color/transparent"
         sothree:umanoInitialState="collapsed"
         sothree:umanoOverlay="true"
-        sothree:umanoPanelHeight="96dp"
+        sothree:umanoPanelHeight="108dp"
         sothree:umanoParallaxOffset="60dp"
         sothree:umanoShadowHeight="0dp">
 
@@ -31,6 +32,7 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
+            <!-- Toolbar -->
             <android.support.design.widget.AppBarLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -136,7 +138,7 @@
             <jeffrey.astronomypictureofthedaynasa.AutoResizeTextView
                 android:id="@+id/title"
                 android:layout_width="match_parent"
-                android:layout_height="58dp"
+                android:layout_height="68dp"
                 android:gravity="center_vertical"
                 android:ellipsize="none"
                 android:maxLines="2"
@@ -160,5 +162,4 @@
         android:clickable="true"
         android:src="@drawable/image_area"
         android:tint="@android:color/white" />
-
 </com.sothree.slidinguppanel.FloatingActionButtonLayout>

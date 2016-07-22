@@ -1,5 +1,9 @@
 package jeffrey.astronomypictureofthedaynasa;
 
+import android.support.v7.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -106,11 +110,16 @@ public class MainActivity extends AppCompatActivity {
         tomorrow.setVisibility(View.INVISIBLE);
         tomorrow.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+
+                progressBar.setVisibility(View.VISIBLE);
+
                 date = nextDay(date);
                 dateText.setText(date);
 
                 if (date.equals(today))
                     tomorrow.setVisibility(View.INVISIBLE);
+                if(fab.getVisibility()==View.GONE)
+                    fab.show();
 
                 // Animations are smooth enough with progress bar running behind image
                 // imageView.setImageResource(0);
@@ -123,12 +132,17 @@ public class MainActivity extends AppCompatActivity {
 
         yesterday.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                progressBar.setVisibility(View.VISIBLE);
+
                 // Display previous date
                 date = prevDay(date);
                 dateText.setText(date);
 
                 if (tomorrow.getVisibility() == View.INVISIBLE)
                     tomorrow.setVisibility(View.VISIBLE);
+
+                if(fab.getVisibility()==View.GONE)
+                    fab.show();
 
                 // imageView.setImageResource(0);
 
@@ -206,6 +220,36 @@ public class MainActivity extends AppCompatActivity {
      */
     private String dateToString() {
         return new SimpleDateFormat(DATE_FORMAT).format(new Date());
+    }
+    
+    private String expandedToNumericalDate (String date) {
+        SimpleDateFormat format = new SimpleDateFormat(DATE_FORMAT);
+        SimpleDateFormat apiFormat = new SimpleDateFormat(API_DATE_FORMAT);
+
+        // Convert date formats to yyyy-mm-dd
+        try {
+            return apiFormat.format(format.parse(date));
+        }
+        catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return "";
+    }
+
+    private String numericalToExpandedDate (String date) {
+        SimpleDateFormat format = new SimpleDateFormat(DATE_FORMAT);
+        SimpleDateFormat apiFormat = new SimpleDateFormat(API_DATE_FORMAT);
+
+        // Convert date formats to MMMM dd, yyyy
+        try {
+            return format.format(apiFormat.parse(date));
+        }
+        catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return "";
     }
 
     /**
@@ -294,19 +338,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getImageData(String date) {
-        // TODO Use locale date formatting
         // Parse date
-        SimpleDateFormat format = new SimpleDateFormat(DATE_FORMAT);
-        SimpleDateFormat apiFormat = new SimpleDateFormat(API_DATE_FORMAT);
-        String apiDate = "";
-
-        // Convert date formats to yyyy-mm-dd
-        try {
-            apiDate = apiFormat.format(format.parse(date));
-        }
-        catch (ParseException e) {
-            e.printStackTrace();
-        }
+        String apiDate = expandedToNumericalDate(date);
 
         RequestQueue queue;
 
@@ -332,15 +365,21 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(JSONObject response) {
                 try {
+                    final String IMAGE_TYPE = "image";
+
                     String date = response.getString("date");
                     String explanation = response.getString("explanation");
-                    String hdUrl = response.getString("hdurl");
+
                     String sdUrl = response.getString("url");
+                    String mediaType = response.getString("media_type");
                     final String title = response.getString("title");
+                    String hdUrl = "";
                     String copyright = "";
 
                     if (response.has("copyright"))
                         copyright = response.getString("copyright");
+                    else if (response.has("hdurl"))
+                        hdUrl = response.getString("hdurl");
 
                     boolean hdAvailable = !(hdUrl.equals(sdUrl));
 
@@ -356,30 +395,38 @@ public class MainActivity extends AppCompatActivity {
 
                     // TODO Clear cache option
                     // Load lower-resolution image by default
-                    Glide.with(MainActivity.this).load(sdUrl) // Load from URL
-                            .diskCacheStrategy(DiskCacheStrategy.SOURCE) // Or .RESULT
-                            .dontAnimate() // No cross-fade
-                            .skipMemoryCache(true) // Use disk cache only
-                            .listener(new RequestListener<String, GlideDrawable>() {
-                                @Override
-                                public boolean onException(Exception e, String model,
-                                                           Target<GlideDrawable> target, boolean
-                                                                   isFirstResource) {
-                                    return false;
-                                }
 
-                                @Override
-                                public boolean onResourceReady(GlideDrawable resource, String
-                                        model, Target<GlideDrawable> target, boolean
-                                                                       isFromMemoryCache, boolean
-                                                                       isFirstResource) {
-                                    Log.i("MEM_CACHE", "" + isFromMemoryCache);
-                                    // progressBar.setVisibility(View.GONE);
-                                    titleText.setText(title);
-                                    return false;
-                                }
+                    if (mediaType.equals(IMAGE_TYPE)) {
+                        Glide.with(MainActivity.this).load(sdUrl) // Load from URL
+                                .diskCacheStrategy(DiskCacheStrategy.SOURCE) // Or .RESULT
+                                .dontAnimate() // No cross-fade
+                                .skipMemoryCache(true) // Use disk cache only
+                                .listener(new RequestListener<String, GlideDrawable>() {
+                                    @Override
+                                    public boolean onException(Exception e, String model,
+                                                               Target<GlideDrawable> target,
+                                                               boolean isFirstResource) {
 
-                            }).into(imageView);
+                                        return false;
+                                    }
+
+                                    @Override
+                                    public boolean onResourceReady(GlideDrawable resource, String
+                                            model, Target<GlideDrawable> target, boolean
+                                                                           isFromMemoryCache,
+                                                                   boolean isFirstResource) {
+                                        Log.i("MEM_CACHE", "" + isFromMemoryCache);
+                                        progressBar.setVisibility(View.GONE);
+                                        titleText.setText(title);
+                                        return false;
+                                    }
+
+                                }).into(imageView);
+                    }
+                    else {
+                        titleText.setText(title);
+                        openInBrowserDialog(date, sdUrl);
+                    }
                 }
                 catch (JSONException e) {
                     e.printStackTrace();
@@ -480,5 +527,45 @@ public class MainActivity extends AppCompatActivity {
 
         // Add the request to the RequestQueue.
         queue.add(jsonObjectRequest);
+    }
+    private void clearFeaturedImage () {
+        imageView.setImageResource(0);
+    }
+
+
+
+    private void openInBrowserDialog(String date, String url) {
+
+        Log.i("CALL_DIALOG", "called");
+        final String uri = url;
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        imageView.setImageResource(0);
+        progressBar.setVisibility(View.GONE);
+        fab.hide();
+
+        builder.setTitle("Open external link?");
+        builder.setMessage("The featured content for " + numericalToExpandedDate(date) + " is not an image. " +
+                "Do you want to view the content in an external application?");
+
+        builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                // Open Link in browser
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                startActivity(browserIntent);
+            }
+        });
+
+        builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // Do nothing
+                dialog.dismiss();
+            }
+        });
+
+        AlertDialog alert = builder.create();
+        alert.show();
     }
 }
