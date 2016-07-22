@@ -9,7 +9,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.AlphaAnimation;
 import android.view.animation.Interpolator;
 import android.widget.AdapterView;
 import android.widget.ImageView;
@@ -64,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
     String date;
 
     TextView dateText;
-    TextView titleText;
+    AutoResizeTextView titleText;
     SlidingUpPanelLayout slidingPanel;
     FloatingActionButton fab;
     FloatingActionButtonLayout fabLayout;
@@ -91,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Other views
         dateText = (TextView) findViewById(R.id.date);
-        titleText = (TextView) findViewById(R.id.title);
+        titleText = (AutoResizeTextView) findViewById(R.id.title);
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fabLayout = (FloatingActionButtonLayout) findViewById(R.id.fab_layout);
         progressBar = (ProgressBar) findViewById(R.id.progress);
@@ -198,6 +197,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     } // End onCreate method
+
 
     /**
      * Convert current day to string format
@@ -375,7 +375,6 @@ public class MainActivity extends AppCompatActivity {
                                                                        isFirstResource) {
                                     Log.i("MEM_CACHE", "" + isFromMemoryCache);
                                     // progressBar.setVisibility(View.GONE);
-
                                     titleText.setText(title);
                                     return false;
                                 }

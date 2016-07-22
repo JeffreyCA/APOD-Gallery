@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.sothree.slidinguppanel.FloatingActionButtonLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:autofit="http://schemas.android.com/apk/res-auto"
     xmlns:sothree="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/fab_layout"
@@ -9,6 +10,8 @@
     sothree:umanoFabMode="leave_behind"
     tools:context="jeffrey.astronomypictureofthedaynasa.MainActivity">
 
+    <!-- umanoOverlay allows for transparent background when panel is extended
+         umanoPanelHeight is the height of the panel when collapsed -->
     <com.sothree.slidinguppanel.SlidingUpPanelLayout
         android:id="@+id/sliding_layout"
         android:layout_width="match_parent"
@@ -18,7 +21,7 @@
         sothree:umanoFadeColor="@android:color/transparent"
         sothree:umanoInitialState="collapsed"
         sothree:umanoOverlay="true"
-        sothree:umanoPanelHeight="108dp"
+        sothree:umanoPanelHeight="96dp"
         sothree:umanoParallaxOffset="60dp"
         sothree:umanoShadowHeight="0dp">
 
@@ -118,6 +121,7 @@
         </FrameLayout>
 
         <!-- SLIDING LAYOUT -->
+        <!-- layout_weight controls where sliding panel stops when extended -->
         <LinearLayout
             android:id="@+id/desc"
             android:layout_width="match_parent"
@@ -128,16 +132,19 @@
             android:focusable="false"
             android:orientation="vertical">
 
-            <TextView
+            <!-- layout_height controls the height of entire TextView -->
+            <jeffrey.astronomypictureofthedaynasa.AutoResizeTextView
                 android:id="@+id/title"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
+                android:layout_width="match_parent"
+                android:layout_height="58dp"
+                android:gravity="center_vertical"
+                android:ellipsize="none"
+                android:maxLines="2"
+                android:textColor="@android:color/white"
                 android:layout_marginLeft="@dimen/activity_horizontal_margin"
                 android:layout_marginRight="@dimen/activity_horizontal_margin"
-                android:layout_marginTop="24dp"
-                android:textColor="@android:color/white"
-                android:textSize="24sp" />
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:textSize="36sp"/> <!-- maximum size -->
 
         </LinearLayout>
 
