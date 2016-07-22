@@ -1,11 +1,11 @@
 package jeffrey.astronomypictureofthedaynasa;
 
-import android.support.v7.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -22,6 +22,7 @@ import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Cache;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Network;
 import com.android.volley.NetworkError;
 import com.android.volley.NetworkResponse;
@@ -118,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
 
                 if (date.equals(today))
                     tomorrow.setVisibility(View.INVISIBLE);
-                if(fab.getVisibility()==View.GONE)
+                if (fab.getVisibility() == View.GONE)
                     fab.show();
 
                 // Animations are smooth enough with progress bar running behind image
@@ -142,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
                 if (tomorrow.getVisibility() == View.INVISIBLE)
                     tomorrow.setVisibility(View.VISIBLE);
 
-                if(fab.getVisibility()==View.GONE)
+                if (fab.getVisibility() == View.GONE)
                     fab.show();
 
                 // imageView.setImageResource(0);
@@ -223,7 +224,7 @@ public class MainActivity extends AppCompatActivity {
         return new SimpleDateFormat(DATE_FORMAT).format(new Date());
     }
 
-    private String expandedToNumericalDate (String date) {
+    private String expandedToNumericalDate(String date) {
         SimpleDateFormat format = new SimpleDateFormat(DATE_FORMAT);
         SimpleDateFormat apiFormat = new SimpleDateFormat(API_DATE_FORMAT);
 
@@ -238,7 +239,7 @@ public class MainActivity extends AppCompatActivity {
         return "";
     }
 
-    private String numericalToExpandedDate (String date) {
+    private String numericalToExpandedDate(String date) {
         SimpleDateFormat format = new SimpleDateFormat(DATE_FORMAT);
         SimpleDateFormat apiFormat = new SimpleDateFormat(API_DATE_FORMAT);
 
@@ -338,6 +339,76 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void onJsonResponse(JSONObject response) {
+        try {
+            final String IMAGE_TYPE = "image";
+
+            String date = response.getString("date");
+            String explanation = response.getString("explanation");
+
+            String sdUrl = response.getString("url");
+            String mediaType = response.getString("media_type");
+            final String title = response.getString("title");
+            String hdUrl = "";
+            String copyright = "";
+
+            if (response.has("copyright"))
+                copyright = response.getString("copyright");
+            else if (response.has("hdurl"))
+                hdUrl = response.getString("hdurl");
+
+            boolean hdAvailable = !(hdUrl.equals(sdUrl));
+
+                    /*
+                    Log.i("REQUEST", "Date: " + date);
+                    Log.i("REQUEST", "Title: " + title);
+                    Log.i("REQUEST", "Explanation: " + explanation);
+                    Log.i("REQUEST", "HD URL: " + hdUrl);
+                    Log.i("REQUEST", "SD URL: " + sdUrl);
+                    Log.i("REQUEST", "Diff URL: " + hdAvailable);
+                    Log.i("REQUEST", "Copyright: " + copyright);
+                    */
+
+            // TODO Clear cache option
+            // Load lower-resolution image by default
+            titleText.setText(title);
+
+            if (mediaType.equals(IMAGE_TYPE)) {
+                Glide.with(MainActivity.this).load(sdUrl) // Load from URL
+                        .diskCacheStrategy(DiskCacheStrategy.SOURCE) // Or .RESULT
+                        .dontAnimate() // No cross-fade
+                        .skipMemoryCache(true) // Use disk cache only
+                        .listener(new RequestListener<String, GlideDrawable>() {
+                            @Override
+                            public boolean onException(Exception e, String model,
+                                                       Target<GlideDrawable> target, boolean
+                                                               isFirstResource) {
+
+                                return false;
+                            }
+
+                            @Override
+                            public boolean onResourceReady(GlideDrawable resource, String model,
+                                                           Target<GlideDrawable> target, boolean
+                                                                   isFromMemoryCache, boolean
+                                                                   isFirstResource) {
+                                Log.i("MEM_CACHE", "" + isFromMemoryCache);
+                                progressBar.setVisibility(View.GONE);
+                                return false;
+                            }
+
+                        }).into(imageView);
+            }
+            else {
+                openInBrowserDialog(date, sdUrl);
+            }
+        }
+        catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+    }
+
     private void getImageData(String date) {
         Log.i("CALL", "getImageData");
 
@@ -367,73 +438,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onResponse(JSONObject response) {
-                try {
-                    final String IMAGE_TYPE = "image";
-
-                    String date = response.getString("date");
-                    String explanation = response.getString("explanation");
-
-                    String sdUrl = response.getString("url");
-                    String mediaType = response.getString("media_type");
-                    final String title = response.getString("title");
-                    String hdUrl = "";
-                    String copyright = "";
-
-                    if (response.has("copyright"))
-                        copyright = response.getString("copyright");
-                    else if (response.has("hdurl"))
-                        hdUrl = response.getString("hdurl");
-
-                    boolean hdAvailable = !(hdUrl.equals(sdUrl));
-
-                    /*
-                    Log.i("REQUEST", "Date: " + date);
-                    Log.i("REQUEST", "Title: " + title);
-                    Log.i("REQUEST", "Explanation: " + explanation);
-                    Log.i("REQUEST", "HD URL: " + hdUrl);
-                    Log.i("REQUEST", "SD URL: " + sdUrl);
-                    Log.i("REQUEST", "Diff URL: " + hdAvailable);
-                    Log.i("REQUEST", "Copyright: " + copyright);
-                    */
-
-                    // TODO Clear cache option
-                    // Load lower-resolution image by default
-
-                    if (mediaType.equals(IMAGE_TYPE)) {
-                        Glide.with(MainActivity.this).load(sdUrl) // Load from URL
-                                .diskCacheStrategy(DiskCacheStrategy.SOURCE) // Or .RESULT
-                                .dontAnimate() // No cross-fade
-                                .skipMemoryCache(true) // Use disk cache only
-                                .listener(new RequestListener<String, GlideDrawable>() {
-                                    @Override
-                                    public boolean onException(Exception e, String model,
-                                                               Target<GlideDrawable> target,
-                                                               boolean isFirstResource) {
-
-                                        return false;
-                                    }
-
-                                    @Override
-                                    public boolean onResourceReady(GlideDrawable resource, String
-                                            model, Target<GlideDrawable> target, boolean
-                                                                           isFromMemoryCache,
-                                                                   boolean isFirstResource) {
-                                        Log.i("MEM_CACHE", "" + isFromMemoryCache);
-                                        progressBar.setVisibility(View.GONE);
-                                        titleText.setText(title);
-                                        return false;
-                                    }
-
-                                }).into(imageView);
-                    }
-                    else {
-                        titleText.setText(title);
-                        openInBrowserDialog(date, sdUrl);
-                    }
-                }
-                catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                onJsonResponse(response);
             }
         }, new Response.ErrorListener() {
 
@@ -457,20 +462,12 @@ public class MainActivity extends AppCompatActivity {
                 }
                 else if (error instanceof ParseError) {
                 }
-
-                Log.i("VOLLEY_ERROR", message);
                 progressBar.setVisibility(View.INVISIBLE);
 
                 // TODO Add error picture
             }
 
         }) {
-            // Set headers
-            @Override
-            public String getBodyContentType() {
-                return "application/json; charset=utf-8";
-            }
-
             // Set caching
             @Override
             protected Response<JSONObject> parseNetworkResponse(NetworkResponse response) {
@@ -528,6 +525,14 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
+        //        jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(
+        //                0,
+        //                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+        //                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
+        jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20 * 1000, 0, DefaultRetryPolicy
+                .DEFAULT_BACKOFF_MULT));
+
         // Add the request to the RequestQueue.
         queue.add(jsonObjectRequest);
     }
@@ -538,12 +543,13 @@ public class MainActivity extends AppCompatActivity {
         final String uri = url;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-        imageView.setImageResource(0);
+        // imageView.setImageResource(0);
         progressBar.setVisibility(View.GONE);
         fab.hide();
 
         builder.setTitle("Open external link?");
-        builder.setMessage("The featured content for " + numericalToExpandedDate(date) + " is not an image. " +
+        builder.setMessage("The featured content for " + numericalToExpandedDate(date) + " is not" +
+                " an image. " +
                 "Do you want to view the content in an external application?");
 
         builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
