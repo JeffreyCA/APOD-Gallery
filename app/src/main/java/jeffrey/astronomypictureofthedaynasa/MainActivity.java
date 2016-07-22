@@ -39,6 +39,7 @@ import com.android.volley.toolbox.DiskBasedCache;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.bluejamesbond.text.DocumentView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
@@ -56,6 +57,11 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+// TODO Clear cache option
+// TODO Set as wallpaper
+// TODO Date Picker
+// TODO Share image/save on device
+
 public class MainActivity extends AppCompatActivity {
 
     // Logging tag for listeners
@@ -64,23 +70,27 @@ public class MainActivity extends AppCompatActivity {
     final String API_DATE_FORMAT = "y-MM-dd";
     // NASA API key
     final private String API_KEY = "***REMOVED***";
-    String today;
-    String date;
 
-    TextView dateText;
     AutoResizeTextView titleText;
-    SlidingUpPanelLayout slidingPanel;
+    DocumentView description;
     FloatingActionButton fab;
     FloatingActionButtonLayout fabLayout;
     ImageView imageView;
     ImageView tomorrow;
     ImageView yesterday;
     ProgressBar progressBar;
+    SlidingUpPanelLayout slidingPanel;
+    TextView dateText;
+
+    String date;
+    String today;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Initialize toolbar
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
 
@@ -95,10 +105,15 @@ public class MainActivity extends AppCompatActivity {
 
         // Other views
         dateText = (TextView) findViewById(R.id.date);
-        titleText = (AutoResizeTextView) findViewById(R.id.title);
+        description = (DocumentView) findViewById(R.id.description);
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fabLayout = (FloatingActionButtonLayout) findViewById(R.id.fab_layout);
         progressBar = (ProgressBar) findViewById(R.id.progress);
+        titleText = (AutoResizeTextView) findViewById(R.id.title);
+
+        // Set scrollable description text
+        if (description != null)
+            description.setVerticalScrollBarEnabled(true);
 
         // Set date view
         today = date = dateToString();
@@ -114,17 +129,15 @@ public class MainActivity extends AppCompatActivity {
                 Glide.clear(imageView);
                 progressBar.setVisibility(View.VISIBLE);
 
+                // Display next date
                 date = nextDay(date);
                 dateText.setText(date);
 
                 if (date.equals(today))
                     tomorrow.setVisibility(View.INVISIBLE);
-                if (fab.getVisibility() == View.GONE)
+                if (slidingPanel.getPanelState() == SlidingUpPanelLayout.PanelState.COLLAPSED &&
+                        fab.getVisibility() == View.GONE)
                     fab.show();
-
-                // Animations are smooth enough with progress bar running behind image
-                // imageView.setImageResource(0);
-                // progressBar.setVisibility(View.VISIBLE); // pBar never set to INVISIBLE
 
                 // Set image
                 getImageData(date);
@@ -143,10 +156,9 @@ public class MainActivity extends AppCompatActivity {
                 if (tomorrow.getVisibility() == View.INVISIBLE)
                     tomorrow.setVisibility(View.VISIBLE);
 
-                if (fab.getVisibility() == View.GONE)
+                if (slidingPanel.getPanelState() == SlidingUpPanelLayout.PanelState.COLLAPSED &&
+                        fab.getVisibility() == View.GONE)
                     fab.show();
-
-                // imageView.setImageResource(0);
 
                 // Set image
                 getImageData(date);
@@ -169,7 +181,6 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onPanelSlide(View panel, float slideOffset) {
-
             }
 
             // Show FAB while collapsed
@@ -177,6 +188,8 @@ public class MainActivity extends AppCompatActivity {
             public void onPanelCollapsed(View panel) {
                 Log.i(TAG, "onPanelCollapsed");
                 fab.show();
+                // Scroll text up so it is hidden when panel is collapsed
+                description.scrollTo(0, 0);
             }
 
             @Override
@@ -189,22 +202,18 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onPanelHiddenExecuted(View panel, Interpolator interpolator, int duration) {
-                // Log.i(TAG, "onPanelHiddenExecuted");
             }
 
             @Override
             public void onPanelShownExecuted(View panel, Interpolator interpolator, int duration) {
-                // Log.i(TAG, "onPanelShownExecuted");
             }
 
             @Override
             public void onPanelExpandedStateY(View panel, boolean reached) {
-                // Log.i(TAG, "onPanelExpandedStateY");
             }
 
             @Override
             public void onPanelCollapsedStateY(View panel, boolean reached) {
-                // Log.i(TAG, "onPanelCollapsedStateY");
                 fab.hide();
             }
 
@@ -213,7 +222,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     } // End onCreate method
-
 
     /**
      * Convert current day to string format
@@ -346,7 +354,7 @@ public class MainActivity extends AppCompatActivity {
             String date = response.getString("date");
             String explanation = response.getString("explanation");
 
-            String sdUrl = response.getString("url");
+            final String sdUrl = response.getString("url");
             String mediaType = response.getString("media_type");
             final String title = response.getString("title");
             String hdUrl = "";
@@ -359,24 +367,21 @@ public class MainActivity extends AppCompatActivity {
 
             boolean hdAvailable = !(hdUrl.equals(sdUrl));
 
-                    /*
-                    Log.i("REQUEST", "Date: " + date);
-                    Log.i("REQUEST", "Title: " + title);
-                    Log.i("REQUEST", "Explanation: " + explanation);
-                    Log.i("REQUEST", "HD URL: " + hdUrl);
-                    Log.i("REQUEST", "SD URL: " + sdUrl);
-                    Log.i("REQUEST", "Diff URL: " + hdAvailable);
-                    Log.i("REQUEST", "Copyright: " + copyright);
-                    */
+            imageView.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    launchFullImageView(sdUrl);
+                }
+            });
 
-            // TODO Clear cache option
             // Load lower-resolution image by default
             titleText.setText(title);
+            description.setText(explanation);
 
             if (mediaType.equals(IMAGE_TYPE)) {
                 Glide.with(MainActivity.this).load(sdUrl) // Load from URL
                         .diskCacheStrategy(DiskCacheStrategy.SOURCE) // Or .RESULT
-                        .dontAnimate() // No cross-fade
+                        .centerCrop()
+                        //.dontAnimate() // No cross-fade
                         .skipMemoryCache(true) // Use disk cache only
                         .listener(new RequestListener<String, GlideDrawable>() {
                             @Override
@@ -392,7 +397,6 @@ public class MainActivity extends AppCompatActivity {
                                                            Target<GlideDrawable> target, boolean
                                                                    isFromMemoryCache, boolean
                                                                    isFirstResource) {
-                                Log.i("MEM_CACHE", "" + isFromMemoryCache);
                                 progressBar.setVisibility(View.GONE);
                                 return false;
                             }
@@ -410,8 +414,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getImageData(String date) {
-        Log.i("CALL", "getImageData");
-
         // Parse date
         String apiDate = expandedToNumericalDate(date);
 
@@ -430,7 +432,6 @@ public class MainActivity extends AppCompatActivity {
         queue.start();
 
         String url = "https://api.nasa.gov/planetary/apod?api_key=" + API_KEY + "&date=" + apiDate;
-
         Log.i("URL", url);
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url,
@@ -441,30 +442,33 @@ public class MainActivity extends AppCompatActivity {
                 onJsonResponse(response);
             }
         }, new Response.ErrorListener() {
-
             // Handle Volley errors
             @Override
             public void onErrorResponse(VolleyError error) {
-                String message = "";
-
-                imageView.setImageResource(0);
+                int messageId;
+                progressBar.setVisibility(View.GONE);
 
                 if (error instanceof TimeoutError || error instanceof NoConnectionError) {
-                    message = "No Internet access, check your Internet connection.";
+                    messageId = R.string.error_internet;
                 }
                 else if (error instanceof AuthFailureError) {
+                    messageId = R.string.error_auth;
                 }
                 else if (error instanceof ServerError) {
-                    Toast.makeText(MainActivity.this, "Today's photo is not available yet.",
-                            Toast.LENGTH_SHORT).show();
+                    messageId = R.string.error_server;
                 }
                 else if (error instanceof NetworkError) {
+                    messageId = R.string.error_network;
                 }
                 else if (error instanceof ParseError) {
+                    messageId = R.string.error_parse;
                 }
-                progressBar.setVisibility(View.INVISIBLE);
+                else {
+                    messageId = R.string.error_general;
+                }
 
-                // TODO Add error picture
+                // Display long toast message
+                Toast.makeText(MainActivity.this, messageId, Toast.LENGTH_LONG).show();
             }
 
         }) {
@@ -525,11 +529,6 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        //        jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(
-        //                0,
-        //                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-        //                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-
         jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20 * 1000, 0, DefaultRetryPolicy
                 .DEFAULT_BACKOFF_MULT));
 
@@ -537,22 +536,31 @@ public class MainActivity extends AppCompatActivity {
         queue.add(jsonObjectRequest);
     }
 
-    private void openInBrowserDialog(String date, String url) {
+    /**
+     * Launch activity to display image in fullscreen
+     *
+     * @param url URL of the image
+     */
+    public void launchFullImageView(String url) {
+        Intent intent = new Intent(MainActivity.this, FullImageActivity.class);
+        intent.putExtra("url", url);
+        startActivity(intent);
+    }
 
-        Log.i("CALL_DIALOG", "called");
+    private void openInBrowserDialog(String date, String url) {
         final String uri = url;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        String message = String.format(getResources().getString(R.string.dialog_browser_desc),
+                numericalToExpandedDate(date));
 
-        // imageView.setImageResource(0);
+        imageView.setImageResource(0);
         progressBar.setVisibility(View.GONE);
         fab.hide();
 
-        builder.setTitle("Open external link?");
-        builder.setMessage("The featured content for " + numericalToExpandedDate(date) + " is not" +
-                " an image. " +
-                "Do you want to view the content in an external application?");
+        builder.setTitle(R.string.dialog_browser_title);
+        builder.setMessage(message);
 
-        builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(R.string.action_yes, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
                 // Open Link in browser
@@ -561,10 +569,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(R.string.action_no, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                // Do nothing
                 dialog.dismiss();
             }
         });

@@ -5,6 +5,6 @@
     <color name="colorAccent">#FF4081</color>
     <color name="colorPurple">#A14BDC</color>
     <color name="colorWhite">#FFFFFF</color>
-    <color name="transparentPrimary">#993F51B5</color>
-    <color name="pressed">#FFC107</color>
+    <color name="transparentPrimary">#B43F51B5</color>
+    <color name="colorPressed">#E1BEE7</color>
 </resources>

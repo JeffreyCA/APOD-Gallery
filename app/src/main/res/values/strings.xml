@@ -1,4 +1,17 @@
 <resources>
     <string name="app_name">Astronomy Picture of the Day</string>
     <string name="action_settings">Settings</string>
+    <string name="desc_left_chevron">Navigate to previous date</string>
+    <string name="desc_right_chevron">Navigate to next date</string>
+    <string name="desc_image">Featured image</string>
+    <string name="action_yes">YES</string>
+    <string name="action_no">NO</string>
+    <string name="dialog_browser_title">Open external link?</string>
+    <string name="dialog_browser_desc">The featured content for %s is not an image. Do you want to view the content in an external application?</string>
+    <string name="error_internet">No Internet access, check your Internet connection.</string>
+    <string name="error_auth">Authentication error.</string>
+    <string name="error_server">Today\'s photo is not available yet.</string>
+    <string name="error_network">Network error, please check your Internet access.</string>
+    <string name="error_parse">Parsing error.</string>
+    <string name="error_general">Error.</string>
 </resources>

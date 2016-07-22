@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.sothree.slidinguppanel.FloatingActionButtonLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:autofit="http://schemas.android.com/apk/res-auto"
-    xmlns:sothree="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/fab_layout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    sothree:umanoFabMode="leave_behind"
-    tools:context="jeffrey.astronomypictureofthedaynasa.MainActivity">
+                                                       xmlns:app="http://schemas.android.com/apk/res-auto"
+                                                       xmlns:sothree="http://schemas.android.com/apk/res-auto"
+                                                       xmlns:tools="http://schemas.android.com/tools"
+                                                       android:id="@+id/fab_layout"
+                                                       android:layout_width="match_parent"
+                                                       android:layout_height="match_parent"
+                                                       sothree:umanoFabMode="leave_behind"
+                                                       tools:context="jeffrey.astronomypictureofthedaynasa.MainActivity">
 
     <!-- umanoOverlay allows for transparent background when panel is extended
          umanoPanelHeight is the height of the panel when collapsed
@@ -19,6 +18,7 @@
         android:layout_height="match_parent"
         android:background="@android:color/black"
         android:gravity="bottom"
+        sothree:umanoDragView="@id/title"
         sothree:umanoFadeColor="@android:color/transparent"
         sothree:umanoInitialState="collapsed"
         sothree:umanoOverlay="true"
@@ -43,7 +43,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize"
                     android:background="?attr/colorPrimary"
-                    app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+                    app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
 
             </android.support.design.widget.AppBarLayout>
 
@@ -63,6 +63,7 @@
 
                     <ImageView
                         android:id="@+id/left_chevron"
+                        android:contentDescription="@string/desc_left_chevron"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentLeft="true"
@@ -74,10 +75,11 @@
                         android:minWidth="36dp"
                         android:scaleType="fitCenter"
                         android:src="@drawable/chevron_left"
-                        android:tint="@android:color/white" />
+                        android:tint="@android:color/white"/>
 
                     <ImageView
                         android:id="@+id/right_chevron"
+                        android:contentDescription="@string/desc_right_chevron"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentRight="true"
@@ -89,7 +91,7 @@
                         android:minWidth="36dp"
                         android:scaleType="fitCenter"
                         android:src="@drawable/chevron_right"
-                        android:tint="@android:color/white" />
+                        android:tint="@android:color/white"/>
 
                     <TextView
                         android:id="@+id/date"
@@ -102,15 +104,16 @@
                         android:layout_toRightOf="@id/left_chevron"
                         android:gravity="center"
                         android:textColor="@android:color/white"
-                        android:textSize="32sp" />
+                        android:textSize="32sp"/>
 
                 </RelativeLayout>
 
                 <ImageView
                     android:id="@+id/image"
+                    android:contentDescription="@string/desc_image"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:scaleType="centerCrop" />
+                    android:scaleType="centerCrop"/>
 
                 <ProgressBar
                     android:id="@+id/progress"
@@ -118,14 +121,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:visibility="visible" />
+                    android:visibility="visible"/>
             </LinearLayout>
         </FrameLayout>
 
         <!-- SLIDING LAYOUT -->
         <!-- layout_weight controls where sliding panel stops when extended -->
         <LinearLayout
-            android:id="@+id/desc"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="0.8928"
@@ -139,15 +141,29 @@
                 android:id="@+id/title"
                 android:layout_width="match_parent"
                 android:layout_height="76dp"
-                android:gravity="center_vertical"
-                android:ellipsize="none"
-                android:maxLines="2"
-                android:textColor="@android:color/white"
                 android:layout_marginLeft="@dimen/activity_horizontal_margin"
                 android:layout_marginRight="@dimen/activity_horizontal_margin"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:ellipsize="none"
+                android:gravity="center_vertical"
+                android:maxLines="2"
+                android:textColor="@android:color/white"
                 android:textSize="32sp"/> <!-- maximum size -->
 
+            <com.bluejamesbond.text.DocumentView
+                xmlns:ext="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:cursorVisible="true"
+                android:textIsSelectable="true"
+                ext:documentView_antialias="true"
+                ext:documentView_insetPadding="16dp"
+                ext:documentView_lineHeightMultiplier="1.25"
+                ext:documentView_textAlignment="justified"
+                ext:documentView_textColor="@android:color/white"
+                ext:documentView_textFormat="plain"
+                ext:documentView_textSize="18sp"/>
         </LinearLayout>
 
     </com.sothree.slidinguppanel.SlidingUpPanelLayout>
@@ -161,5 +177,7 @@
         android:layout_marginRight="16dp"
         android:clickable="true"
         android:src="@drawable/image_area"
-        android:tint="@android:color/white" />
+        android:tint="@android:color/white"
+        app:rippleColor="@color/colorPressed"/>
+
 </com.sothree.slidinguppanel.FloatingActionButtonLayout>
