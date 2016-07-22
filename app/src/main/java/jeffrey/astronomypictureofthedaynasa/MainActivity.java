@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
         tomorrow.setVisibility(View.INVISIBLE);
         tomorrow.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-
+                Glide.clear(imageView);
                 progressBar.setVisibility(View.VISIBLE);
 
                 date = nextDay(date);
@@ -132,6 +132,7 @@ public class MainActivity extends AppCompatActivity {
 
         yesterday.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                Glide.clear(imageView);
                 progressBar.setVisibility(View.VISIBLE);
 
                 // Display previous date
@@ -221,7 +222,7 @@ public class MainActivity extends AppCompatActivity {
     private String dateToString() {
         return new SimpleDateFormat(DATE_FORMAT).format(new Date());
     }
-    
+
     private String expandedToNumericalDate (String date) {
         SimpleDateFormat format = new SimpleDateFormat(DATE_FORMAT);
         SimpleDateFormat apiFormat = new SimpleDateFormat(API_DATE_FORMAT);
@@ -338,6 +339,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getImageData(String date) {
+        Log.i("CALL", "getImageData");
+
         // Parse date
         String apiDate = expandedToNumericalDate(date);
 
@@ -528,11 +531,6 @@ public class MainActivity extends AppCompatActivity {
         // Add the request to the RequestQueue.
         queue.add(jsonObjectRequest);
     }
-    private void clearFeaturedImage () {
-        imageView.setImageResource(0);
-    }
-
-
 
     private void openInBrowserDialog(String date, String url) {
 
@@ -565,7 +563,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        AlertDialog alert = builder.create();
-        alert.show();
+        builder.create().show();
     }
 }
