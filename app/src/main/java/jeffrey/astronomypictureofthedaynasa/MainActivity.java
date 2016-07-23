@@ -9,6 +9,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -45,8 +46,11 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
+import com.codetroopers.betterpickers.calendardatepicker.CalendarDatePickerDialogFragment;
+import com.codetroopers.betterpickers.calendardatepicker.MonthAdapter;
 import com.sothree.slidinguppanel.FloatingActionButtonLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
+import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -56,18 +60,25 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 // TODO Clear cache option
 // TODO Set as wallpaper
-// TODO Date Picker
 // TODO Share image/save on device
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements CalendarDatePickerDialogFragment
+        .OnDateSetListener, DatePickerDialog.OnDateSetListener {
 
     // Logging tag for listeners
     final String TAG = "LISTENER";
-    final String DATE_FORMAT = "MMMM d, y";
-    final String API_DATE_FORMAT = "y-MM-dd";
+    final SimpleDateFormat EXPANDED_FORMAT = new SimpleDateFormat("MMMM d, y");
+    final SimpleDateFormat NUMERICAL_FORMAT = new SimpleDateFormat("y-MM-dd");
+    final String FRAG_TAG_DATE_PICKER = "Date Picker";
+    // final MonthAdapter.CalendarDay MIN_DATE = new MonthAdapter.CalendarDay(1995, 6, 16);
+
+    // First available APOD date
+    final Calendar MIN_DATE = new GregorianCalendar(1995, 06, 16);
+    final String[] DISABLED_DAYS = {"19950617", "19950618", "19950619"};
     // NASA API key
     final private String API_KEY = "***REMOVED***";
 
@@ -84,6 +95,12 @@ public class MainActivity extends AppCompatActivity {
 
     String date;
     String today;
+
+    public static Calendar dateToCalendar(Date date) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        return cal;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
             description.setVerticalScrollBarEnabled(true);
 
         // Set date view
-        today = date = dateToString();
+        today = date = EXPANDED_FORMAT.format(new Date());
         dateText.setText(date);
 
         // Set image
@@ -129,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
                 Glide.clear(imageView);
                 progressBar.setVisibility(View.VISIBLE);
 
-                // Display next date
+                // Display next day
                 date = nextDay(date);
                 dateText.setText(date);
 
@@ -149,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
                 Glide.clear(imageView);
                 progressBar.setVisibility(View.VISIBLE);
 
-                // Display previous date
+                // Display previous day
                 date = prevDay(date);
                 dateText.setText(date);
 
@@ -165,6 +182,53 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        dateText.setOnClickListener(new View.OnClickListener() {
+            Calendar calendar = Calendar.getInstance();
+            MonthAdapter.CalendarDay maxDate = new MonthAdapter.CalendarDay(calendar);
+            SparseArray<MonthAdapter.CalendarDay> disabledDays = new SparseArray<>();
+
+            @Override
+            public void onClick(View v) {
+
+
+                /* Date Picker Library #1 (Does not properly guard against min/max dates)
+
+                Calendar startCal = Calendar.getInstance();
+                // Set disabled days
+                for (String s : DISABLED_DAYS) {
+                    int key = Integer.parseInt(s);
+                    disabledDays.put(key, new MonthAdapter.CalendarDay(startCal));
+                }
+
+                CalendarDatePickerDialogFragment cdp = new CalendarDatePickerDialogFragment()
+                        .setOnDateSetListener(MainActivity.this).setFirstDayOfWeek(Calendar
+                                .SUNDAY).setDateRange(MIN_DATE, maxDate).setDisabledDays
+                                (disabledDays).setDoneText("Set").setCancelText("Cancel")
+                        .setThemeDark();
+
+                cdp.show(getSupportFragmentManager(), FRAG_TAG_DATE_PICKER);
+                */
+
+                /* Date Picker Library #2 (Does not allow for disabled dates, only enabled dates) */
+                Calendar today = Calendar.getInstance();
+                Calendar currentDate = Calendar.getInstance();
+                try {
+                    currentDate = dateToCalendar(EXPANDED_FORMAT.parse(date));
+                }
+                catch (ParseException e) {
+                    e.printStackTrace();
+                }
+
+                DatePickerDialog dpd = DatePickerDialog.newInstance(MainActivity.this,
+                        currentDate.get(Calendar.YEAR), currentDate.get(Calendar.MONTH),
+                        currentDate.get(Calendar.DAY_OF_MONTH));
+                dpd.setThemeDark(true);
+                dpd.setMinDate(MIN_DATE);
+                dpd.setMaxDate(today);
+                dpd.vibrate(false);
+                dpd.show(getFragmentManager(), "Datepickerdialog");
+            }
+        });
 
         // Sliding up panel listener
         slidingPanel = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
@@ -224,45 +288,6 @@ public class MainActivity extends AppCompatActivity {
     } // End onCreate method
 
     /**
-     * Convert current day to string format
-     *
-     * @return Today's date as string
-     */
-    private String dateToString() {
-        return new SimpleDateFormat(DATE_FORMAT).format(new Date());
-    }
-
-    private String expandedToNumericalDate(String date) {
-        SimpleDateFormat format = new SimpleDateFormat(DATE_FORMAT);
-        SimpleDateFormat apiFormat = new SimpleDateFormat(API_DATE_FORMAT);
-
-        // Convert date formats to yyyy-mm-dd
-        try {
-            return apiFormat.format(format.parse(date));
-        }
-        catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-        return "";
-    }
-
-    private String numericalToExpandedDate(String date) {
-        SimpleDateFormat format = new SimpleDateFormat(DATE_FORMAT);
-        SimpleDateFormat apiFormat = new SimpleDateFormat(API_DATE_FORMAT);
-
-        // Convert date formats to MMMM dd, yyyy
-        try {
-            return format.format(apiFormat.parse(date));
-        }
-        catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-        return "";
-    }
-
-    /**
      * Calculate the day after the given date
      *
      * @param date formatted date
@@ -271,21 +296,21 @@ public class MainActivity extends AppCompatActivity {
      */
     private String nextDay(String date) {
         Calendar calendar = Calendar.getInstance();
-        Date nextDate;
-        SimpleDateFormat format = new SimpleDateFormat(DATE_FORMAT);
 
         try {
-            nextDate = format.parse(date);
-            calendar.setTime(nextDate);
+            calendar.setTime(EXPANDED_FORMAT.parse(date));
             calendar.add(Calendar.DAY_OF_YEAR, 1);
 
-            return format.format(calendar.getTime());
+            return EXPANDED_FORMAT.format(calendar.getTime());
         }
         catch (ParseException e) {
             e.printStackTrace();
         }
         return null;
     }
+
+
+    // Date Methods
 
     /**
      * Calculate the day before the given date
@@ -296,20 +321,86 @@ public class MainActivity extends AppCompatActivity {
      */
     private String prevDay(String date) {
         Calendar calendar = Calendar.getInstance();
-        Date prevDate;
-        SimpleDateFormat format = new SimpleDateFormat(DATE_FORMAT);
 
         try {
-            prevDate = format.parse(date);
-            calendar.setTime(prevDate);
+            calendar.setTime(EXPANDED_FORMAT.parse(date));
             calendar.add(Calendar.DAY_OF_YEAR, -1);
 
-            return format.format(calendar.getTime());
+            return EXPANDED_FORMAT.format(calendar.getTime());
         }
         catch (ParseException e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * Method for library #1
+     *
+     * @param dialog
+     * @param year
+     * @param monthOfYear
+     * @param dayOfMonth
+     */
+    @Override
+    public void onDateSet(CalendarDatePickerDialogFragment dialog, int year, int monthOfYear, int
+            dayOfMonth) {
+        // mResultTextView.setText(getString(R.string.calendar_date_picker_result_values, year,
+        // monthOfYear, dayOfMonth));
+    }
+
+    /**
+     * Method for library #2
+     *
+     * @param view
+     * @param year
+     * @param monthOfYear
+     * @param dayOfMonth
+     */
+    @Override
+    public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
+        // Create Calendar object of selected date
+        Calendar pickedDate = new GregorianCalendar(year, monthOfYear, dayOfMonth);
+
+        // Convert date into expanded format
+        date = EXPANDED_FORMAT.format(pickedDate.getTime());
+        dateText.setText(date);
+
+        // Show/hide right navigation chevron
+        if (tomorrow.getVisibility() == View.VISIBLE && date.equals(today)) {
+            tomorrow.setVisibility(View.INVISIBLE);
+        }
+        else if (tomorrow.getVisibility() == View.INVISIBLE && !date.equals(today)) {
+            tomorrow.setVisibility(View.VISIBLE);
+        }
+
+        // Show progress loading circle
+        progressBar.setVisibility(View.VISIBLE);
+        getImageData(date);
+    }
+
+    private String expandedToNumericalDate(String date) {
+        // Convert date format to yyyy-mm-dd
+        try {
+            return NUMERICAL_FORMAT.format(EXPANDED_FORMAT.parse(date));
+        }
+        catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return "";
+    }
+
+    private String numericalToExpandedDate(String date) {
+        // Convert date format to MMMM dd, yyyy
+        try {
+            return EXPANDED_FORMAT.format(NUMERICAL_FORMAT.parse(date));
+        }
+        catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return "";
     }
 
     // Inflate options menu
@@ -577,5 +668,17 @@ public class MainActivity extends AppCompatActivity {
         });
 
         builder.create().show();
+    }
+
+    @Override
+    public void onResume() {
+        // Example of reattaching to the fragment
+        super.onResume();
+        CalendarDatePickerDialogFragment calendarDatePickerDialogFragment =
+                (CalendarDatePickerDialogFragment) getSupportFragmentManager().findFragmentByTag
+                        (FRAG_TAG_DATE_PICKER);
+        if (calendarDatePickerDialogFragment != null) {
+            calendarDatePickerDialogFragment.setOnDateSetListener(this);
+        }
     }
 }

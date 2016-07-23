@@ -63,13 +63,13 @@
 
                     <ImageView
                         android:id="@+id/left_chevron"
-                        android:contentDescription="@string/desc_left_chevron"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentLeft="true"
                         android:layout_centerInParent="true"
                         android:layout_gravity="center_vertical"
                         android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                        android:contentDescription="@string/desc_left_chevron"
                         android:gravity="center"
                         android:minHeight="36dp"
                         android:minWidth="36dp"
@@ -79,13 +79,13 @@
 
                     <ImageView
                         android:id="@+id/right_chevron"
-                        android:contentDescription="@string/desc_right_chevron"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentRight="true"
                         android:layout_centerInParent="true"
                         android:layout_gravity="center_vertical"
                         android:layout_marginRight="@dimen/activity_horizontal_margin"
+                        android:contentDescription="@string/desc_right_chevron"
                         android:gravity="center"
                         android:minHeight="36dp"
                         android:minWidth="36dp"
@@ -110,9 +110,9 @@
 
                 <ImageView
                     android:id="@+id/image"
-                    android:contentDescription="@string/desc_image"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:contentDescription="@string/desc_image"
                     android:scaleType="centerCrop"/>
 
                 <ProgressBar
@@ -155,8 +155,7 @@
                 android:id="@+id/description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:cursorVisible="true"
-                android:textIsSelectable="true"
+                android:focusable="true"
                 ext:documentView_antialias="true"
                 ext:documentView_insetPadding="16dp"
                 ext:documentView_lineHeightMultiplier="1.25"
