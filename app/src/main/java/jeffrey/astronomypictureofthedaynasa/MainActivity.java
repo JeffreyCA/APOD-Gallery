@@ -2,9 +2,12 @@ package jeffrey.astronomypictureofthedaynasa;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -63,8 +66,8 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 // TODO Clear cache option
-// TODO Set as wallpaper
 // TODO Share image/save on device
+// TODO Settings: Set image download directory
 
 public class MainActivity extends AppCompatActivity implements CalendarDatePickerDialogFragment
         .OnDateSetListener, DatePickerDialog.OnDateSetListener {
@@ -74,10 +77,10 @@ public class MainActivity extends AppCompatActivity implements CalendarDatePicke
     final SimpleDateFormat EXPANDED_FORMAT = new SimpleDateFormat("MMMM d, y");
     final SimpleDateFormat NUMERICAL_FORMAT = new SimpleDateFormat("y-MM-dd");
     final String FRAG_TAG_DATE_PICKER = "Date Picker";
-    // final MonthAdapter.CalendarDay MIN_DATE = new MonthAdapter.CalendarDay(1995, 6, 16);
+    // final MonthAdapter.CalendarDay MIN_DATE = new MonthAdapter.CalendarDay(1995, 9, 22);
 
     // First available APOD date
-    final Calendar MIN_DATE = new GregorianCalendar(1995, 06, 16);
+    final Calendar MIN_DATE = new GregorianCalendar(1995, 9, 22);
     final String[] DISABLED_DAYS = {"19950617", "19950618", "19950619"};
     // NASA API key
     final private String API_KEY = "***REMOVED***";
@@ -95,6 +98,8 @@ public class MainActivity extends AppCompatActivity implements CalendarDatePicke
 
     String date;
     String today;
+    String sdUrl;
+
 
     public static Calendar dateToCalendar(Date date) {
         Calendar cal = Calendar.getInstance();
@@ -189,26 +194,6 @@ public class MainActivity extends AppCompatActivity implements CalendarDatePicke
 
             @Override
             public void onClick(View v) {
-
-
-                /* Date Picker Library #1 (Does not properly guard against min/max dates)
-
-                Calendar startCal = Calendar.getInstance();
-                // Set disabled days
-                for (String s : DISABLED_DAYS) {
-                    int key = Integer.parseInt(s);
-                    disabledDays.put(key, new MonthAdapter.CalendarDay(startCal));
-                }
-
-                CalendarDatePickerDialogFragment cdp = new CalendarDatePickerDialogFragment()
-                        .setOnDateSetListener(MainActivity.this).setFirstDayOfWeek(Calendar
-                                .SUNDAY).setDateRange(MIN_DATE, maxDate).setDisabledDays
-                                (disabledDays).setDoneText("Set").setCancelText("Cancel")
-                        .setThemeDark();
-
-                cdp.show(getSupportFragmentManager(), FRAG_TAG_DATE_PICKER);
-                */
-
                 /* Date Picker Library #2 (Does not allow for disabled dates, only enabled dates) */
                 Calendar today = Calendar.getInstance();
                 Calendar currentDate = Calendar.getInstance();
@@ -231,11 +216,11 @@ public class MainActivity extends AppCompatActivity implements CalendarDatePicke
         });
 
         // Sliding up panel listener
-        slidingPanel = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
+        slidingPanel = (SlidingUpPanelLayout) findViewById(R.id.sliding_panel_layout);
         fab = (FloatingActionButton) findViewById(R.id.fab);
-
+        slidingPanel.setAnchorPoint(0.42f);
+        slidingPanel.setScrollableView(description);
         slidingPanel.setPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
-
             // Hide FAB while expanded
             @Override
             public void onPanelExpanded(View panel) {
@@ -253,11 +238,12 @@ public class MainActivity extends AppCompatActivity implements CalendarDatePicke
                 Log.i(TAG, "onPanelCollapsed");
                 fab.show();
                 // Scroll text up so it is hidden when panel is collapsed
-                description.scrollTo(0, 0);
+                description.smoothScrollTo(0, 0);
             }
 
             @Override
             public void onPanelAnchored(View panel) {
+                fab.show();
             }
 
             @Override
@@ -285,6 +271,20 @@ public class MainActivity extends AppCompatActivity implements CalendarDatePicke
             public void onPanelLayout(View panel, SlidingUpPanelLayout.PanelState state) {
             }
         });
+        fab.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                launchFullImageView(sdUrl, expandedToNumericalDate(dateText.getText().toString())
+                        , true);
+            }
+        });
+        fab.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Toast.makeText(MainActivity.this, R.string.toast_fab, Toast.LENGTH_SHORT).show();
+                return true;
+            }
+        });
+
     } // End onCreate method
 
     /**
@@ -359,6 +359,9 @@ public class MainActivity extends AppCompatActivity implements CalendarDatePicke
      */
     @Override
     public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
+        imageView.setImageResource(0);
+        progressBar.setVisibility(View.VISIBLE);
+
         // Create Calendar object of selected date
         Calendar pickedDate = new GregorianCalendar(year, monthOfYear, dayOfMonth);
 
@@ -375,7 +378,6 @@ public class MainActivity extends AppCompatActivity implements CalendarDatePicke
         }
 
         // Show progress loading circle
-        progressBar.setVisibility(View.VISIBLE);
         getImageData(date);
     }
 
@@ -408,6 +410,17 @@ public class MainActivity extends AppCompatActivity implements CalendarDatePicke
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu, menu);
+
+        // Set colour of share icon to white (from black)
+        MenuItem menuItem = menu.findItem(R.id.action_share);
+        Drawable drawable = menuItem.getIcon();
+
+        if (drawable != null) {
+            drawable.mutate();
+            drawable.setColorFilter(ContextCompat.getColor(this, R.color.colorWhite), PorterDuff
+                    .Mode.SRC_ATOP);
+        }
+
         return true;
     }
 
@@ -427,7 +440,7 @@ public class MainActivity extends AppCompatActivity implements CalendarDatePicke
     @Override
     public void onBackPressed() {
         // Sliding up panel listener
-        slidingPanel = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
+        slidingPanel = (SlidingUpPanelLayout) findViewById(R.id.sliding_panel_layout);
 
         if (slidingPanel != null && (slidingPanel.getPanelState() == SlidingUpPanelLayout
                 .PanelState.EXPANDED)) {
@@ -442,10 +455,10 @@ public class MainActivity extends AppCompatActivity implements CalendarDatePicke
         try {
             final String IMAGE_TYPE = "image";
 
-            String date = response.getString("date");
+            final String date = response.getString("date");
             String explanation = response.getString("explanation");
 
-            final String sdUrl = response.getString("url");
+            sdUrl = response.getString("url");
             String mediaType = response.getString("media_type");
             final String title = response.getString("title");
             String hdUrl = "";
@@ -460,7 +473,8 @@ public class MainActivity extends AppCompatActivity implements CalendarDatePicke
 
             imageView.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    launchFullImageView(sdUrl);
+                    launchFullImageView(sdUrl, expandedToNumericalDate(dateText.getText()
+                            .toString()), false);
                 }
             });
 
@@ -632,9 +646,11 @@ public class MainActivity extends AppCompatActivity implements CalendarDatePicke
      *
      * @param url URL of the image
      */
-    public void launchFullImageView(String url) {
+    public void launchFullImageView(String url, String date, boolean setWallpaper) {
         Intent intent = new Intent(MainActivity.this, FullImageActivity.class);
         intent.putExtra("url", url);
+        intent.putExtra("date", date);
+        intent.putExtra("wallpaper", setWallpaper);
         startActivity(intent);
     }
 

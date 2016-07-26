@@ -3,15 +3,28 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/action_share"
+        android:icon="@drawable/share"
+        android:title="@string/menu_share"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_save"
         android:orderInCategory="100"
-        android:title="Settings"
+        android:title="@string/menu_save"
+        app:showAsAction="never"
+        android:visible="true" />
+
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="200"
+        android:title="@string/menu_settings"
         app:showAsAction="never"
         android:visible="true" />
     <item
         android:id="@+id/about"
-        android:orderInCategory="200"
-        android:title="About"
+        android:orderInCategory="300"
+        android:title="@string/menu_about"
         app:showAsAction="never"
         android:visible="true" />
 
