@@ -25,8 +25,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class FullImageActivity extends Activity {
-
+public class ImageActivity extends Activity {
+    final String IMAGE_DIRECTORY = "APOD";
     // Storage Permissions
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
     private static String[] PERMISSIONS_STORAGE = {Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -41,9 +41,6 @@ public class FullImageActivity extends Activity {
             // We don't have permission so prompt the user
             ActivityCompat.requestPermissions(activity, PERMISSIONS_STORAGE,
                     REQUEST_EXTERNAL_STORAGE);
-        }
-        else {
-
         }
     }
 
@@ -63,7 +60,7 @@ public class FullImageActivity extends Activity {
         imageView.setMaxZoom(3.5f);
 
         // Load image with Glide as bitmap
-        Glide.with(FullImageActivity.this).load(url).asBitmap().diskCacheStrategy
+        Glide.with(ImageActivity.this).load(url).asBitmap().diskCacheStrategy
                 (DiskCacheStrategy.SOURCE).into(new SimpleTarget<Bitmap>() {
             @Override
             public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap>
@@ -71,7 +68,7 @@ public class FullImageActivity extends Activity {
                 imageView.setImageBitmap(resource);
 
                 if (setWallpaper) {
-                    verifyStoragePermissions(FullImageActivity.this);
+                    verifyStoragePermissions(ImageActivity.this);
                     setAsWallpaper(resource, date);
                 }
             }
@@ -80,7 +77,7 @@ public class FullImageActivity extends Activity {
 
     public void setAsWallpaper(Bitmap bitmap, String imageDate) {
         File imageDirectory = new File(Environment.getExternalStorageDirectory().getPath() +
-                "/AOPD");
+                File.separator + IMAGE_DIRECTORY);
 
         if (!imageDirectory.exists()) {
             imageDirectory.mkdir();

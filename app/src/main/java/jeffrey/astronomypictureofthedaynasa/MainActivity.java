@@ -2,10 +2,12 @@ package jeffrey.astronomypictureofthedaynasa;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -20,7 +22,6 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Interpolator;
-import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -50,6 +51,8 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
 import com.codetroopers.betterpickers.calendardatepicker.CalendarDatePickerDialogFragment;
 import com.codetroopers.betterpickers.calendardatepicker.MonthAdapter;
@@ -60,6 +63,10 @@ import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -77,9 +84,9 @@ public class MainActivity extends AppCompatActivity implements CalendarDatePicke
     // Logging tag for listeners
     final String TAG = "LISTENER";
     final SimpleDateFormat EXPANDED_FORMAT = new SimpleDateFormat("MMMM d, y");
-    // final MonthAdapter.CalendarDay MIN_DATE = new MonthAdapter.CalendarDay(1995, 9, 22);
     final SimpleDateFormat NUMERICAL_FORMAT = new SimpleDateFormat("y-MM-dd");
     final String FRAG_TAG_DATE_PICKER = "Date Picker";
+    final String IMAGE_DIRECTORY = "APOD";
     // First available APOD date
     final Calendar MIN_DATE = new GregorianCalendar(1995, 9, 22);
     final String[] DISABLED_DAYS = {"19950617", "19950618", "19950619"};
@@ -439,17 +446,84 @@ public class MainActivity extends AppCompatActivity implements CalendarDatePicke
         return true;
     }
 
-    // Manage menu selection
     @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item
-                .getMenuInfo();
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
         switch (item.getItemId()) {
+            case R.id.action_share:
+                shareImage();
+                return true;
+            case R.id.action_save:
+                saveImage(expandedToNumericalDate(date));
+                return true;
             case R.id.action_settings:
                 return true;
             default:
-                return super.onContextItemSelected(item);
+                return super.onOptionsItemSelected(item);
         }
+    }
+
+    public void shareImage() {
+        Intent share = new Intent(Intent.ACTION_SEND);
+        share.setType("image/jpeg");
+        ImageActivity.verifyStoragePermissions(this);
+
+        saveImage(expandedToNumericalDate(date));
+
+        String path = Environment.getExternalStorageDirectory() + File.separator +
+                IMAGE_DIRECTORY + File.separator + expandedToNumericalDate(date) + ".jpg";
+        File image = new File(path);
+        Log.i("TAG", image.getAbsolutePath());
+
+        Uri uri = Uri.fromFile(image);
+
+        share.putExtra(Intent.EXTRA_STREAM, Uri.parse("file:///sdcard/APOD/2016-07-27.jpg"));
+        startActivity(Intent.createChooser(share, "Share Image"));
+    }
+
+    public void saveImage(String imageDate) {
+        final String date = imageDate;
+        String path;
+
+        ImageActivity.verifyStoragePermissions(this);
+
+        // Load image with Glide as bitmap
+        Glide.with(this).load(sdUrl).asBitmap().diskCacheStrategy(DiskCacheStrategy.SOURCE).into
+                (new SimpleTarget<Bitmap>() {
+            @Override
+            public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap>
+                    glideAnimation) {
+
+                File imageDirectory = new File(Environment.getExternalStorageDirectory().getPath() +
+                        File.separator + IMAGE_DIRECTORY);
+
+                if (!imageDirectory.exists()) {
+                    imageDirectory.mkdir();
+                }
+                String filename = date + ".jpg";
+                String message = getResources().getString(R.string.toast_save_image) + filename;
+                File image = new File(imageDirectory, filename);
+
+                // Encode the file as a JPG image.
+                FileOutputStream outStream;
+                try {
+                    outStream = new FileOutputStream(image);
+                    resource.compress(Bitmap.CompressFormat.JPEG, 100, outStream);
+
+                    outStream.flush();
+                    outStream.close();
+
+                    Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
+                }
+                catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                catch (IOException e) {
+                    Toast.makeText(MainActivity.this, R.string.error_saving + image.getPath(),
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     @Override
@@ -662,7 +736,7 @@ public class MainActivity extends AppCompatActivity implements CalendarDatePicke
      * @param url URL of the image
      */
     public void launchFullImageView(String url, String date, boolean setWallpaper) {
-        Intent intent = new Intent(MainActivity.this, FullImageActivity.class);
+        Intent intent = new Intent(MainActivity.this, ImageActivity.class);
         intent.putExtra("url", url);
         intent.putExtra("date", date);
         intent.putExtra("wallpaper", setWallpaper);
@@ -713,6 +787,9 @@ public class MainActivity extends AppCompatActivity implements CalendarDatePicke
         }
     }
 
+    /**
+     * http://stackoverflow.com/questions/4098198/adding-fling-gesture-to-an-image-view-android
+     */
     private class GestureListener extends GestureDetector.SimpleOnGestureListener {
         private final int SWIPE_MIN_DISTANCE = 120;
         private final int SWIPE_THRESHOLD_VELOCITY = 200;

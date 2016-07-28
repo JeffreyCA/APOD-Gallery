@@ -20,6 +20,6 @@
     <string name="menu_share">Share</string>
     <string name="menu_settings">Settings</string>
     <string name="toast_fab">Set image as wallpaper</string>
-    <string name="toast_save_image">Image saved to /sdcard/AOPD/</string>
+    <string name="toast_save_image">Image saved to /sdcard/APOD/</string>
     <string name="toast_view_image">Tap image to view in fullscreen</string>
 </resources>
