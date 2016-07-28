@@ -13,9 +13,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Interpolator;
 import android.widget.AdapterView;
@@ -75,16 +77,14 @@ public class MainActivity extends AppCompatActivity implements CalendarDatePicke
     // Logging tag for listeners
     final String TAG = "LISTENER";
     final SimpleDateFormat EXPANDED_FORMAT = new SimpleDateFormat("MMMM d, y");
+    // final MonthAdapter.CalendarDay MIN_DATE = new MonthAdapter.CalendarDay(1995, 9, 22);
     final SimpleDateFormat NUMERICAL_FORMAT = new SimpleDateFormat("y-MM-dd");
     final String FRAG_TAG_DATE_PICKER = "Date Picker";
-    // final MonthAdapter.CalendarDay MIN_DATE = new MonthAdapter.CalendarDay(1995, 9, 22);
-
     // First available APOD date
     final Calendar MIN_DATE = new GregorianCalendar(1995, 9, 22);
     final String[] DISABLED_DAYS = {"19950617", "19950618", "19950619"};
     // NASA API key
     final private String API_KEY = "***REMOVED***";
-
     AutoResizeTextView titleText;
     DocumentView description;
     FloatingActionButton fab;
@@ -95,11 +95,9 @@ public class MainActivity extends AppCompatActivity implements CalendarDatePicke
     ProgressBar progressBar;
     SlidingUpPanelLayout slidingPanel;
     TextView dateText;
-
     String date;
     String today;
     String sdUrl;
-
 
     public static Calendar dateToCalendar(Date date) {
         Calendar cal = Calendar.getInstance();
@@ -148,42 +146,13 @@ public class MainActivity extends AppCompatActivity implements CalendarDatePicke
         tomorrow.setVisibility(View.INVISIBLE);
         tomorrow.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Glide.clear(imageView);
-                progressBar.setVisibility(View.VISIBLE);
-
-                // Display next day
-                date = nextDay(date);
-                dateText.setText(date);
-
-                if (date.equals(today))
-                    tomorrow.setVisibility(View.INVISIBLE);
-                if (slidingPanel.getPanelState() == SlidingUpPanelLayout.PanelState.COLLAPSED &&
-                        fab.getVisibility() == View.GONE)
-                    fab.show();
-
-                // Set image
-                getImageData(date);
+                nextDay();
             }
         });
 
         yesterday.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Glide.clear(imageView);
-                progressBar.setVisibility(View.VISIBLE);
-
-                // Display previous day
-                date = prevDay(date);
-                dateText.setText(date);
-
-                if (tomorrow.getVisibility() == View.INVISIBLE)
-                    tomorrow.setVisibility(View.VISIBLE);
-
-                if (slidingPanel.getPanelState() == SlidingUpPanelLayout.PanelState.COLLAPSED &&
-                        fab.getVisibility() == View.GONE)
-                    fab.show();
-
-                // Set image
-                getImageData(date);
+                previousDay();
             }
         });
 
@@ -264,7 +233,6 @@ public class MainActivity extends AppCompatActivity implements CalendarDatePicke
 
             @Override
             public void onPanelCollapsedStateY(View panel, boolean reached) {
-                fab.hide();
             }
 
             @Override
@@ -285,7 +253,55 @@ public class MainActivity extends AppCompatActivity implements CalendarDatePicke
             }
         });
 
+
+        final GestureDetector gdt = new GestureDetector(MainActivity.this, new GestureListener());
+        imageView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(final View view, final MotionEvent event) {
+                gdt.onTouchEvent(event);
+                return true;
+            }
+        });
     } // End onCreate method
+
+    private void nextDay() {
+        Glide.clear(imageView);
+        progressBar.setVisibility(View.VISIBLE);
+
+        // Display next day
+        date = getNextDay(date);
+        dateText.setText(date);
+
+        if (date.equals(today)) {
+            tomorrow.setVisibility(View.INVISIBLE);
+        }
+        if (slidingPanel.getPanelState() == SlidingUpPanelLayout.PanelState.COLLAPSED && fab
+                .getVisibility() == View.GONE) {
+            fab.show();
+        }
+
+        // Set image
+        getImageData(date);
+    }
+
+    private void previousDay() {
+        Glide.clear(imageView);
+        progressBar.setVisibility(View.VISIBLE);
+
+        // Display previous day
+        date = getPreviousDay(date);
+        dateText.setText(date);
+
+        if (tomorrow.getVisibility() == View.INVISIBLE)
+            tomorrow.setVisibility(View.VISIBLE);
+
+        if (slidingPanel.getPanelState() == SlidingUpPanelLayout.PanelState.COLLAPSED && fab
+                .getVisibility() == View.GONE)
+            fab.show();
+
+        // Set image
+        getImageData(date);
+    }
 
     /**
      * Calculate the day after the given date
@@ -294,7 +310,7 @@ public class MainActivity extends AppCompatActivity implements CalendarDatePicke
      *
      * @return the next day after the provided date
      */
-    private String nextDay(String date) {
+    private String getNextDay(String date) {
         Calendar calendar = Calendar.getInstance();
 
         try {
@@ -309,9 +325,6 @@ public class MainActivity extends AppCompatActivity implements CalendarDatePicke
         return null;
     }
 
-
-    // Date Methods
-
     /**
      * Calculate the day before the given date
      *
@@ -319,7 +332,7 @@ public class MainActivity extends AppCompatActivity implements CalendarDatePicke
      *
      * @return the previous day before the provided date
      */
-    private String prevDay(String date) {
+    private String getPreviousDay(String date) {
         Calendar calendar = Calendar.getInstance();
 
         try {
@@ -333,6 +346,8 @@ public class MainActivity extends AppCompatActivity implements CalendarDatePicke
         }
         return null;
     }
+
+    // Date Methods
 
     /**
      * Method for library #1
@@ -695,6 +710,46 @@ public class MainActivity extends AppCompatActivity implements CalendarDatePicke
                         (FRAG_TAG_DATE_PICKER);
         if (calendarDatePickerDialogFragment != null) {
             calendarDatePickerDialogFragment.setOnDateSetListener(this);
+        }
+    }
+
+    private class GestureListener extends GestureDetector.SimpleOnGestureListener {
+        private final int SWIPE_MIN_DISTANCE = 120;
+        private final int SWIPE_THRESHOLD_VELOCITY = 200;
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            // Right to left
+            if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) >
+                    SWIPE_THRESHOLD_VELOCITY) {
+                // Prevent user from navigation to future days
+                if (!date.equals(today))
+                    nextDay();
+                return false;
+            }
+            // Left to right
+            else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) >
+                    SWIPE_THRESHOLD_VELOCITY) {
+                previousDay();
+                return false;
+            }
+            return false;
+        }
+
+        @Override
+        public boolean onSingleTapConfirmed(MotionEvent e) {
+            // A confirmed single-tap event has occurred.  Only called when the detector has
+            // determined that the first tap stands alone, and is not part of a double tap.
+            launchFullImageView(sdUrl, expandedToNumericalDate(dateText.getText().toString()),
+                    false);
+            return false;
+        }
+
+        @Override
+        public void onLongPress(MotionEvent e) {
+            // Touch has been long enough to indicate a long press.
+            // Does not indicate motion is complete yet (no up event necessarily)
+            Toast.makeText(MainActivity.this, R.string.toast_view_image, Toast.LENGTH_SHORT).show();
         }
     }
 }
