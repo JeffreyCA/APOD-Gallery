@@ -565,8 +565,7 @@ public class MainActivity extends AppCompatActivity implements CalendarDatePicke
 
             imageView.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    launchFullImageView(sdUrl, expandedToNumericalDate(dateText.getText()
-                            .toString()), false);
+                    launchFullImageView(sdUrl, expandedToNumericalDate(date), false);
                 }
             });
 
@@ -741,7 +740,7 @@ public class MainActivity extends AppCompatActivity implements CalendarDatePicke
     public void launchFullImageView(String url, String date, boolean setWallpaper) {
         Intent intent = new Intent(MainActivity.this, ImageActivity.class);
         intent.putExtra("url", url);
-        intent.putExtra("date", date);
+        intent.putExtra("date", expandedToNumericalDate(date));
         intent.putExtra("wallpaper", setWallpaper);
         startActivity(intent);
     }
@@ -820,8 +819,7 @@ public class MainActivity extends AppCompatActivity implements CalendarDatePicke
         public boolean onSingleTapConfirmed(MotionEvent e) {
             // A confirmed single-tap event has occurred.  Only called when the detector has
             // determined that the first tap stands alone, and is not part of a double tap.
-            launchFullImageView(sdUrl, expandedToNumericalDate(dateText.getText().toString()),
-                    false);
+            launchFullImageView(sdUrl, expandedToNumericalDate(date), false);
             return false;
         }
 

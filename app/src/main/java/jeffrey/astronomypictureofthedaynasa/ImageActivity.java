@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
+import android.util.Log;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -22,12 +23,12 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import java.io.File;
 
 public class ImageActivity extends Activity {
-    final String IMAGE_DIRECTORY = "APOD";
-    final String IMAGE_EXT = ".jpg";
     // Storage Permissions
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
     private static String[] PERMISSIONS_STORAGE = {Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE};
+    final String IMAGE_DIRECTORY = "APOD";
+    final String IMAGE_EXT = ".jpg";
 
     public static void verifyStoragePermissions(Activity activity) {
         // Check if we have write permission
@@ -57,8 +58,8 @@ public class ImageActivity extends Activity {
         imageView.setMaxZoom(3.5f);
 
         // Load image with Glide as bitmap
-        Glide.with(ImageActivity.this).load(url).asBitmap().diskCacheStrategy
-                (DiskCacheStrategy.SOURCE).into(new SimpleTarget<Bitmap>() {
+        Glide.with(ImageActivity.this).load(url).asBitmap().diskCacheStrategy(DiskCacheStrategy
+                .SOURCE).into(new SimpleTarget<Bitmap>() {
             @Override
             public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap>
                     glideAnimation) {
@@ -66,16 +67,16 @@ public class ImageActivity extends Activity {
 
                 if (setWallpaper) {
                     verifyStoragePermissions(ImageActivity.this);
-                    setAsWallpaper(resource, date);
+                    setAsWallpaper(date);
                 }
             }
         });
     }
 
-    public void setAsWallpaper(Bitmap bitmap, String imageDate) {
+    public void setAsWallpaper(String imageDate) {
         File image = new File(Environment.getExternalStorageDirectory().getPath() +
                 File.separator + IMAGE_DIRECTORY + File.separator + imageDate + IMAGE_EXT);
-
+        Log.i("PATH", image.getAbsolutePath());
         Intent intent = new Intent(Intent.ACTION_ATTACH_DATA);
         intent.addCategory(Intent.CATEGORY_DEFAULT);
         intent.setDataAndType(Uri.fromFile(image), "image/jpeg");
