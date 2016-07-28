@@ -87,6 +87,8 @@ public class MainActivity extends AppCompatActivity implements CalendarDatePicke
     final SimpleDateFormat NUMERICAL_FORMAT = new SimpleDateFormat("y-MM-dd");
     final String FRAG_TAG_DATE_PICKER = "Date Picker";
     final String IMAGE_DIRECTORY = "APOD";
+    final String IMAGE_EXT = ".jpg";
+
     // First available APOD date
     final Calendar MIN_DATE = new GregorianCalendar(1995, 9, 22);
     final String[] DISABLED_DAYS = {"19950617", "19950618", "19950619"};
@@ -248,8 +250,8 @@ public class MainActivity extends AppCompatActivity implements CalendarDatePicke
         });
         fab.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                launchFullImageView(sdUrl, expandedToNumericalDate(dateText.getText().toString())
-                        , true);
+                saveImage(expandedToNumericalDate(date));
+                launchFullImageView(sdUrl, date, true);
             }
         });
         fab.setOnLongClickListener(new View.OnLongClickListener() {
@@ -477,7 +479,7 @@ public class MainActivity extends AppCompatActivity implements CalendarDatePicke
 
         Uri uri = Uri.fromFile(image);
 
-        share.putExtra(Intent.EXTRA_STREAM, Uri.parse("file:///sdcard/APOD/2016-07-27.jpg"));
+        share.putExtra(Intent.EXTRA_STREAM, uri);
         startActivity(Intent.createChooser(share, "Share Image"));
     }
 
@@ -500,9 +502,10 @@ public class MainActivity extends AppCompatActivity implements CalendarDatePicke
                 if (!imageDirectory.exists()) {
                     imageDirectory.mkdir();
                 }
-                String filename = date + ".jpg";
-                String message = getResources().getString(R.string.toast_save_image) + filename;
+                String filename = date + IMAGE_EXT;
                 File image = new File(imageDirectory, filename);
+
+                String message = getResources().getString(R.string.toast_save_image) + filename;
 
                 // Encode the file as a JPG image.
                 FileOutputStream outStream;

@@ -13,7 +13,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -21,12 +20,10 @@ import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 
 public class ImageActivity extends Activity {
     final String IMAGE_DIRECTORY = "APOD";
+    final String IMAGE_EXT = ".jpg";
     // Storage Permissions
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
     private static String[] PERMISSIONS_STORAGE = {Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -76,34 +73,8 @@ public class ImageActivity extends Activity {
     }
 
     public void setAsWallpaper(Bitmap bitmap, String imageDate) {
-        File imageDirectory = new File(Environment.getExternalStorageDirectory().getPath() +
-                File.separator + IMAGE_DIRECTORY);
-
-        if (!imageDirectory.exists()) {
-            imageDirectory.mkdir();
-        }
-        String filename = imageDate + ".jpg";
-        String message = getResources().getString(R.string.toast_save_image) + filename;
-        File image = new File(imageDirectory, filename);
-
-        // Encode the file as a JPG image.
-        FileOutputStream outStream;
-        try {
-            outStream = new FileOutputStream(image);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outStream);
-
-            outStream.flush();
-            outStream.close();
-
-            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-        }
-        catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        catch (IOException e) {
-            Toast.makeText(this, R.string.error_saving + image.getPath(), Toast.LENGTH_SHORT)
-                    .show();
-        }
+        File image = new File(Environment.getExternalStorageDirectory().getPath() +
+                File.separator + IMAGE_DIRECTORY + File.separator + imageDate + IMAGE_EXT);
 
         Intent intent = new Intent(Intent.ACTION_ATTACH_DATA);
         intent.addCategory(Intent.CATEGORY_DEFAULT);
