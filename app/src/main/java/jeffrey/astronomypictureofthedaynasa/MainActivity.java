@@ -54,8 +54,6 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
-import com.codetroopers.betterpickers.calendardatepicker.CalendarDatePickerDialogFragment;
-import com.codetroopers.betterpickers.calendardatepicker.MonthAdapter;
 import com.sothree.slidinguppanel.FloatingActionButtonLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
@@ -78,13 +76,13 @@ import java.util.GregorianCalendar;
 // TODO Share image/save on device
 // TODO Settings: Set image download directory
 
-public class MainActivity extends AppCompatActivity implements CalendarDatePickerDialogFragment
-        .OnDateSetListener, DatePickerDialog.OnDateSetListener {
+public class MainActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
 
     // Logging tag for listeners
     final String TAG = "LISTENER";
     final SimpleDateFormat EXPANDED_FORMAT = new SimpleDateFormat("MMMM d, y");
     final SimpleDateFormat NUMERICAL_FORMAT = new SimpleDateFormat("y-MM-dd");
+    final SimpleDateFormat SHORT_FORMAT = new SimpleDateFormat("yyMMdd");
     final String FRAG_TAG_DATE_PICKER = "Date Picker";
     final String IMAGE_DIRECTORY = "APOD";
     final String IMAGE_EXT = ".jpg";
@@ -167,8 +165,6 @@ public class MainActivity extends AppCompatActivity implements CalendarDatePicke
 
         dateText.setOnClickListener(new View.OnClickListener() {
             Calendar calendar = Calendar.getInstance();
-            MonthAdapter.CalendarDay maxDate = new MonthAdapter.CalendarDay(calendar);
-            SparseArray<MonthAdapter.CalendarDay> disabledDays = new SparseArray<>();
 
             @Override
             public void onClick(View v) {
@@ -359,22 +355,7 @@ public class MainActivity extends AppCompatActivity implements CalendarDatePicke
     // Date Methods
 
     /**
-     * Method for library #1
      *
-     * @param dialog
-     * @param year
-     * @param monthOfYear
-     * @param dayOfMonth
-     */
-    @Override
-    public void onDateSet(CalendarDatePickerDialogFragment dialog, int year, int monthOfYear, int
-            dayOfMonth) {
-        // mResultTextView.setText(getString(R.string.calendar_date_picker_result_values, year,
-        // monthOfYear, dayOfMonth));
-    }
-
-    /**
-     * Method for library #2
      *
      * @param view
      * @param year
@@ -429,6 +410,21 @@ public class MainActivity extends AppCompatActivity implements CalendarDatePicke
         return "";
     }
 
+    private String getFullUrl() {
+        final String BASE_URL = "http://apod.nasa.gov/apod/ap";
+        String shortDate;
+
+        try {
+            shortDate = SHORT_FORMAT.format(EXPANDED_FORMAT.parse(date));
+            return BASE_URL + shortDate + ".html";
+        }
+        catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return "";
+    }
+
     // Inflate options menu
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -458,7 +454,11 @@ public class MainActivity extends AppCompatActivity implements CalendarDatePicke
             case R.id.action_save:
                 saveImage(expandedToNumericalDate(date));
                 return true;
+            case R.id.action_open_link:
+                openLink();
+                return true;
             case R.id.action_settings:
+                startActivity(new Intent(MainActivity.this, SettingsActivity.class));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -485,7 +485,6 @@ public class MainActivity extends AppCompatActivity implements CalendarDatePicke
 
     public void saveImage(String imageDate) {
         final String date = imageDate;
-        String path;
 
         ImageActivity.verifyStoragePermissions(this);
 
@@ -600,7 +599,7 @@ public class MainActivity extends AppCompatActivity implements CalendarDatePicke
                         }).into(imageView);
             }
             else {
-                openInBrowserDialog(date, sdUrl);
+                openNonImageContent(date, sdUrl);
             }
         }
         catch (JSONException e) {
@@ -745,7 +744,13 @@ public class MainActivity extends AppCompatActivity implements CalendarDatePicke
         startActivity(intent);
     }
 
-    private void openInBrowserDialog(String date, String url) {
+    private void openLink() {
+        String url = getFullUrl();
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        startActivity(browserIntent);
+    }
+
+    private void openNonImageContent(String date, String url) {
         final String uri = url;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         String message = String.format(getResources().getString(R.string.dialog_browser_desc),
@@ -775,18 +780,6 @@ public class MainActivity extends AppCompatActivity implements CalendarDatePicke
         });
 
         builder.create().show();
-    }
-
-    @Override
-    public void onResume() {
-        // Example of reattaching to the fragment
-        super.onResume();
-        CalendarDatePickerDialogFragment calendarDatePickerDialogFragment =
-                (CalendarDatePickerDialogFragment) getSupportFragmentManager().findFragmentByTag
-                        (FRAG_TAG_DATE_PICKER);
-        if (calendarDatePickerDialogFragment != null) {
-            calendarDatePickerDialogFragment.setOnDateSetListener(this);
-        }
     }
 
     /**

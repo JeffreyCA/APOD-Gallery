@@ -16,14 +16,21 @@
         android:visible="true" />
 
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/action_open_link"
         android:orderInCategory="200"
+        android:title="Open in browser"
+        app:showAsAction="never"
+        android:visible="true" />
+
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="300"
         android:title="@string/menu_settings"
         app:showAsAction="never"
         android:visible="true" />
     <item
         android:id="@+id/about"
-        android:orderInCategory="300"
+        android:orderInCategory="400"
         android:title="@string/menu_about"
         app:showAsAction="never"
         android:visible="true" />
