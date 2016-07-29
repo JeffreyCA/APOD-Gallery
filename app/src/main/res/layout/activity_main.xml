@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.sothree.slidinguppanel.FloatingActionButtonLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                                       xmlns:app="http://schemas.android.com/apk/res-auto"
-                                                       xmlns:sothree="http://schemas.android.com/apk/res-auto"
-                                                       xmlns:tools="http://schemas.android.com/tools"
-                                                       android:id="@+id/fab_layout"
-                                                       android:layout_width="match_parent"
-                                                       android:layout_height="match_parent"
-                                                       sothree:umanoFabMode="leave_behind"
-                                                       tools:context="jeffrey.astronomypictureofthedaynasa.MainActivity">
+<com.sothree.slidinguppanel.FloatingActionButtonLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:sothree="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fab_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    sothree:umanoFabMode="leave_behind"
+    tools:context="jeffrey.astronomypictureofthedaynasa.MainActivity">
 
     <!-- umanoOverlay allows for transparent background when panel is extended
          umanoPanelHeight is the height of the panel when collapsed
@@ -24,7 +25,7 @@
         sothree:umanoOverlay="true"
         sothree:umanoPanelHeight="108dp"
         sothree:umanoParallaxOffset="140dp"
-        sothree:umanoShadowHeight="0dp" >
+        sothree:umanoShadowHeight="0dp">
 
         <!-- MAIN CONTENT -->
         <LinearLayout
@@ -32,7 +33,18 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <!-- Toolbar -->
+            <android.support.v7.widget.Toolbar
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/colorPrimaryDark"
+                android:minHeight="?attr/actionBarSize"
+                android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+                app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+            </android.support.v7.widget.Toolbar>
+            <!-- Toolbar
             <android.support.design.widget.AppBarLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -44,7 +56,7 @@
                     android:layout_height="?attr/actionBarSize"
                     android:background="?attr/colorPrimary"
                     app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
-            </android.support.design.widget.AppBarLayout>
+            </android.support.design.widget.AppBarLayout> -->
 
             <LinearLayout
                 android:id="@+id/main_view"
@@ -160,7 +172,7 @@
                 ext:documentView_textColor="@android:color/white"
                 ext:documentView_textFormat="plain"
                 ext:documentView_textSize="18sp"
-                sothree:umanoScrollableView="@id/description" />
+                sothree:umanoScrollableView="@id/description"/>
         </LinearLayout>
 
     </com.sothree.slidinguppanel.SlidingUpPanelLayout>

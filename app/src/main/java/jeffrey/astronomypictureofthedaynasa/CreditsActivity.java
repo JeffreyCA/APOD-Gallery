@@ -1,23 +1,19 @@
 package jeffrey.astronomypictureofthedaynasa;
 
 import android.app.Activity;
-import android.os.Bundle;
 import android.preference.PreferenceFragment;
+import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 
-public class SettingsActivity extends Activity {
-
+public class CreditsActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // Display the fragment as the main content.
-        getFragmentManager().beginTransaction().replace(android.R.id.content, new PrefsFragment()
+        getFragmentManager().beginTransaction().replace(android.R.id.content, new CreditsFragment()
         ).commit();
-
     }
 
     @Override
@@ -28,7 +24,7 @@ public class SettingsActivity extends Activity {
                 ().getParent();
         Toolbar bar = (Toolbar) LayoutInflater.from(this).inflate(R.layout.view_toolbar, root,
                 false);
-        bar.setTitle(R.string.title_activity_settings);
+        bar.setTitle(R.string.title_activity_credits);
         root.addView(bar, 0); // insert at top
         bar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -37,14 +33,13 @@ public class SettingsActivity extends Activity {
             }
         });
     }
-
-    public static class PrefsFragment extends PreferenceFragment {
+    public static class CreditsFragment extends PreferenceFragment {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
 
             // Load the preferences from an XML resource
-            addPreferencesFromResource(R.xml.preferences);
+            addPreferencesFromResource(R.xml.credits);
         }
     }
 }

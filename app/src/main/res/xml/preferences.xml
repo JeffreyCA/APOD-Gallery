@@ -1,16 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <EditTextPreference android:title="Your Name"
-                        android:key="username"
-                        android:summary="Please provide your username"></EditTextPreference>
-    <CheckBoxPreference android:title="Application Updates"
-                        android:defaultValue="false"
-                        android:summary="This option if selected will allow the application to check for latest versions."
-                        android:key="applicationUpdates" />
-    <ListPreference     android:title="Download Details"
-                        android:summary="Select the kind of data that you would like to download"
-                        android:key="downloadType"
-                        android:defaultValue="Ace"
-                        android:entries="@array/listArray"
-                        android:entryValues="@array/listValues" />
+    <PreferenceCategory
+        android:title="General"
+        android:key="pref_key_storage_settings">
+    <EditTextPreference
+        android:key="username"
+        android:title="Your Name"></EditTextPreference>
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="applicationUpdates"
+        android:summary="This option if selected will allow the application to check for latest versions."
+        android:title="Application Updates"/>
+    <ListPreference
+        android:defaultValue="Ace"
+        android:entries="@array/listArray"
+        android:entryValues="@array/listValues"
+        android:key="downloadType"
+        android:summary="Select the kind of data that you would like to download"
+        android:title="Download Details"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="About"
+        android:key="pref_key_storage_settings">
+        <PreferenceScreen
+            android:title="Open-Source Libraries"
+            android:key="open_source"
+            android:summary="View third-party resources used in this app">
+            <intent android:targetPackage="jeffrey.astronomypictureofthedaynasa"
+                    android:targetClass="jeffrey.astronomypictureofthedaynasa.CreditsActivity"/>
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:title="Developer"
+            android:key="developer"
+            android:summary="JeffreyCA">
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:title="Version"
+            android:key="version"
+            android:summary="1.0">
+        </PreferenceScreen>
+    </PreferenceCategory>
 </PreferenceScreen>

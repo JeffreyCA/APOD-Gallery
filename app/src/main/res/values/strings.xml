@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">Astronomy Picture of the Day</string>
-    <string name="action_settings">Settings</string>
     <string name="action_no">NO</string>
     <string name="action_yes">YES</string>
     <string name="desc_image">Featured image</string>
@@ -23,7 +22,7 @@
     <string name="toast_save_image">Image saved to /sdcard/APOD/</string>
     <string name="toast_view_image">Tap image to view in fullscreen</string>
     <string name="title_activity_settings">Settings</string>
-
+    <string name="title_activity_credits">Open-Source Libraries</string>
     <!-- Strings related to Settings -->
 
     <!-- Example General settings -->
