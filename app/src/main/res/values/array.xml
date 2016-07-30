@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="listArray">
-        <item>Headings</item>
-        <item>Headings and Details</item>
-        <item>All Data</item>
+    <string-array name="list_image_quality">
+        <item>Standard-definition</item>
+        <item>High-definition</item>
     </string-array>
 
-    <string-array name="listValues">
+    <string-array name="list_values">
         <item>1</item>
         <item>2</item>
-        <item>3</item>
     </string-array>
 </resources>

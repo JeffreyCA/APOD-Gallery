@@ -1,22 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory
-        android:title="General"
-        android:key="pref_key_storage_settings">
-        <EditTextPreference
-            android:key="username"
-            android:title="Your Name"></EditTextPreference>
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="applicationUpdates"
-            android:summary="This option if selected will allow the application to check for latest versions."
-            android:title="Application Updates"/>
-        <ListPreference
-            android:defaultValue="Ace"
-            android:entries="@array/listArray"
-            android:entryValues="@array/listValues"
-            android:key="downloadType"
-            android:summary="Select the kind of data that you would like to download"
-            android:title="Download Details"/>
+        android:key="category_about"
+        android:title="Github Libraries">
+        <PreferenceScreen
+            android:key="open_source"
+            android:summary="Desc #1"
+            android:title="Library #1">
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="open_source"
+            android:summary="Desc #2"
+            android:title="Library #2">
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="open_source"
+            android:summary="Desc #3"
+            android:title="Library #3">
+        </PreferenceScreen>
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="category_about"
+        android:title="StackOverflow Snippets">
+        <PreferenceScreen
+            android:key="open_source"
+            android:summary="Desc #1"
+            android:title="Library #1">
+        </PreferenceScreen>
+        <PreferenceScreen
+            android:key="open_source"
+            android:summary="Desc #2"
+            android:title="Library #2">
+        </PreferenceScreen>
     </PreferenceCategory>
 </PreferenceScreen>

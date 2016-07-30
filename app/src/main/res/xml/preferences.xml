@@ -1,46 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory
-        android:title="General"
-        android:key="pref_key_storage_settings">
-    <EditTextPreference
-        android:key="username"
-        android:title="Your Name"></EditTextPreference>
-    <CheckBoxPreference
-        android:defaultValue="false"
-        android:key="applicationUpdates"
-        android:summary="This option if selected will allow the application to check for latest versions."
-        android:title="Application Updates"/>
-    <ListPreference
-        android:defaultValue="Ace"
-        android:entries="@array/listArray"
-        android:entryValues="@array/listValues"
-        android:key="downloadType"
-        android:summary="Select the kind of data that you would like to download"
-        android:title="Download Details"/>
+        android:key="category_general"
+        android:title="General">
+        <!--<ListPreference
+            android:key="load_hd"
+            android:title="Image quality"
+            android:entries="@array/list_image_quality"
+            android:dialogTitle="Image quality"
+            android:defaultValue="0"
+            android:entryValues="@array/list_values"/>-->
+        <ListPreference
+            android:defaultValue="1"
+            android:entries="@array/list_image_quality"
+            android:entryValues="@array/list_values"
+            android:key="image_quality"
+            android:summary="HD images take more time and Internet usage to load "
+            android:title="Image quality"/>
+        <SwitchPreference
+            android:key="display_credits"
+            android:summary="Photo credits displayed below image description."
+            android:title="Display photo credits"/>
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:title="About"
-        android:key="pref_key_storage_settings">
+        android:key="category_storage"
+        android:title="Storage">
+        <EditTextPreference
+            android:key="download_location"
+            android:title="Download location"
+            android:summary="/sdcard/APOD/"/>
+        <Preference
+            android:key="clear_cache"
+            android:title="Clear image cache"/>
+        <Preference
+            android:key="clear_downloads"
+            android:title="Clear saved images"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="category_about"
+        android:title="About">
         <PreferenceScreen
-            android:title="Open-Source Libraries"
             android:key="open_source"
-            android:summary="View third-party resources used in this app">
-            <intent android:targetPackage="jeffrey.astronomypictureofthedaynasa"
-                    android:targetClass="jeffrey.astronomypictureofthedaynasa.CreditsActivity"/>
+            android:summary="View third-party resources used in this app"
+            android:title="Open-source libraries">
+            <intent
+                android:targetClass="jeffrey.astronomypictureofthedaynasa.CreditsActivity"
+                android:targetPackage="jeffrey.astronomypictureofthedaynasa"/>
         </PreferenceScreen>
 
         <PreferenceScreen
-            android:title="Developer"
             android:key="developer"
-            android:summary="JeffreyCA">
+            android:summary="JeffreyCA"
+            android:title="Developer">
         </PreferenceScreen>
 
         <PreferenceScreen
-            android:title="Version"
             android:key="version"
-            android:summary="1.0">
+            android:summary="0.3b"
+            android:title="App Version">
         </PreferenceScreen>
     </PreferenceCategory>
 </PreferenceScreen>

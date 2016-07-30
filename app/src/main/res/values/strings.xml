@@ -14,7 +14,7 @@
     <string name="error_parse">Parsing error.</string>
     <string name="error_saving">Error saving file.</string>
     <string name="error_server">Today\'s photo is not available yet.</string>
-    <string name="menu_about">About</string>
+    <string name="menu_browser">Open in browser</string>
     <string name="menu_save">Save to device</string>
     <string name="menu_share">Share</string>
     <string name="menu_settings">Settings</string>

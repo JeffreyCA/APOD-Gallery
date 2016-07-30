@@ -8,6 +8,8 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.PreferenceActivity;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -54,6 +56,7 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
+import com.shawnlin.preferencesmanager.PreferencesManager;
 import com.sothree.slidinguppanel.FloatingActionButtonLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
@@ -71,9 +74,9 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 // TODO Clear cache option
-// TODO Share image/save on device
 // TODO Settings: Set image download directory
 
 public class MainActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
@@ -124,6 +127,9 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         if (myToolbar != null) {
             myToolbar.showOverflowMenu();
         }
+
+        // Initialize preferences
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
         // Initiate image views
         imageView = (ImageView) findViewById(R.id.image);
