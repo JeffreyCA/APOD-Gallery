@@ -2,13 +2,13 @@ package jeffrey.astronomypictureofthedaynasa;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
@@ -16,7 +16,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -56,7 +55,6 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
-import com.shawnlin.preferencesmanager.PreferencesManager;
 import com.sothree.slidinguppanel.FloatingActionButtonLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
@@ -74,7 +72,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.List;
 
 // TODO Clear cache option
 // TODO Settings: Set image download directory
@@ -107,7 +104,9 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     TextView dateText;
     String date;
     String today;
+    String imgUrl;
     String sdUrl;
+    SharedPreferences sharedPref;
 
     public static Calendar dateToCalendar(Date date) {
         Calendar cal = Calendar.getInstance();
@@ -130,6 +129,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
         // Initialize preferences
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+        sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 
         // Initiate image views
         imageView = (ImageView) findViewById(R.id.image);
@@ -204,7 +204,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             // Hide FAB while expanded
             @Override
             public void onPanelExpanded(View panel) {
-                Log.i(TAG, "onPanelExpanded");
+                // Log.i(TAG, "onPanelExpanded");
                 fab.hide();
             }
 
@@ -215,7 +215,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             // Show FAB while collapsed
             @Override
             public void onPanelCollapsed(View panel) {
-                Log.i(TAG, "onPanelCollapsed");
+                // Log.i(TAG, "onPanelCollapsed");
                 fab.show();
                 // Scroll text up so it is hidden when panel is collapsed
                 description.smoothScrollTo(0, 0);
@@ -252,8 +252,15 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         });
         fab.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                saveImage(expandedToNumericalDate(date));
-                launchFullImageView(sdUrl, date, true);
+                if (imageView.getDrawable() != null) {
+                    saveImage(expandedToNumericalDate(date));
+                    launchFullImageView(imgUrl, date, true);
+                }
+                // No image available
+                else {
+                    Toast.makeText(MainActivity.this, R.string.toast_no_image, Toast
+                            .LENGTH_SHORT).show();
+                }
             }
         });
         fab.setOnLongClickListener(new View.OnLongClickListener() {
@@ -361,8 +368,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     // Date Methods
 
     /**
-     *
-     *
      * @param view
      * @param year
      * @param monthOfYear
@@ -481,7 +486,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         String path = Environment.getExternalStorageDirectory() + File.separator +
                 IMAGE_DIRECTORY + File.separator + expandedToNumericalDate(date) + ".jpg";
         File image = new File(path);
-        Log.i("TAG", image.getAbsolutePath());
 
         Uri uri = Uri.fromFile(image);
 
@@ -495,7 +499,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         ImageActivity.verifyStoragePermissions(this);
 
         // Load image with Glide as bitmap
-        Glide.with(this).load(sdUrl).asBitmap().diskCacheStrategy(DiskCacheStrategy.SOURCE).into
+        Glide.with(this).load(imgUrl).asBitmap().diskCacheStrategy(DiskCacheStrategy.SOURCE).into
                 (new SimpleTarget<Bitmap>() {
             @Override
             public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap>
@@ -549,32 +553,54 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     }
 
     private void onJsonResponse(JSONObject response) {
+        final String IMAGE_TYPE = "image";
+
+        boolean prefHd;
+        boolean prefCopyright;
+        String copyright;
+        String explanation;
+        String mediaType;
+        String hdUrl;
+        String title;
+
         try {
-            final String IMAGE_TYPE = "image";
-
-            final String date = response.getString("date");
-            String explanation = response.getString("explanation");
-
+            final String numericalDate = response.getString("date");
+            explanation = response.getString("explanation");
+            mediaType = response.getString("media_type");
             sdUrl = response.getString("url");
-            String mediaType = response.getString("media_type");
-            final String title = response.getString("title");
-            String hdUrl = "";
-            String copyright = "";
+            title = response.getString("title");
 
-            if (response.has("copyright"))
-                copyright = response.getString("copyright");
-            else if (response.has("hdurl"))
+            hdUrl = "";
+            prefHd = sharedPref.getString("image_quality", "").equals("1");
+            prefCopyright = sharedPref.getBoolean("display_copyright", false);
+
+            // Check if HD image URL is included in response
+            if (response.has("hdurl")) {
                 hdUrl = response.getString("hdurl");
+            }
 
-            boolean hdAvailable = !(hdUrl.equals(sdUrl));
+            // Add copyright credits to end of description if setting allows it
+            if (prefCopyright && response.has("copyright")) {
+                copyright = response.getString("copyright");
+                explanation += "\n\n" + "Copyright: " + copyright;
+            }
+
+            // Set image url depending on user preference and image availability
+            if (prefHd && !hdUrl.equals("")) {
+                Log.i("URL", "Loading HD URL...");
+                imgUrl = hdUrl;
+            }
+            else {
+                imgUrl = sdUrl;
+            }
 
             imageView.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    launchFullImageView(sdUrl, expandedToNumericalDate(date), false);
+                    launchFullImageView(sdUrl, numericalDate, false);
                 }
             });
 
-            // Load lower-resolution image by default
+            // Set text
             titleText.setText(title);
             description.setText(explanation);
 
@@ -589,7 +615,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                             public boolean onException(Exception e, String model,
                                                        Target<GlideDrawable> target, boolean
                                                                isFirstResource) {
-
                                 return false;
                             }
 
@@ -605,13 +630,12 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                         }).into(imageView);
             }
             else {
-                openNonImageContent(date, sdUrl);
+                openNonImageContent(numericalDate, sdUrl);
             }
         }
         catch (JSONException e) {
             e.printStackTrace();
         }
-
     }
 
     private void getImageData(String date) {
@@ -742,10 +766,10 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
      *
      * @param url URL of the image
      */
-    public void launchFullImageView(String url, String date, boolean setWallpaper) {
+    public void launchFullImageView(String url, String numericalDate, boolean setWallpaper) {
         Intent intent = new Intent(MainActivity.this, ImageActivity.class);
         intent.putExtra("url", url);
-        intent.putExtra("date", expandedToNumericalDate(date));
+        intent.putExtra("date", numericalDate);
         intent.putExtra("wallpaper", setWallpaper);
         startActivity(intent);
     }
@@ -764,7 +788,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
         imageView.setImageResource(0);
         progressBar.setVisibility(View.GONE);
-        fab.hide();
 
         builder.setTitle(R.string.dialog_browser_title);
         builder.setMessage(message);

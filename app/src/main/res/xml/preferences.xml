@@ -3,23 +3,18 @@
     <PreferenceCategory
         android:key="category_general"
         android:title="General">
-        <!--<ListPreference
-            android:key="load_hd"
-            android:title="Image quality"
-            android:entries="@array/list_image_quality"
-            android:dialogTitle="Image quality"
-            android:defaultValue="0"
-            android:entryValues="@array/list_values"/>-->
         <ListPreference
-            android:defaultValue="1"
+            android:defaultValue="0"
             android:entries="@array/list_image_quality"
             android:entryValues="@array/list_values"
             android:key="image_quality"
-            android:summary="HD images take more time and Internet usage to load "
-            android:title="Image quality"/>
+            android:summary="Images can be saved at higher qualities on the device\nAPOD only loads standard-definition images to screen"
+            android:title="Image save quality"/>
+
         <SwitchPreference
-            android:key="display_credits"
-            android:summary="Photo credits displayed below image description."
+            android:defaultValue="true"
+            android:key="display_copyright"
+            android:summary="Photo credits displayed below image description"
             android:title="Display photo credits"/>
     </PreferenceCategory>
 
@@ -28,8 +23,8 @@
         android:title="Storage">
         <EditTextPreference
             android:key="download_location"
-            android:title="Download location"
-            android:summary="/sdcard/APOD/"/>
+            android:summary="/sdcard/APOD/"
+            android:title="Download location"/>
         <Preference
             android:key="clear_cache"
             android:title="Clear image cache"/>
@@ -44,7 +39,7 @@
         <PreferenceScreen
             android:key="open_source"
             android:summary="View third-party resources used in this app"
-            android:title="Open-source libraries">
+            android:title="Credits &amp; Open-source libraries">
             <intent
                 android:targetClass="jeffrey.astronomypictureofthedaynasa.CreditsActivity"
                 android:targetPackage="jeffrey.astronomypictureofthedaynasa"/>
