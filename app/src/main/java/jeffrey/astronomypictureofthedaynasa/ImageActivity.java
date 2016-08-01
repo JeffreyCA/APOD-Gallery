@@ -27,7 +27,8 @@ public class ImageActivity extends Activity {
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
     private static String[] PERMISSIONS_STORAGE = {Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE};
-    final String IMAGE_DIRECTORY = "APOD";
+    final String IMAGE_DIRECTORY = Environment.getExternalStorageDirectory().getPath() +
+            File.separator + "APOD";
     final String IMAGE_EXT = ".jpg";
 
     public static void verifyStoragePermissions(Activity activity) {
@@ -74,8 +75,7 @@ public class ImageActivity extends Activity {
     }
 
     public void setAsWallpaper(String imageDate) {
-        File image = new File(Environment.getExternalStorageDirectory().getPath() +
-                File.separator + IMAGE_DIRECTORY + File.separator + imageDate + IMAGE_EXT);
+        File image = new File(IMAGE_DIRECTORY + File.separator + imageDate + IMAGE_EXT);
         Log.i("PATH", image.getAbsolutePath());
         Intent intent = new Intent(Intent.ACTION_ATTACH_DATA);
         intent.addCategory(Intent.CATEGORY_DEFAULT);

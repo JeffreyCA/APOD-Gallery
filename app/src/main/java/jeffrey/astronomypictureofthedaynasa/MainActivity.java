@@ -87,7 +87,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     final SimpleDateFormat NUMERICAL_FORMAT = new SimpleDateFormat("y-MM-dd");
     final SimpleDateFormat SHORT_FORMAT = new SimpleDateFormat("yyMMdd");
     final String FRAG_TAG_DATE_PICKER = "Date Picker";
-    final String IMAGE_DIRECTORY = "APOD";
+    final String DEFAULT_IMAGE_DIRECTORY = Environment.getExternalStorageDirectory().getPath() +
+            File.separator + "APOD";
     final String IMAGE_EXT = ".jpg";
 
     // First available APOD date
@@ -263,8 +264,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 }
                 // No image available
                 else {
-                    Toast.makeText(MainActivity.this, R.string.toast_no_image, Toast
-                            .LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, R.string.toast_no_image, Toast.LENGTH_LONG)
+                            .show();
                 }
             }
         });
@@ -492,16 +493,17 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     }
 
     public void shareImage() {
+        final String IMAGE_DIRECTORY = sharedPref.getString("pref_save_location",
+                DEFAULT_IMAGE_DIRECTORY);
+
         Intent share = new Intent(Intent.ACTION_SEND);
         share.setType("image/jpeg");
         ImageActivity.verifyStoragePermissions(this);
 
         saveImage(expandedToNumericalDate(date));
 
-        String path = Environment.getExternalStorageDirectory() + File.separator +
-                IMAGE_DIRECTORY + File.separator + expandedToNumericalDate(date) + ".jpg";
+        String path = IMAGE_DIRECTORY + File.separator + expandedToNumericalDate(date) + ".jpg";
         File image = new File(path);
-
         Uri uri = Uri.fromFile(image);
 
         share.putExtra(Intent.EXTRA_STREAM, uri);
@@ -509,8 +511,9 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     }
 
     public void saveImage(String imageDate) {
-        final String date = imageDate;
-
+        final String DATE = imageDate;
+        final String IMAGE_DIRECTORY = sharedPref.getString("pref_save_location",
+                DEFAULT_IMAGE_DIRECTORY);
         ImageActivity.verifyStoragePermissions(this);
 
         // Load image with Glide as bitmap
@@ -520,16 +523,16 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap>
                     glideAnimation) {
 
-                File imageDirectory = new File(Environment.getExternalStorageDirectory().getPath() +
-                        File.separator + IMAGE_DIRECTORY);
+                File imageDirectory = new File(IMAGE_DIRECTORY);
 
                 if (!imageDirectory.exists()) {
                     imageDirectory.mkdir();
                 }
-                String filename = date + IMAGE_EXT;
+                String filename = DATE + IMAGE_EXT;
                 File image = new File(imageDirectory, filename);
 
-                String message = getResources().getString(R.string.toast_save_image) + filename;
+                String message = getResources().getString(R.string.toast_save_image) +
+                        IMAGE_DIRECTORY + filename;
 
                 // Encode the file as a JPG image.
                 FileOutputStream outStream;
@@ -540,14 +543,15 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                     outStream.flush();
                     outStream.close();
 
-                    Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
                 }
                 catch (FileNotFoundException e) {
-                    e.printStackTrace();
+                    Toast.makeText(MainActivity.this, R.string.error_saving, Toast.LENGTH_LONG)
+                            .show();
                 }
                 catch (IOException e) {
                     Toast.makeText(MainActivity.this, R.string.error_saving + image.getPath(),
-                            Toast.LENGTH_SHORT).show();
+                            Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -587,7 +591,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
             hdUrl = "";
             prefHd = sharedPref.getString("image_quality", "").equals("1");
-            prefCopyright = sharedPref.getBoolean("display_copyright", false);
+            prefCopyright = sharedPref.getBoolean("pref_display_credit", false);
 
             // Check if HD image URL is included in response
             if (response.has("hdurl")) {

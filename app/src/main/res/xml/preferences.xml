@@ -13,8 +13,8 @@
 
         <SwitchPreference
             android:defaultValue="true"
-            android:key="display_copyright"
-            android:summary="Photo credits displayed below image description"
+            android:key="pref_display_credit"
+            android:summary="Show photo credits below image description if available"
             android:title="Display photo credits"/>
     </PreferenceCategory>
 
@@ -22,15 +22,13 @@
         android:key="category_storage"
         android:title="Storage">
         <EditTextPreference
-            android:key="download_location"
-            android:summary="/sdcard/APOD/"
-            android:title="Download location"/>
+            android:defaultValue="/sdcard/APOD/"
+            android:key="pref_save_location"
+            android:title="Image save location"/>
+
         <Preference
             android:key="clear_cache"
             android:title="Clear image cache"/>
-        <Preference
-            android:key="clear_downloads"
-            android:title="Clear saved images"/>
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -38,8 +36,8 @@
         android:title="About">
         <PreferenceScreen
             android:key="open_source"
-            android:summary="View third-party resources used in this app"
-            android:title="Credits &amp; Open-source libraries">
+            android:summary="Third-party resources used in making this app"
+            android:title="@string/title_activity_credits">
             <intent
                 android:targetClass="jeffrey.astronomypictureofthedaynasa.CreditsActivity"
                 android:targetPackage="jeffrey.astronomypictureofthedaynasa"/>

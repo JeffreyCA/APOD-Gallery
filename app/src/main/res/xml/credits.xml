@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory
-        android:key="category_about"
+        android:key="credit_github"
         android:title="Github Libraries">
         <PreferenceScreen
             android:key="open_source"
@@ -23,7 +23,7 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:key="category_about"
+        android:key="credit_stackoverflow"
         android:title="StackOverflow Snippets">
         <PreferenceScreen
             android:key="open_source"
@@ -34,6 +34,16 @@
             android:key="open_source"
             android:summary="Desc #2"
             android:title="Library #2">
+        </PreferenceScreen>
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="credit_icon"
+        android:title="Icon Credits">
+        <PreferenceScreen
+            android:key="open_source"
+            android:summary="Desc #1"
+            android:title="Library #1">
         </PreferenceScreen>
     </PreferenceCategory>
 </PreferenceScreen>

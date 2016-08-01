@@ -3,27 +3,52 @@ package jeffrey.astronomypictureofthedaynasa;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.EditTextPreference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.preference.SwitchPreference;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 
-public class SettingsActivity extends Activity implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class SettingsActivity extends Activity implements SharedPreferences
+        .OnSharedPreferenceChangeListener {
     public static final String KEY_PREF_SYNC_CONN = "pref_syncConnectionType";
-    static SharedPreferences prefs;
-    static SharedPreferences.Editor editor;
+    private static EditTextPreference saveDirectory;
+    private static SwitchPreference displayCredits;
+    private SharedPreferences prefs;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
+        PreferenceManager.getDefaultSharedPreferences(this)
+                .registerOnSharedPreferenceChangeListener(this);
         prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
         // Display the fragment as the main content.
         getFragmentManager().beginTransaction().replace(android.R.id.content, new PrefsFragment()
         ).commit();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        PreferenceManager.getDefaultSharedPreferences(this)
+                .registerOnSharedPreferenceChangeListener(this);
+    }
+
+    /* (non-Javadoc)
+     * @see android.app.Activity#onPause()
+     */
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        PreferenceManager.getDefaultSharedPreferences(this)
+                .unregisterOnSharedPreferenceChangeListener(this);
     }
 
     @Override
@@ -44,19 +69,41 @@ public class SettingsActivity extends Activity implements SharedPreferences.OnSh
         });
     }
 
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        SharedPreferences.Editor editor = prefs.edit();
+
+        switch (key) {
+            case "pref_save_location":
+                String directory = saveDirectory.getText();
+                if (directory.charAt(directory.length() - 1) != '/') {
+                    directory += '/';
+                    saveDirectory.setText(directory);
+                }
+                editor.putString(key, directory);
+                saveDirectory.setSummary(directory);
+                break;
+            case "pref_display_credit":
+                Log.i("CHECKED", "" + sharedPreferences.getBoolean(key, false));
+                // editor.putBoolean(key, displayCredits.isChecked());
+                break;
+            default:
+                break;
+        }
+        editor.apply();
+    }
+
     public static class PrefsFragment extends PreferenceFragment {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             // Load the preferences from an XML resource
             addPreferencesFromResource(R.xml.preferences);
-        }
-    }
 
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        // editor = prefs.edit();
-        // editor.putString("yourStringName", "this_is_the_saved_value");
-        // editor.commit(); // This line is IMPORTANT. If you miss this one its not gonna work!
+            saveDirectory = (EditTextPreference) findPreference("pref_save_location");
+            saveDirectory.setSummary(saveDirectory.getText());
+
+            displayCredits = (SwitchPreference) findPreference("pref_display_credit");
+        }
     }
 }
