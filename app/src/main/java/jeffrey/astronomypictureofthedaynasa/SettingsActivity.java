@@ -55,8 +55,8 @@ public class SettingsActivity extends Activity implements SharedPreferences.OnSh
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        editor = prefs.edit();
-        editor.putString("yourStringName", "this_is_the_saved_value");
-        editor.commit(); // This line is IMPORTANT. If you miss this one its not gonna work!
+        // editor = prefs.edit();
+        // editor.putString("yourStringName", "this_is_the_saved_value");
+        // editor.commit(); // This line is IMPORTANT. If you miss this one its not gonna work!
     }
 }

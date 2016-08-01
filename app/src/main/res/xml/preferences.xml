@@ -53,7 +53,7 @@
 
         <PreferenceScreen
             android:key="version"
-            android:summary="0.3b"
+            android:summary="0.4b"
             android:title="App Version">
         </PreferenceScreen>
     </PreferenceCategory>

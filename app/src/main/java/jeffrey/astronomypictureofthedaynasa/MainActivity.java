@@ -24,6 +24,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Interpolator;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -75,6 +76,8 @@ import java.util.GregorianCalendar;
 
 // TODO Clear cache option
 // TODO Settings: Set image download directory
+// TODO Display toast if non-image media: onOptionsItemSelected()
+// TODO Share link instead of image if non-image content
 
 public class MainActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
 
@@ -99,6 +102,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     ImageView imageView;
     ImageView tomorrow;
     ImageView yesterday;
+    LinearLayout mainView;
     ProgressBar progressBar;
     SlidingUpPanelLayout slidingPanel;
     TextView dateText;
@@ -141,6 +145,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         description = (DocumentView) findViewById(R.id.description);
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fabLayout = (FloatingActionButtonLayout) findViewById(R.id.fab_layout);
+        mainView = (LinearLayout) findViewById(R.id.main_view);
         progressBar = (ProgressBar) findViewById(R.id.progress);
         titleText = (AutoResizeTextView) findViewById(R.id.title);
 
@@ -274,6 +279,14 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
         final GestureDetector gdt = new GestureDetector(MainActivity.this, new GestureListener());
         imageView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(final View view, final MotionEvent event) {
+                gdt.onTouchEvent(event);
+                return true;
+            }
+        });
+
+        mainView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(final View view, final MotionEvent event) {
                 gdt.onTouchEvent(event);
@@ -460,10 +473,12 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.action_share:
-                shareImage();
+                if (imageView.getDrawable() != null)
+                    shareImage();
                 return true;
             case R.id.action_save:
-                saveImage(expandedToNumericalDate(date));
+                if (imageView.getDrawable() != null)
+                    saveImage(expandedToNumericalDate(date));
                 return true;
             case R.id.action_open_link:
                 openLink();
@@ -564,7 +579,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         String title;
 
         try {
-            final String numericalDate = response.getString("date");
+            // final String numericalDate = response.getString("date");
             explanation = response.getString("explanation");
             mediaType = response.getString("media_type");
             sdUrl = response.getString("url");
@@ -593,12 +608,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             else {
                 imgUrl = sdUrl;
             }
-
-            imageView.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    launchFullImageView(sdUrl, numericalDate, false);
-                }
-            });
 
             // Set text
             titleText.setText(title);
@@ -630,7 +639,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                         }).into(imageView);
             }
             else {
-                openNonImageContent(numericalDate, sdUrl);
+                openNonImageContent(expandedToNumericalDate(date), sdUrl);
             }
         }
         catch (JSONException e) {
@@ -837,19 +846,32 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             return false;
         }
 
+        // A confirmed single-tap event has occurred.  Only called when the detector has
+        // determined that the first tap stands alone, and is not part of a double tap.
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
-            // A confirmed single-tap event has occurred.  Only called when the detector has
-            // determined that the first tap stands alone, and is not part of a double tap.
-            launchFullImageView(sdUrl, expandedToNumericalDate(date), false);
+
+            if (imageView.getDrawable() == null) {
+                openNonImageContent(expandedToNumericalDate(date), sdUrl);
+            }
+            else {
+                launchFullImageView(sdUrl, expandedToNumericalDate(date), false);
+            }
             return false;
         }
 
+        // Touch has been long enough to indicate a long press.
+        // Does not indicate motion is complete yet (no up event necessarily)
         @Override
         public void onLongPress(MotionEvent e) {
-            // Touch has been long enough to indicate a long press.
-            // Does not indicate motion is complete yet (no up event necessarily)
-            Toast.makeText(MainActivity.this, R.string.toast_view_image, Toast.LENGTH_SHORT).show();
+            if (imageView.getDrawable() == null) {
+                Toast.makeText(MainActivity.this, R.string.toast_view_external, Toast
+                        .LENGTH_SHORT).show();
+            }
+            else {
+                Toast.makeText(MainActivity.this, R.string.toast_view_image, Toast.LENGTH_SHORT)
+                        .show();
+            }
         }
     }
 }
