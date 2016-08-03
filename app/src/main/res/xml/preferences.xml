@@ -2,41 +2,41 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory
         android:key="category_general"
-        android:title="General">
+        android:title="@string/pref_general">
         <ListPreference
             android:defaultValue="0"
             android:entries="@array/list_image_quality"
             android:entryValues="@array/list_values"
             android:key="image_quality"
-            android:summary="Images can be saved at higher qualities on the device\nAPOD only loads standard-definition images to screen"
-            android:title="Image save quality"/>
+            android:summary="@string/pref_summary_image_quality"
+            android:title="@string/pref_image_quality"/>
 
         <SwitchPreference
             android:defaultValue="true"
             android:key="pref_display_credit"
-            android:summary="Show photo credits below image description if available"
-            android:title="Display photo credits"/>
+            android:summary="@string/pref_summary_image_credits"
+            android:title="@string/pref_image_credits"/>
     </PreferenceCategory>
 
     <PreferenceCategory
         android:key="category_storage"
-        android:title="Storage">
+        android:title="@string/pref_storage">
         <EditTextPreference
             android:defaultValue="/sdcard/APOD/"
             android:key="pref_save_location"
-            android:title="Image save location"/>
+            android:title="@string/pref_save_location"/>
 
         <Preference
-            android:key="clear_cache"
-            android:title="Clear image cache"/>
+            android:key="pref_clear_cache"
+            android:title="@string/pref_cache"/>
     </PreferenceCategory>
 
     <PreferenceCategory
         android:key="category_about"
-        android:title="About">
+        android:title="@string/pref_about">
         <PreferenceScreen
             android:key="open_source"
-            android:summary="Third-party resources used in making this app"
+            android:summary="@string/pref_summary_credits"
             android:title="@string/title_activity_credits">
             <intent
                 android:targetClass="jeffrey.astronomypictureofthedaynasa.CreditsActivity"
@@ -45,14 +45,13 @@
 
         <PreferenceScreen
             android:key="developer"
-            android:summary="JeffreyCA"
-            android:title="Developer">
+            android:summary="@string/name_developer"
+            android:title="@string/pref_developer">
         </PreferenceScreen>
 
         <PreferenceScreen
-            android:key="version"
-            android:summary="0.4b"
-            android:title="App Version">
+            android:key="pref_version"
+            android:title="@string/pref_version">
         </PreferenceScreen>
     </PreferenceCategory>
 </PreferenceScreen>

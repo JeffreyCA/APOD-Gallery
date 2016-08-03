@@ -1,29 +1,38 @@
 package jeffrey.astronomypictureofthedaynasa;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
+import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
-import android.preference.SwitchPreference;
+import android.preference.PreferenceScreen;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
 
 public class SettingsActivity extends Activity implements SharedPreferences
         .OnSharedPreferenceChangeListener {
     public static final String KEY_PREF_SYNC_CONN = "pref_syncConnectionType";
+    static Activity thisActivity;
     private static EditTextPreference saveDirectory;
-    private static SwitchPreference displayCredits;
+    private static PreferenceScreen appVersion;
+    private static Preference clearCache;
+
     private SharedPreferences prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        thisActivity = this;
         PreferenceManager.getDefaultSharedPreferences(this)
                 .registerOnSharedPreferenceChangeListener(this);
         prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -85,7 +94,6 @@ public class SettingsActivity extends Activity implements SharedPreferences
                 break;
             case "pref_display_credit":
                 Log.i("CHECKED", "" + sharedPreferences.getBoolean(key, false));
-                // editor.putBoolean(key, displayCredits.isChecked());
                 break;
             default:
                 break;
@@ -100,10 +108,41 @@ public class SettingsActivity extends Activity implements SharedPreferences
             // Load the preferences from an XML resource
             addPreferencesFromResource(R.xml.preferences);
 
+            // Set app version number
+            appVersion = (PreferenceScreen) findPreference("pref_version");
+            appVersion.setSummary(BuildConfig.VERSION_NAME);
+
+            clearCache = findPreference("pref_clear_cache");
+            clearCache.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                public boolean onPreferenceClick(Preference preference) {
+                    ClearCacheTask task = new ClearCacheTask(thisActivity);
+                    task.execute();
+                    return true;
+                }
+            });
+
+            // Set save location summary to its contents
             saveDirectory = (EditTextPreference) findPreference("pref_save_location");
             saveDirectory.setSummary(saveDirectory.getText());
+        }
 
-            displayCredits = (SwitchPreference) findPreference("pref_display_credit");
+        class ClearCacheTask extends AsyncTask<Void, Void, Long> {
+            private Context context;
+
+            public ClearCacheTask(Context context) {
+                this.context = context;
+            }
+
+            @Override
+            protected Long doInBackground(Void... params) {
+                Glide.get(context).clearDiskCache();
+                return 0L;
+            }
+
+            @Override
+            protected void onPostExecute(Long result) {
+                Toast.makeText(thisActivity, R.string.toast_clear_cache, Toast.LENGTH_SHORT).show();
+            }
         }
     }
 }

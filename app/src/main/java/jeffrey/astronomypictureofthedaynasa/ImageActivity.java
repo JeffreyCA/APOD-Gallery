@@ -7,13 +7,14 @@ package jeffrey.astronomypictureofthedaynasa;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
-import android.util.Log;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -27,9 +28,11 @@ public class ImageActivity extends Activity {
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
     private static String[] PERMISSIONS_STORAGE = {Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE};
-    final String IMAGE_DIRECTORY = Environment.getExternalStorageDirectory().getPath() +
+    final String DEFAULT_IMAGE_DIRECTORY = Environment.getExternalStorageDirectory().getPath() +
             File.separator + "APOD";
     final String IMAGE_EXT = ".jpg";
+
+    SharedPreferences sharedPref;
 
     public static void verifyStoragePermissions(Activity activity) {
         // Check if we have write permission
@@ -54,6 +57,7 @@ public class ImageActivity extends Activity {
         final String date = extras.getString("date");
         final boolean setWallpaper = extras.getBoolean("wallpaper");
 
+        sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         final TouchImageView imageView = (TouchImageView) findViewById(R.id.zoom_image);
         // Set zoom to 3.5x
         imageView.setMaxZoom(3.5f);
@@ -75,8 +79,10 @@ public class ImageActivity extends Activity {
     }
 
     public void setAsWallpaper(String imageDate) {
-        File image = new File(IMAGE_DIRECTORY + File.separator + imageDate + IMAGE_EXT);
-        Log.i("PATH", image.getAbsolutePath());
+        final String IMAGE_DIRECTORY = sharedPref.getString("pref_save_location",
+                DEFAULT_IMAGE_DIRECTORY);
+
+        File image = new File(IMAGE_DIRECTORY + imageDate + IMAGE_EXT);
         Intent intent = new Intent(Intent.ACTION_ATTACH_DATA);
         intent.addCategory(Intent.CATEGORY_DEFAULT);
         intent.setDataAndType(Uri.fromFile(image), "image/jpeg");

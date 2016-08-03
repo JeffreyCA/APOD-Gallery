@@ -33,5 +33,4 @@
             android:label="@string/title_activity_credits">
         </activity>
     </application>
-
 </manifest>

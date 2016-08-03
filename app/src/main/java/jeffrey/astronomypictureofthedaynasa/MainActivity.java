@@ -74,26 +74,22 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-// TODO Clear cache option
-// TODO Settings: Set image download directory
-// TODO Display toast if non-image media: onOptionsItemSelected()
 // TODO Share link instead of image if non-image content
+// TODO Deal with timezones
 
 public class MainActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
 
     // Logging tag for listeners
-    final String TAG = "LISTENER";
     final SimpleDateFormat EXPANDED_FORMAT = new SimpleDateFormat("MMMM d, y");
     final SimpleDateFormat NUMERICAL_FORMAT = new SimpleDateFormat("y-MM-dd");
     final SimpleDateFormat SHORT_FORMAT = new SimpleDateFormat("yyMMdd");
-    final String FRAG_TAG_DATE_PICKER = "Date Picker";
     final String DEFAULT_IMAGE_DIRECTORY = Environment.getExternalStorageDirectory().getPath() +
             File.separator + "APOD";
     final String IMAGE_EXT = ".jpg";
 
     // First available APOD date
     final Calendar MIN_DATE = new GregorianCalendar(1995, 9, 22);
-    final String[] DISABLED_DAYS = {"19950617", "19950618", "19950619"};
+
     // NASA API key
     final private String API_KEY = "***REMOVED***";
     AutoResizeTextView titleText;
@@ -260,12 +256,11 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             public void onClick(View v) {
                 if (imageView.getDrawable() != null) {
                     saveImage(expandedToNumericalDate(date));
-                    launchFullImageView(imgUrl, date, true);
+                    launchFullImageView(imgUrl, expandedToNumericalDate(date), true);
                 }
                 // No image available
                 else {
-                    Toast.makeText(MainActivity.this, R.string.toast_no_image, Toast.LENGTH_LONG)
-                            .show();
+                    displayImageNotAvailableToast();
                 }
             }
         });
@@ -295,6 +290,10 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             }
         });
     } // End onCreate method
+
+    private void displayImageNotAvailableToast() {
+        Toast.makeText(MainActivity.this, R.string.toast_no_image, Toast.LENGTH_LONG).show();
+    }
 
     private void nextDay() {
         Glide.clear(imageView);
@@ -474,12 +473,10 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.action_share:
-                if (imageView.getDrawable() != null)
-                    shareImage();
+                shareImage(titleText.getText().toString());
                 return true;
             case R.id.action_save:
-                if (imageView.getDrawable() != null)
-                    saveImage(expandedToNumericalDate(date));
+                saveImage(expandedToNumericalDate(date));
                 return true;
             case R.id.action_open_link:
                 openLink();
@@ -492,25 +489,45 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         }
     }
 
-    public void shareImage() {
+    public void shareImage(String title) {
         final String IMAGE_DIRECTORY = sharedPref.getString("pref_save_location",
                 DEFAULT_IMAGE_DIRECTORY);
-
         Intent share = new Intent(Intent.ACTION_SEND);
-        share.setType("image/jpeg");
-        ImageActivity.verifyStoragePermissions(this);
 
-        saveImage(expandedToNumericalDate(date));
+        // Share link if non-image content
+        if (imageView.getDrawable() == null) {
+            share.setType("text/plain");
+            share.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-        String path = IMAGE_DIRECTORY + File.separator + expandedToNumericalDate(date) + ".jpg";
-        File image = new File(path);
-        Uri uri = Uri.fromFile(image);
+            share.putExtra(Intent.EXTRA_SUBJECT, title);
+            share.putExtra(Intent.EXTRA_TEXT, getFullUrl());
 
-        share.putExtra(Intent.EXTRA_STREAM, uri);
-        startActivity(Intent.createChooser(share, "Share Image"));
+            startActivity(Intent.createChooser(share, "Share link"));
+        }
+        // Otherwise share image
+        else {
+            share.setType("image/jpeg");
+            share.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            ImageActivity.verifyStoragePermissions(this);
+
+            saveImage(expandedToNumericalDate(date));
+
+            String path = IMAGE_DIRECTORY + expandedToNumericalDate(date) + IMAGE_EXT;
+            File image = new File(path);
+            Uri uri = Uri.fromFile(image);
+
+            share.putExtra(Intent.EXTRA_STREAM, uri);
+            startActivity(Intent.createChooser(share, "Share image"));
+        }
     }
 
     public void saveImage(String imageDate) {
+        // Exit if no image is available
+        if (imageView.getDrawable() == null) {
+            displayImageNotAvailableToast();
+            return;
+        }
+
         final String DATE = imageDate;
         final String IMAGE_DIRECTORY = sharedPref.getString("pref_save_location",
                 DEFAULT_IMAGE_DIRECTORY);
@@ -606,7 +623,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
             // Set image url depending on user preference and image availability
             if (prefHd && !hdUrl.equals("")) {
-                Log.i("URL", "Loading HD URL...");
                 imgUrl = hdUrl;
             }
             else {
