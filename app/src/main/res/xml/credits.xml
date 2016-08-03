@@ -2,38 +2,99 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory
         android:key="credit_github"
-        android:title="Github Libraries">
+        android:title="Third-party libraries">
         <PreferenceScreen
             android:key="open_source"
-            android:summary="Desc #1"
-            android:title="Library #1">
+            android:summary="The Android Open Source Project"
+            android:title="Android Volley">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://android.googlesource.com/platform/frameworks/volley"/>
         </PreferenceScreen>
 
         <PreferenceScreen
             android:key="open_source"
-            android:summary="Desc #2"
-            android:title="Library #2">
+            android:summary="wdullaer"
+            android:title="MaterialDateTimePicker">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://github.com/wdullaer/MaterialDateTimePicker"/>
         </PreferenceScreen>
 
         <PreferenceScreen
             android:key="open_source"
-            android:summary="Desc #3"
-            android:title="Library #3">
+            android:summary="grantland"
+            android:title="AutoFitTextView">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://github.com/grantland/android-autofittextview"/>
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="open_source"
+            android:summary="TR4Android (original by umano)"
+            android:title="AndroidSlidingUpPanel">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://github.com/TR4Android/AndroidSlidingUpPanel"/>
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="open_source"
+            android:summary="bluejamesbond"
+            android:title="TextJustify-Android">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://github.com/bluejamesbond/TextJustify-Android"/>
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="open_source"
+            android:summary="bumptech"
+            android:title="Glide">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://github.com/bumptech/glide"/>
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="open_source"
+            android:summary="bumptech"
+            android:title="Volley integration library">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://github.com/bumptech/glide/wiki/Integration-Libraries"/>
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="open_source"
+            android:summary="Mike Ortiz, Patrick Lackemacher, Babay88, @ipsilondev, hank-cp, singpolyma"
+            android:title="TouchImageView">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://github.com/MikeOrtiz/TouchImageView"/>
         </PreferenceScreen>
     </PreferenceCategory>
 
     <PreferenceCategory
         android:key="credit_stackoverflow"
-        android:title="StackOverflow Snippets">
+        android:title="StackOverflow snippets">
         <PreferenceScreen
             android:key="open_source"
-            android:summary="Desc #1"
-            android:title="Library #1">
+            android:summary="M-WaJeEh"
+            android:title="AutoResizeTextView">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="http://stackoverflow.com/questions/5033012/auto-scale-textview-text-to-fit-within
+            * -bounds/17782522#17782522"/>
         </PreferenceScreen>
         <PreferenceScreen
             android:key="open_source"
-            android:summary="Desc #2"
-            android:title="Library #2">
+            android:summary="Alex Orlov"
+            android:title="ImageView fling gesture">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="http://stackoverflow.com/questions/4098198/adding-fling-gesture-to-an-image-view-android"/>
         </PreferenceScreen>
     </PreferenceCategory>
 
@@ -42,8 +103,11 @@
         android:title="Icon Credits">
         <PreferenceScreen
             android:key="open_source"
-            android:summary="Desc #1"
-            android:title="Library #1">
+            android:summary="Final design by JeffreyCA, icon elements made by Freepik"
+            android:title="App icon">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="http://www.flaticon.com/packs/space-6"/>
         </PreferenceScreen>
     </PreferenceCategory>
 </PreferenceScreen>

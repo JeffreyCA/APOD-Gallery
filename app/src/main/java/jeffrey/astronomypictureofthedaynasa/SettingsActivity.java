@@ -22,11 +22,8 @@ import com.bumptech.glide.Glide;
 public class SettingsActivity extends Activity implements SharedPreferences
         .OnSharedPreferenceChangeListener {
     public static final String KEY_PREF_SYNC_CONN = "pref_syncConnectionType";
-    static Activity thisActivity;
+    private static Activity thisActivity;
     private static EditTextPreference saveDirectory;
-    private static PreferenceScreen appVersion;
-    private static Preference clearCache;
-
     private SharedPreferences prefs;
 
     @Override
@@ -109,10 +106,10 @@ public class SettingsActivity extends Activity implements SharedPreferences
             addPreferencesFromResource(R.xml.preferences);
 
             // Set app version number
-            appVersion = (PreferenceScreen) findPreference("pref_version");
+            PreferenceScreen appVersion = (PreferenceScreen) findPreference("pref_version");
             appVersion.setSummary(BuildConfig.VERSION_NAME);
 
-            clearCache = findPreference("pref_clear_cache");
+            Preference clearCache = findPreference("pref_clear_cache");
             clearCache.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 public boolean onPreferenceClick(Preference preference) {
                     ClearCacheTask task = new ClearCacheTask(thisActivity);
