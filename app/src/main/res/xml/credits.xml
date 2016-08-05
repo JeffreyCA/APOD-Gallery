@@ -3,32 +3,6 @@
     <PreferenceCategory
         android:key="category_third_party"
         android:title="Third-party libraries">
-        <PreferenceScreen
-            android:key="credit_volley"
-            android:summary="The Android Open Source Project"
-            android:title="Android Volley">
-            <intent
-                android:action="android.intent.action.VIEW"
-                android:data="https://android.googlesource.com/platform/frameworks/volley"/>
-        </PreferenceScreen>
-
-        <PreferenceScreen
-            android:key="credit_date_picker"
-            android:summary="wdullaer"
-            android:title="MaterialDateTimePicker">
-            <intent
-                android:action="android.intent.action.VIEW"
-                android:data="https://github.com/wdullaer/MaterialDateTimePicker"/>
-        </PreferenceScreen>
-
-        <PreferenceScreen
-            android:key="credit_autofit_text"
-            android:summary="grantland"
-            android:title="AutoFitTextView">
-            <intent
-                android:action="android.intent.action.VIEW"
-                android:data="https://github.com/grantland/android-autofittextview"/>
-        </PreferenceScreen>
 
         <PreferenceScreen
             android:key="credit_sliding_panel"
@@ -40,12 +14,21 @@
         </PreferenceScreen>
 
         <PreferenceScreen
-            android:key="credit_text_justify"
-            android:summary="bluejamesbond"
-            android:title="TextJustify-Android">
+            android:key="credit_volley"
+            android:summary="The Android Open Source Project"
+            android:title="Android Volley">
             <intent
                 android:action="android.intent.action.VIEW"
-                android:data="https://github.com/bluejamesbond/TextJustify-Android"/>
+                android:data="https://android.googlesource.com/platform/frameworks/volley"/>
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="credit_autofit_text"
+            android:summary="grantland"
+            android:title="AutoFitTextView">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://github.com/grantland/android-autofittextview"/>
         </PreferenceScreen>
 
         <PreferenceScreen
@@ -60,10 +43,28 @@
         <PreferenceScreen
             android:key="credit_volley_integration"
             android:summary="bumptech"
-            android:title="Volley integration library">
+            android:title="Glide-volley integration library">
             <intent
                 android:action="android.intent.action.VIEW"
                 android:data="https://github.com/bumptech/glide/wiki/Integration-Libraries"/>
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="credit_date_picker"
+            android:summary="wdullaer"
+            android:title="MaterialDateTimePicker">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://github.com/wdullaer/MaterialDateTimePicker"/>
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="credit_text_justify"
+            android:summary="bluejamesbond"
+            android:title="TextJustify-Android">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://github.com/bluejamesbond/TextJustify-Android"/>
         </PreferenceScreen>
 
         <PreferenceScreen
