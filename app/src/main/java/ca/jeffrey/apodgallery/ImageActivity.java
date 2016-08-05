@@ -15,6 +15,8 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -72,7 +74,14 @@ public class ImageActivity extends Activity {
 
                 if (setWallpaper) {
                     verifyStoragePermissions(ImageActivity.this);
-                    setAsWallpaper(date);
+                    if (ContextCompat.checkSelfPermission(ImageActivity.this, Manifest.permission
+                            .WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                        setAsWallpaper(date);
+                    }
+                    else {
+                        Toast.makeText(ImageActivity.this, R.string.toast_storage, Toast
+                                .LENGTH_SHORT).show();
+                    }
                 }
             }
         });

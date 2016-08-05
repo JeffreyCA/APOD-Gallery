@@ -1,8 +1,10 @@
 package ca.jeffrey.apodgallery;
 
+import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
@@ -15,7 +17,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -76,7 +77,7 @@ import java.util.GregorianCalendar;
 
 public class MainActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
 
-    // Logging tag for listeners
+    // Date formats
     final SimpleDateFormat EXPANDED_FORMAT = new SimpleDateFormat("MMMM d, y");
     final SimpleDateFormat NUMERICAL_FORMAT = new SimpleDateFormat("y-MM-dd");
     final SimpleDateFormat SHORT_FORMAT = new SimpleDateFormat("yyMMdd");
@@ -205,7 +206,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             // Hide FAB while expanded
             @Override
             public void onPanelExpanded(View panel) {
-                // Log.i(TAG, "onPanelExpanded");
                 fab.hide();
             }
 
@@ -216,7 +216,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             // Show FAB while collapsed
             @Override
             public void onPanelCollapsed(View panel) {
-                // Log.i(TAG, "onPanelCollapsed");
                 fab.show();
                 // Scroll text up so it is hidden when panel is collapsed
                 description.smoothScrollTo(0, 0);
@@ -510,7 +509,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         else {
             share.setType("image/jpeg");
             share.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            ImageActivity.verifyStoragePermissions(this);
 
             saveImage(expandedToNumericalDate(date));
 
@@ -535,44 +533,52 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 DEFAULT_IMAGE_DIRECTORY);
         ImageActivity.verifyStoragePermissions(this);
 
-        // Load image with Glide as bitmap
-        Glide.with(this).load(imgUrl).asBitmap().diskCacheStrategy(DiskCacheStrategy.SOURCE).into
-                (new SimpleTarget<Bitmap>() {
-            @Override
-            public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap>
-                    glideAnimation) {
+        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission
+                .WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            // Load image with Glide as bitmap
+            Glide.with(this).load(imgUrl).asBitmap().diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                    .into(new SimpleTarget<Bitmap>() {
 
-                File imageDirectory = new File(IMAGE_DIRECTORY);
+                @Override
+                public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap>
+                        glideAnimation) {
 
-                if (!imageDirectory.exists()) {
-                    imageDirectory.mkdir();
+                    File imageDirectory = new File(IMAGE_DIRECTORY);
+
+                    if (!imageDirectory.exists()) {
+                        imageDirectory.mkdir();
+                    }
+                    String filename = DATE + IMAGE_EXT;
+                    File image = new File(imageDirectory, filename);
+
+                    String message = getResources().getString(R.string.toast_save_image) +
+                            IMAGE_DIRECTORY + filename;
+
+                    // Encode the file as a JPG image.
+                    FileOutputStream outStream;
+                    try {
+                        outStream = new FileOutputStream(image);
+                        resource.compress(Bitmap.CompressFormat.JPEG, 100, outStream);
+
+                        outStream.flush();
+                        outStream.close();
+
+                        Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
+                    }
+                    catch (FileNotFoundException e) {
+                        Toast.makeText(MainActivity.this, R.string.error_saving, Toast
+                                .LENGTH_SHORT).show();
+                    }
+                    catch (IOException e) {
+                        Toast.makeText(MainActivity.this, R.string.error_saving, Toast
+                                .LENGTH_SHORT).show();
+                    }
                 }
-                String filename = DATE + IMAGE_EXT;
-                File image = new File(imageDirectory, filename);
-
-                String message = getResources().getString(R.string.toast_save_image) +
-                        IMAGE_DIRECTORY + filename;
-
-                // Encode the file as a JPG image.
-                FileOutputStream outStream;
-                try {
-                    outStream = new FileOutputStream(image);
-                    resource.compress(Bitmap.CompressFormat.JPEG, 100, outStream);
-
-                    outStream.flush();
-                    outStream.close();
-
-                    Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
-                }
-                catch (FileNotFoundException e) {
-                    Toast.makeText(MainActivity.this, R.string.error_saving, Toast.LENGTH_SHORT)
-                            .show();
-                }
-                catch (IOException e) {
-                    Toast.makeText(MainActivity.this, R.string.error_saving + image.getPath(), Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+            });
+        }
+        else {
+            Toast.makeText(MainActivity.this, R.string.toast_storage, Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -682,8 +688,9 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         // Start the queue
         queue.start();
 
-        String url = "https://api.nasa.gov/planetary/apod?api_key=***REMOVED***" + "&date=" + apiDate;
-        Log.i("URL", url);
+        String url = "https://api.nasa" +
+                ".gov/planetary/apod?api_key=***REMOVED***" + "&date="
+                + apiDate;
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url,
                 null, new Response.Listener<JSONObject>() {

@@ -39,6 +39,7 @@
     <string name="toast_fab">Set image as wallpaper</string>
     <string name="toast_no_image">Image not available</string>
     <string name="toast_save_image">Image saved to </string>
+    <string name="toast_storage">Please enable storage permissions and try again to save image</string>
     <string name="toast_view_external">Tap to view in external application</string>
     <string name="toast_view_image">Tap image to view in fullscreen</string>
 </resources>

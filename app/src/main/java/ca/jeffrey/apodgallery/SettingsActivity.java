@@ -11,7 +11,6 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -90,7 +89,6 @@ public class SettingsActivity extends Activity implements SharedPreferences
                 saveDirectory.setSummary(directory);
                 break;
             case "pref_display_credit":
-                Log.i("CHECKED", "" + sharedPreferences.getBoolean(key, false));
                 break;
             default:
                 break;
