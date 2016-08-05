@@ -1,4 +1,4 @@
-package jeffrey.astronomypictureofthedaynasa;
+package ca.jeffrey.apodgallery;
 
 import android.app.Activity;
 import android.content.Context;

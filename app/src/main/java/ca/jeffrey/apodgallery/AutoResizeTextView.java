@@ -1,4 +1,4 @@
-package jeffrey.astronomypictureofthedaynasa;
+package ca.jeffrey.apodgallery;
 
 /**
  * Taken from http://stackoverflow.com/questions/5033012/auto-scale-textview-text-to-fit-within
@@ -283,6 +283,6 @@ public class AutoResizeTextView extends TextView {
          * text, it takes less space than {@code availableSpace}, > 0
          * otherwise
          */
-        public int onTestSize(int suggestedSize, RectF availableSpace);
+        int onTestSize(int suggestedSize, RectF availableSpace);
     }
 }

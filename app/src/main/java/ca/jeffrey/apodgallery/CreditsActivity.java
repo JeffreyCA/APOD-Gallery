@@ -1,8 +1,8 @@
-package jeffrey.astronomypictureofthedaynasa;
+package ca.jeffrey.apodgallery;
 
 import android.app.Activity;
-import android.preference.PreferenceFragment;
 import android.os.Bundle;
+import android.preference.PreferenceFragment;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;

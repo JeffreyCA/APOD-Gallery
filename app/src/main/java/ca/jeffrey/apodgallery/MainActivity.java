@@ -1,4 +1,4 @@
-package jeffrey.astronomypictureofthedaynasa;
+package ca.jeffrey.apodgallery;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -74,8 +74,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-// TODO Deal with timezones
-
 public class MainActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
 
     // Logging tag for listeners
@@ -90,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     final Calendar MIN_DATE = new GregorianCalendar(1995, 9, 22);
 
     // NASA API key
-    final private String API_KEY = "***REMOVED***";
+    // final private String API_KEY = "***REMOVED***";
     AutoResizeTextView titleText;
     DocumentView description;
     FloatingActionButton fab;
@@ -684,7 +682,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         // Start the queue
         queue.start();
 
-        String url = "https://api.nasa.gov/planetary/apod?api_key=" + API_KEY + "&date=" + apiDate;
+        String url = "https://api.nasa.gov/planetary/apod?api_key=***REMOVED***" + "&date=" + apiDate;
         Log.i("URL", url);
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url,

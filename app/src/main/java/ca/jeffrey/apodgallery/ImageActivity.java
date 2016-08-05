@@ -1,4 +1,4 @@
-package jeffrey.astronomypictureofthedaynasa;
+package ca.jeffrey.apodgallery;
 
 /**
  * Created by Jeffrey on 7/22/2016.
