@@ -74,7 +74,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-// TODO Share link instead of image if non-image content
 // TODO Deal with timezones
 
 public class MainActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
@@ -103,6 +102,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     ProgressBar progressBar;
     SlidingUpPanelLayout slidingPanel;
     TextView dateText;
+    boolean tooEarly;
     String date;
     String today;
     String imgUrl;
@@ -145,6 +145,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         mainView = (LinearLayout) findViewById(R.id.main_view);
         progressBar = (ProgressBar) findViewById(R.id.progress);
         titleText = (AutoResizeTextView) findViewById(R.id.title);
+        tooEarly = false;
 
         // Set scrollable description text
         if (description != null)
@@ -292,7 +293,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     } // End onCreate method
 
     private void displayImageNotAvailableToast() {
-        Toast.makeText(MainActivity.this, R.string.toast_no_image, Toast.LENGTH_LONG).show();
+        Toast.makeText(MainActivity.this, R.string.toast_no_image, Toast.LENGTH_SHORT).show();
     }
 
     private void nextDay() {
@@ -495,7 +496,10 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         Intent share = new Intent(Intent.ACTION_SEND);
 
         // Share link if non-image content
-        if (imageView.getDrawable() == null) {
+        if (tooEarly) {
+            displayImageNotAvailableToast();
+        }
+        else if (imageView.getDrawable() == null) {
             share.setType("text/plain");
             share.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
@@ -560,15 +564,14 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                     outStream.flush();
                     outStream.close();
 
-                    Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
                 }
                 catch (FileNotFoundException e) {
-                    Toast.makeText(MainActivity.this, R.string.error_saving, Toast.LENGTH_LONG)
+                    Toast.makeText(MainActivity.this, R.string.error_saving, Toast.LENGTH_SHORT)
                             .show();
                 }
                 catch (IOException e) {
-                    Toast.makeText(MainActivity.this, R.string.error_saving + image.getPath(),
-                            Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, R.string.error_saving + image.getPath(), Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -618,7 +621,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             // Add copyright credits to end of description if setting allows it
             if (prefCopyright && response.has("copyright")) {
                 copyright = response.getString("copyright");
-                explanation += "\n\n" + "Copyright: " + copyright;
+                explanation += getResources().getString(R.string.title_credits) + copyright;
             }
 
             // Set image url depending on user preference and image availability
@@ -661,6 +664,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             else {
                 openNonImageContent(expandedToNumericalDate(date), sdUrl);
             }
+            tooEarly = false;
         }
         catch (JSONException e) {
             e.printStackTrace();
@@ -670,18 +674,13 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     private void getImageData(String date) {
         // Parse date
         String apiDate = expandedToNumericalDate(date);
-
         RequestQueue queue;
-
         // Instantiate the cache
         Cache cache = new DiskBasedCache(getCacheDir(), 1024 * 1024); // 1MB cap
-
         // Set up the network to use HttpURLConnection as the HTTP client.
         Network network = new BasicNetwork(new HurlStack());
-
         // Instantiate the RequestQueue with the cache and network.
         queue = new RequestQueue(cache, network);
-
         // Start the queue
         queue.start();
 
@@ -710,6 +709,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 }
                 else if (error instanceof ServerError) {
                     messageId = R.string.error_server;
+                    tooEarly = true;
                 }
                 else if (error instanceof NetworkError) {
                     messageId = R.string.error_network;
@@ -722,7 +722,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 }
 
                 // Display long toast message
-                Toast.makeText(MainActivity.this, messageId, Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this, messageId, Toast.LENGTH_SHORT).show();
             }
 
         }) {
@@ -870,12 +870,16 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         // determined that the first tap stands alone, and is not part of a double tap.
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
-
-            if (imageView.getDrawable() == null) {
-                openNonImageContent(expandedToNumericalDate(date), sdUrl);
+            if (tooEarly) {
+                Toast.makeText(MainActivity.this, R.string.error_server, Toast.LENGTH_SHORT).show();
             }
             else {
-                launchFullImageView(sdUrl, expandedToNumericalDate(date), false);
+                if (imageView.getDrawable() == null) {
+                    openNonImageContent(expandedToNumericalDate(date), sdUrl);
+                }
+                else {
+                    launchFullImageView(sdUrl, expandedToNumericalDate(date), false);
+                }
             }
             return false;
         }
