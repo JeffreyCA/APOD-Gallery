@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory
-        android:key="credit_github"
+        android:key="category_third_party"
         android:title="Third-party libraries">
         <PreferenceScreen
-            android:key="open_source"
+            android:key="credit_volley"
             android:summary="The Android Open Source Project"
             android:title="Android Volley">
             <intent
@@ -13,7 +13,7 @@
         </PreferenceScreen>
 
         <PreferenceScreen
-            android:key="open_source"
+            android:key="credit_date_picker"
             android:summary="wdullaer"
             android:title="MaterialDateTimePicker">
             <intent
@@ -22,7 +22,7 @@
         </PreferenceScreen>
 
         <PreferenceScreen
-            android:key="open_source"
+            android:key="credit_autofit_text"
             android:summary="grantland"
             android:title="AutoFitTextView">
             <intent
@@ -31,7 +31,7 @@
         </PreferenceScreen>
 
         <PreferenceScreen
-            android:key="open_source"
+            android:key="credit_sliding_panel"
             android:summary="TR4Android (original by umano)"
             android:title="AndroidSlidingUpPanel">
             <intent
@@ -40,7 +40,7 @@
         </PreferenceScreen>
 
         <PreferenceScreen
-            android:key="open_source"
+            android:key="credit_text_justify"
             android:summary="bluejamesbond"
             android:title="TextJustify-Android">
             <intent
@@ -49,7 +49,7 @@
         </PreferenceScreen>
 
         <PreferenceScreen
-            android:key="open_source"
+            android:key="credit_glide"
             android:summary="bumptech"
             android:title="Glide">
             <intent
@@ -58,7 +58,7 @@
         </PreferenceScreen>
 
         <PreferenceScreen
-            android:key="open_source"
+            android:key="credit_volley_integration"
             android:summary="bumptech"
             android:title="Volley integration library">
             <intent
@@ -67,8 +67,8 @@
         </PreferenceScreen>
 
         <PreferenceScreen
-            android:key="open_source"
-            android:summary="Mike Ortiz, Patrick Lackemacher, Babay88, @ipsilondev, hank-cp, singpolyma"
+            android:key="credit_touch_imageview"
+            android:summary="Mike Ortiz"
             android:title="TouchImageView">
             <intent
                 android:action="android.intent.action.VIEW"
@@ -77,10 +77,10 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:key="credit_stackoverflow"
-        android:title="StackOverflow snippets">
+        android:key="category_stackoverflow"
+        android:title="StackOverflow code snippets">
         <PreferenceScreen
-            android:key="open_source"
+            android:key="credit_resize_textview"
             android:summary="M-WaJeEh"
             android:title="AutoResizeTextView">
             <intent
@@ -89,7 +89,7 @@
             * -bounds/17782522#17782522"/>
         </PreferenceScreen>
         <PreferenceScreen
-            android:key="open_source"
+            android:key="credit_imageview_fling"
             android:summary="Alex Orlov"
             android:title="ImageView fling gesture">
             <intent
@@ -99,10 +99,10 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:key="credit_icon"
-        android:title="Icon Credits">
+        android:key="category_icon"
+        android:title="Icon credits">
         <PreferenceScreen
-            android:key="open_source"
+            android:key="credit_icon"
             android:summary="Final design by JeffreyCA, icon elements made by Freepik"
             android:title="App icon">
             <intent
