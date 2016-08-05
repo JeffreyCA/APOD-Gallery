@@ -39,8 +39,8 @@
             android:summary="@string/pref_summary_credits"
             android:title="@string/title_activity_credits">
             <intent
-                android:targetClass="jeffrey.astronomypictureofthedaynasa.CreditsActivity"
-                android:targetPackage="jeffrey.astronomypictureofthedaynasa"/>
+                android:targetClass="ca.jeffrey.apodgallery.CreditsActivity"
+                android:targetPackage="ca.jeffrey.apodgallery"/>
         </PreferenceScreen>
 
         <PreferenceScreen

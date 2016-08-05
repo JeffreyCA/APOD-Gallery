@@ -5,7 +5,7 @@
               android:background="#000000"
               android:gravity="center"
               android:orientation="vertical">
-    <jeffrey.astronomypictureofthedaynasa.TouchImageView
+    <ca.jeffrey.apodgallery.TouchImageView
         android:id="@+id/zoom_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>

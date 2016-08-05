@@ -8,7 +8,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     sothree:umanoFabMode="leave_behind"
-    tools:context="jeffrey.astronomypictureofthedaynasa.MainActivity">
+    tools:context="ca.jeffrey.apodgallery.MainActivity">
 
     <!-- umanoOverlay allows for transparent background when panel is extended
          umanoPanelHeight is the height of the panel when collapsed
@@ -146,7 +146,7 @@
             android:orientation="vertical">
 
             <!-- layout_height controls the height of entire TextView -->
-            <jeffrey.astronomypictureofthedaynasa.AutoResizeTextView
+            <ca.jeffrey.apodgallery.AutoResizeTextView
                 android:id="@+id/title"
                 android:layout_width="match_parent"
                 android:layout_height="76dp"
