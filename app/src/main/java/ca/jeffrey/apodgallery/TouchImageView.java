@@ -3,6 +3,7 @@ package ca.jeffrey.apodgallery;
 /**
  * https://github.com/MikeOrtiz/TouchImageView
  */
+
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Configuration;
@@ -1262,5 +1263,6 @@ public class TouchImageView extends ImageView {
     private void printMatrixInfo() {
         float[] n = new float[9];
         matrix.getValues(n);
+
     }
 }
