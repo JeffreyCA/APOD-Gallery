@@ -707,7 +707,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 progressBar.setVisibility(View.GONE);
 
                 if (error instanceof TimeoutError || error instanceof NoConnectionError) {
-                    messageId = R.string.error_internet;
+                    messageId = R.string.error_network;
                 }
                 else if (error instanceof AuthFailureError) {
                     messageId = R.string.error_auth;
