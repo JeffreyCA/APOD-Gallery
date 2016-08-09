@@ -47,6 +47,11 @@
             android:key="developer"
             android:summary="@string/name_developer"
             android:title="@string/pref_developer">
+            <intent android:action="android.intent.action.VIEW"
+                    android:data="jeffreyca16@gmail.com">
+                <extra android:name="android.intent.extra.SUBJECT"
+                       android:value="APOD Gallery: " />
+            </intent>
         </PreferenceScreen>
 
         <PreferenceScreen

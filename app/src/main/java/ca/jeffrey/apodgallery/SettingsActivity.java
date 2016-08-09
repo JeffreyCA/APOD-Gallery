@@ -45,9 +45,6 @@ public class SettingsActivity extends Activity implements SharedPreferences
                 .registerOnSharedPreferenceChangeListener(this);
     }
 
-    /* (non-Javadoc)
-     * @see android.app.Activity#onPause()
-     */
     @Override
     protected void onPause() {
         super.onPause();
@@ -121,6 +118,9 @@ public class SettingsActivity extends Activity implements SharedPreferences
             saveDirectory.setSummary(saveDirectory.getText());
         }
 
+        /**
+         * Clear image cache
+         */
         class ClearCacheTask extends AsyncTask<Void, Void, Long> {
             private Context context;
 

@@ -87,6 +87,10 @@ public class ImageActivity extends Activity {
         });
     }
 
+    /**
+     * Set saved image as device wallpaper
+     * @param imageDate date of featured image
+     */
     public void setAsWallpaper(String imageDate) {
         final String IMAGE_DIRECTORY = sharedPref.getString("pref_save_location",
                 DEFAULT_IMAGE_DIRECTORY);

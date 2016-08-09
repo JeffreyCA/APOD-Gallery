@@ -75,18 +75,20 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+// TODO Add disabled days
 public class MainActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
 
     // Date formats
     final SimpleDateFormat EXPANDED_FORMAT = new SimpleDateFormat("MMMM d, y");
     final SimpleDateFormat NUMERICAL_FORMAT = new SimpleDateFormat("y-MM-dd");
     final SimpleDateFormat SHORT_FORMAT = new SimpleDateFormat("yyMMdd");
+    final float SLIDING_ANCHOR_POINT = 0.42f;
     final String DEFAULT_IMAGE_DIRECTORY = Environment.getExternalStorageDirectory().getPath() +
             File.separator + "APOD";
     final String IMAGE_EXT = ".jpg";
 
     // First available APOD date
-    final Calendar MIN_DATE = new GregorianCalendar(1995, 9, 22);
+    final Calendar MIN_DATE = new GregorianCalendar(2000, 1, 1);
 
     // NASA API key
     // final private String API_KEY = "***REMOVED***";
@@ -107,12 +109,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     String imgUrl;
     String sdUrl;
     SharedPreferences sharedPref;
-
-    public static Calendar dateToCalendar(Date date) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-        return cal;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -144,6 +140,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         mainView = (LinearLayout) findViewById(R.id.main_view);
         progressBar = (ProgressBar) findViewById(R.id.progress);
         titleText = (AutoResizeTextView) findViewById(R.id.title);
+
         tooEarly = false;
 
         // Set scrollable description text
@@ -200,7 +197,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         // Sliding up panel listener
         slidingPanel = (SlidingUpPanelLayout) findViewById(R.id.sliding_panel_layout);
         fab = (FloatingActionButton) findViewById(R.id.fab);
-        slidingPanel.setAnchorPoint(0.42f);
+        slidingPanel.setAnchorPoint(SLIDING_ANCHOR_POINT);
         slidingPanel.setScrollableView(description);
         slidingPanel.setPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
             // Hide FAB while expanded
@@ -250,8 +247,10 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             public void onPanelLayout(View panel, SlidingUpPanelLayout.PanelState state) {
             }
         });
+        // Floating action button listener
         fab.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                // Save image to device if image is visible
                 if (imageView.getDrawable() != null) {
                     saveImage(expandedToNumericalDate(date));
                     launchFullImageView(imgUrl, expandedToNumericalDate(date), true);
@@ -262,6 +261,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 }
             }
         });
+        // Display explanation of FAB
         fab.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
@@ -270,7 +270,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             }
         });
 
-
+        // Set swiping gestures
         final GestureDetector gdt = new GestureDetector(MainActivity.this, new GestureListener());
         imageView.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -289,15 +289,66 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         });
     } // End onCreate method
 
-    private void displayImageNotAvailableToast() {
-        Toast.makeText(MainActivity.this, R.string.toast_no_image, Toast.LENGTH_SHORT).show();
+    // Inflate options menu
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+
+        // Set colour of share icon to white (from black)
+        MenuItem menuItem = menu.findItem(R.id.action_share);
+        Drawable drawable = menuItem.getIcon();
+
+        if (drawable != null) {
+            drawable.mutate();
+            drawable.setColorFilter(ContextCompat.getColor(this, R.color.colorWhite), PorterDuff
+                    .Mode.SRC_ATOP);
+        }
+
+        return true;
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.action_share:
+                shareImage(titleText.getText().toString());
+                return true;
+            case R.id.action_save:
+                saveImage(expandedToNumericalDate(date));
+                return true;
+            case R.id.action_open_link:
+                openLink();
+                return true;
+            case R.id.action_settings:
+                startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    // Date Methods
+
+    /**
+     * Convert Date object to Calendar object
+     * @param date Date object
+     * @return Calendar object
+     */
+    public static Calendar dateToCalendar(Date date) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        return cal;
+    }
+
+    /**
+     * Set next day text
+     */
     private void nextDay() {
         Glide.clear(imageView);
         progressBar.setVisibility(View.VISIBLE);
 
-        // Display next day
         date = getNextDay(date);
         dateText.setText(date);
 
@@ -313,6 +364,9 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         getImageData(date);
     }
 
+    /**
+     * Set previous day text
+     */
     private void previousDay() {
         Glide.clear(imageView);
         progressBar.setVisibility(View.VISIBLE);
@@ -376,13 +430,13 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         return null;
     }
 
-    // Date Methods
-
     /**
-     * @param view
-     * @param year
-     * @param monthOfYear
-     * @param dayOfMonth
+     * Switch to user-navigated date
+     *
+     * @param view date picker dialog
+     * @param year year picked
+     * @param monthOfYear month picked
+     * @param dayOfMonth day picket
      */
     @Override
     public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
@@ -408,8 +462,13 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         getImageData(date);
     }
 
+    /**
+     * Convert date format to yyyy-mm-dd
+     *
+     * @param date date in expanded format
+     * @return date in numerical format
+     */
     private String expandedToNumericalDate(String date) {
-        // Convert date format to yyyy-mm-dd
         try {
             return NUMERICAL_FORMAT.format(EXPANDED_FORMAT.parse(date));
         }
@@ -420,8 +479,14 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         return "";
     }
 
+    /**
+     * Convert date format to MMMM dd, yyyy
+     *
+     * @param date date in numerical format
+     * @return date in expanded format
+     */
+
     private String numericalToExpandedDate(String date) {
-        // Convert date format to MMMM dd, yyyy
         try {
             return EXPANDED_FORMAT.format(NUMERICAL_FORMAT.parse(date));
         }
@@ -432,6 +497,15 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         return "";
     }
 
+    /** Display toast when image is not available */
+    private void displayImageNotAvailableToast() {
+        Toast.makeText(MainActivity.this, R.string.toast_no_image, Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * Get URL accessible in web browser
+     * @return browser-accessible URL
+     */
     private String getFullUrl() {
         final String BASE_URL = "http://apod.nasa.gov/apod/ap";
         String shortDate;
@@ -445,46 +519,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         }
 
         return "";
-    }
-
-    // Inflate options menu
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu, menu);
-
-        // Set colour of share icon to white (from black)
-        MenuItem menuItem = menu.findItem(R.id.action_share);
-        Drawable drawable = menuItem.getIcon();
-
-        if (drawable != null) {
-            drawable.mutate();
-            drawable.setColorFilter(ContextCompat.getColor(this, R.color.colorWhite), PorterDuff
-                    .Mode.SRC_ATOP);
-        }
-
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle item selection
-        switch (item.getItemId()) {
-            case R.id.action_share:
-                shareImage(titleText.getText().toString());
-                return true;
-            case R.id.action_save:
-                saveImage(expandedToNumericalDate(date));
-                return true;
-            case R.id.action_open_link:
-                openLink();
-                return true;
-            case R.id.action_settings:
-                startActivity(new Intent(MainActivity.this, SettingsActivity.class));
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
     }
 
     public void shareImage(String title) {
@@ -595,6 +629,10 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         }
     }
 
+    /**
+     * Get & parse image data and display image to screen
+     * @param response JSON object
+     */
     private void onJsonResponse(JSONObject response) {
         final String IMAGE_TYPE = "image";
 
@@ -675,6 +713,10 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         }
     }
 
+    /**
+     * GET request to NASA API
+     * @param date selected date
+     */
     private void getImageData(String date) {
         // Parse date
         String apiDate = expandedToNumericalDate(date);
@@ -808,12 +850,18 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         startActivity(intent);
     }
 
+    /**
+     * Open link in web browser
+     */
     private void openLink() {
         String url = getFullUrl();
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         startActivity(browserIntent);
     }
 
+    /**
+     * Open non-image content in suitable application
+     */
     private void openNonImageContent(String date, String url) {
         final String uri = url;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
