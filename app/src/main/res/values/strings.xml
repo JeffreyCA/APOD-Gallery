@@ -13,7 +13,8 @@
     <string name="error_network">Network error, please check your Internet connection.</string>
     <string name="error_parse">Parsing error.</string>
     <string name="error_saving">Error saving file. Please check your image save directory.</string>
-    <string name="error_server">Image not available yet. Please check again later.</string>
+    <string name="error_server">Server error, unable to retrieve image.</string>
+    <string name="error_today">Image is not available yet. Please check again later.</string>
     <string name="menu_browser">Open in browser</string>
     <string name="menu_save">Save to device</string>
     <string name="menu_settings">Settings</string>
@@ -32,7 +33,7 @@
     <string name="pref_summary_image_credits">Show photo credits below image description if available</string>
     <string name="pref_summary_image_quality">Images can be saved at higher qualities on the device\nAPOD only loads standard-definition images to screen</string>
     <string name="pref_version">App Version</string>
-    <string name="title_credits">\n\nImage credits:\u0020</string>
+    <string name="title_credits">\n\nCredits:\u0020</string>
     <string name="title_activity_credits">Acknowledgements</string>
     <string name="title_activity_settings">Settings</string>
     <string name="toast_clear_cache">Cleared image cache</string>

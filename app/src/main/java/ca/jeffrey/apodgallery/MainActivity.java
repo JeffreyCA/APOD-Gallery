@@ -112,6 +112,15 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        if (!isTaskRoot()
+                && getIntent().hasCategory(Intent.CATEGORY_LAUNCHER)
+                && getIntent().getAction() != null
+                && getIntent().getAction().equals(Intent.ACTION_MAIN)) {
+
+            finish();
+            return;
+        }
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -532,7 +541,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         }
         else if (imageView.getDrawable() == null) {
             share.setType("text/plain");
-            share.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            share.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
             share.putExtra(Intent.EXTRA_SUBJECT, title);
             share.putExtra(Intent.EXTRA_TEXT, getFullUrl());
@@ -542,7 +551,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         // Otherwise share image
         else {
             share.setType("image/jpeg");
-            share.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            share.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
             saveImage(expandedToNumericalDate(date));
 
@@ -718,6 +727,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
      * @param date selected date
      */
     private void getImageData(String date) {
+        final String mDate = date;
         // Parse date
         String apiDate = expandedToNumericalDate(date);
         RequestQueue queue;
@@ -757,6 +767,10 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 else if (error instanceof ServerError) {
                     messageId = R.string.error_server;
                     tooEarly = true;
+
+                    if (mDate.equals(today)) {
+                        messageId = R.string.error_today;
+                    }
                 }
                 else if (error instanceof NetworkError) {
                     messageId = R.string.error_network;
@@ -924,7 +938,13 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
             if (tooEarly) {
-                Toast.makeText(MainActivity.this, R.string.error_server, Toast.LENGTH_SHORT).show();
+                if (date.equals(today)) {
+                    Toast.makeText(MainActivity.this, R.string.error_today, Toast.LENGTH_SHORT).show();
+
+                }
+                else {
+                    Toast.makeText(MainActivity.this, R.string.error_server, Toast.LENGTH_SHORT).show();
+                }
             }
             else {
                 if (imageView.getDrawable() == null) {
