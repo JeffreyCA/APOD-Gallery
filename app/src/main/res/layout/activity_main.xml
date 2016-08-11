@@ -23,8 +23,8 @@
         sothree:umanoFadeColor="@android:color/transparent"
         sothree:umanoInitialState="collapsed"
         sothree:umanoOverlay="true"
-        sothree:umanoPanelHeight="108dp"
-        sothree:umanoParallaxOffset="140dp"
+        sothree:umanoPanelHeight="94dp"
+        sothree:umanoParallaxOffset="118dp"
         sothree:umanoShadowHeight="0dp">
 
         <!-- MAIN CONTENT -->
@@ -44,19 +44,6 @@
                 android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
                 app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
             </android.support.v7.widget.Toolbar>
-            <!-- Toolbar
-            <android.support.design.widget.AppBarLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
-
-                <android.support.v7.widget.Toolbar
-                    android:id="@+id/my_toolbar"
-                    android:layout_width="match_parent"
-                    android:layout_height="?attr/actionBarSize"
-                    android:background="?attr/colorPrimary"
-                    app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
-            </android.support.design.widget.AppBarLayout> -->
 
             <LinearLayout
                 android:id="@+id/main_view"
@@ -81,8 +68,8 @@
                         android:layout_marginLeft="@dimen/activity_horizontal_margin"
                         android:contentDescription="@string/desc_left_chevron"
                         android:gravity="center"
-                        android:minHeight="36dp"
-                        android:minWidth="36dp"
+                        android:minHeight="26dp"
+                        android:minWidth="26dp"
                         android:scaleType="fitCenter"
                         android:src="@drawable/chevron_left"
                         android:tint="@android:color/white"/>
@@ -97,8 +84,8 @@
                         android:layout_marginRight="@dimen/activity_horizontal_margin"
                         android:contentDescription="@string/desc_right_chevron"
                         android:gravity="center"
-                        android:minHeight="36dp"
-                        android:minWidth="36dp"
+                        android:minHeight="26dp"
+                        android:minWidth="26dp"
                         android:scaleType="fitCenter"
                         android:src="@drawable/chevron_right"
                         android:tint="@android:color/white"/>
@@ -108,19 +95,29 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:layout_marginBottom="@dimen/activity_vertical_margin"
-                        android:layout_marginTop="@dimen/activity_vertical_margin"
+                        android:layout_marginBottom="12dp"
+                        android:layout_marginTop="12dp"
                         android:layout_toLeftOf="@id/right_chevron"
                         android:layout_toRightOf="@id/left_chevron"
                         android:gravity="center"
                         android:textColor="@android:color/white"
-                        android:textSize="32sp"/>
+                        android:textSize="26sp"/>
                 </RelativeLayout>
+
+                <!-- <ImageView
+                    android:id="@+id/image"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:contentDescription="@string/desc_image"
+                    android:adjustViewBounds="true"
+                    android:scaleType="fitCenter"/> -->
 
                 <ImageView
                     android:id="@+id/image"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:gravity="center"
                     android:contentDescription="@string/desc_image"
                     android:scaleType="centerCrop"/>
 
@@ -149,7 +146,7 @@
             <ca.jeffrey.apodgallery.AutoResizeTextView
                 android:id="@+id/title"
                 android:layout_width="match_parent"
-                android:layout_height="76dp"
+                android:layout_height="64dp"
                 android:layout_marginLeft="@dimen/activity_horizontal_margin"
                 android:layout_marginRight="@dimen/activity_horizontal_margin"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
@@ -157,7 +154,7 @@
                 android:gravity="center_vertical"
                 android:maxLines="2"
                 android:textColor="@android:color/white"
-                android:textSize="32sp"/> <!-- maximum size -->
+                android:textSize="26sp"/> <!-- maximum size -->
 
             <com.bluejamesbond.text.DocumentView
                 xmlns:ext="http://schemas.android.com/apk/res-auto"

@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
@@ -76,6 +77,10 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 // TODO Add disabled days
+// TODO Make date picker + title portion smaller
+// TODO Make imageview show more of the picture
+// TODO Alternate views (gallery)
+
 public class MainActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
 
     // Date formats
@@ -83,6 +88,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     final SimpleDateFormat NUMERICAL_FORMAT = new SimpleDateFormat("y-MM-dd");
     final SimpleDateFormat SHORT_FORMAT = new SimpleDateFormat("yyMMdd");
     final float SLIDING_ANCHOR_POINT = 0.42f;
+    final int DISABLED_DAYS = 155;
     final String DEFAULT_IMAGE_DIRECTORY = Environment.getExternalStorageDirectory().getPath() +
             File.separator + "APOD";
     final String IMAGE_EXT = ".jpg";
@@ -104,18 +110,57 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     SlidingUpPanelLayout slidingPanel;
     TextView dateText;
     boolean tooEarly;
+    Calendar[] disabledDays;
     String date;
     String today;
     String imgUrl;
     String sdUrl;
     SharedPreferences sharedPref;
+    private String[] disabledDayStrings = {"2000-01-05", "2000-01-06", "2000-01-08",
+            "2000-02-08", "2000-02-29", "2000-03-07", "2000-03-21", "2000-03-28", "2000-05-19",
+            "2000-07-28", "2000-08-17", "2000-08-29", "2000-09-06", "2000-09-29", "2000-10-13",
+            "2000-11-03", "2000-11-06", "2000-11-08", "2000-11-18", "2000-12-06", "2000-12-27",
+            "2000-12-28", "2001-01-22", "2001-02-14", "2001-02-19", "2001-02-20", "2001-02-23",
+            "2001-02-24", "2001-02-25", "2001-02-27", "2001-03-01", "2001-03-08", "2001-04-09",
+            "2001-04-28", "2001-07-06", "2001-07-11", "2001-07-31", "2001-08-08", "2001-12-03",
+            "2002-01-13", "2002-02-25", "2002-03-03", "2002-03-14", "2002-05-22", "2002-05-30",
+            "2002-06-21", "2002-07-09", "2002-09-16", "2002-10-15", "2002-10-31", "2002-11-18",
+            "2002-11-27", "2002-12-04", "2002-12-06", "2003-02-27", "2003-02-27", "2003-03-09",
+            "2003-04-21", "2003-06-18", "2003-09-29", "2003-10-07", "2003-10-17", "2003-12-29",
+            "2004-01-12", "2004-03-25", "2004-03-26", "2004-03-27", "2004-08-25", "2004-09-28",
+            "2004-09-28", "2005-01-29", "2005-04-09", "2005-04-09", "2005-05-22", "2005-10-16",
+            "2006-03-29", "2006-05-29", "2006-07-06", "2006-07-07", "2006-08-15", "2006-11-04",
+            "2006-11-18", "2006-12-01", "2006-12-16", "2007-01-18", "2007-02-03", "2007-02-21",
+            "2007-03-02", "2007-03-15", "2007-03-16", "2007-03-17", "2007-05-18", "2007-05-22",
+            "2007-09-29", "2008-06-21", "2008-07-22", "2008-10-16", "2008-11-25", "2008-12-31",
+            "2009-01-16", "2009-02-01", "2009-03-02", "2009-04-05", "2009-04-13", "2009-05-01",
+            "2009-06-29", "2009-07-09", "2009-07-11", "2009-08-10", "2009-10-17", "2009-12-14",
+            "2009-12-26", "2009-12-30", "2009-12-31", "2010-01-05", "2010-01-20", "2010-01-24",
+            "2010-02-10", "2010-03-06", "2010-04-08", "2010-04-09", "2010-05-10", "2010-05-26",
+            "2010-06-08", "2010-07-22", "2010-07-25", "2010-08-25", "2010-08-25", "2010-11-20",
+            "2010-12-15", "2011-01-20", "2011-01-23", "2011-02-01", "2011-02-22", "2011-03-07",
+            "2011-06-02", "2011-06-10", "2011-06-28", "2011-07-18", "2011-07-27", "2012-01-01",
+            "2012-01-09", "2012-03-12", "2012-05-23", "2013-05-01", "2013-05-03", "2013-05-03",
+            "2013-11-27", "2014-01-12", "2014-01-17", "2014-02-10", "2014-12-20", "2015-03-14",
+            "2015-04-23", "2015-08-01"};
+
+    /**
+     * Convert Date object to Calendar object
+     *
+     * @param date Date object
+     *
+     * @return Calendar object
+     */
+    public static Calendar dateToCalendar(Date date) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        return cal;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        if (!isTaskRoot()
-                && getIntent().hasCategory(Intent.CATEGORY_LAUNCHER)
-                && getIntent().getAction() != null
-                && getIntent().getAction().equals(Intent.ACTION_MAIN)) {
+        if (!isTaskRoot() && getIntent().hasCategory(Intent.CATEGORY_LAUNCHER) && getIntent()
+                .getAction() != null && getIntent().getAction().equals(Intent.ACTION_MAIN)) {
 
             finish();
             return;
@@ -151,6 +196,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         titleText = (AutoResizeTextView) findViewById(R.id.title);
 
         tooEarly = false;
+        new setDisabledDays().execute();
 
         // Set scrollable description text
         if (description != null)
@@ -178,8 +224,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         });
 
         dateText.setOnClickListener(new View.OnClickListener() {
-            Calendar calendar = Calendar.getInstance();
-
             @Override
             public void onClick(View v) {
                 /* Date Picker Library #2 (Does not allow for disabled dates, only enabled dates) */
@@ -298,6 +342,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         });
     } // End onCreate method
 
+    // Date Methods
+
     // Inflate options menu
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -336,19 +382,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-    // Date Methods
-
-    /**
-     * Convert Date object to Calendar object
-     * @param date Date object
-     * @return Calendar object
-     */
-    public static Calendar dateToCalendar(Date date) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-        return cal;
     }
 
     /**
@@ -442,10 +475,10 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     /**
      * Switch to user-navigated date
      *
-     * @param view date picker dialog
-     * @param year year picked
+     * @param view        date picker dialog
+     * @param year        year picked
      * @param monthOfYear month picked
-     * @param dayOfMonth day picket
+     * @param dayOfMonth  day picket
      */
     @Override
     public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
@@ -475,6 +508,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
      * Convert date format to yyyy-mm-dd
      *
      * @param date date in expanded format
+     *
      * @return date in numerical format
      */
     private String expandedToNumericalDate(String date) {
@@ -492,6 +526,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
      * Convert date format to MMMM dd, yyyy
      *
      * @param date date in numerical format
+     *
      * @return date in expanded format
      */
 
@@ -506,13 +541,16 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         return "";
     }
 
-    /** Display toast when image is not available */
+    /**
+     * Display toast when image is not available
+     */
     private void displayImageNotAvailableToast() {
         Toast.makeText(MainActivity.this, R.string.toast_no_image, Toast.LENGTH_SHORT).show();
     }
 
     /**
      * Get URL accessible in web browser
+     *
      * @return browser-accessible URL
      */
     private String getFullUrl() {
@@ -640,6 +678,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
     /**
      * Get & parse image data and display image to screen
+     *
      * @param response JSON object
      */
     private void onJsonResponse(JSONObject response) {
@@ -690,7 +729,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             if (mediaType.equals(IMAGE_TYPE)) {
                 Glide.with(MainActivity.this).load(sdUrl) // Load from URL
                         .diskCacheStrategy(DiskCacheStrategy.SOURCE) // Or .RESULT
-                        .centerCrop()
                         //.dontAnimate() // No cross-fade
                         .skipMemoryCache(true) // Use disk cache only
                         .listener(new RequestListener<String, GlideDrawable>() {
@@ -724,6 +762,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
     /**
      * GET request to NASA API
+     *
      * @param date selected date
      */
     private void getImageData(String date) {
@@ -939,11 +978,13 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         public boolean onSingleTapConfirmed(MotionEvent e) {
             if (tooEarly) {
                 if (date.equals(today)) {
-                    Toast.makeText(MainActivity.this, R.string.error_today, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, R.string.error_today, Toast.LENGTH_SHORT)
+                            .show();
 
                 }
                 else {
-                    Toast.makeText(MainActivity.this, R.string.error_server, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, R.string.error_server, Toast.LENGTH_SHORT)
+                            .show();
                 }
             }
             else {
@@ -969,6 +1010,29 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 Toast.makeText(MainActivity.this, R.string.toast_view_image, Toast.LENGTH_SHORT)
                         .show();
             }
+        }
+    }
+
+    private class setDisabledDays extends AsyncTask<Integer, Void, Void> {
+        @Override
+        protected Void doInBackground(Integer... params) {
+            disabledDays = new Calendar[DISABLED_DAYS];
+            int i = 0;
+            for (Calendar day : disabledDays) {
+                try {
+                    day = Calendar.getInstance();
+                    day.setTime(NUMERICAL_FORMAT.parse(disabledDayStrings[i]));
+                }
+                catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                i++;
+            }
+            return null;
+        }
+
+        protected void onPostExecute(Void v) {
+            disabledDayStrings = null;
         }
     }
 }
