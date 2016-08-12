@@ -23,7 +23,7 @@
         sothree:umanoFadeColor="@android:color/transparent"
         sothree:umanoInitialState="collapsed"
         sothree:umanoOverlay="true"
-        sothree:umanoPanelHeight="94dp"
+        sothree:umanoPanelHeight="92dp"
         sothree:umanoParallaxOffset="118dp"
         sothree:umanoShadowHeight="0dp">
 
@@ -146,7 +146,7 @@
             <ca.jeffrey.apodgallery.AutoResizeTextView
                 android:id="@+id/title"
                 android:layout_width="match_parent"
-                android:layout_height="64dp"
+                android:layout_height="66dp"
                 android:layout_marginLeft="@dimen/activity_horizontal_margin"
                 android:layout_marginRight="@dimen/activity_horizontal_margin"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
@@ -154,7 +154,7 @@
                 android:gravity="center_vertical"
                 android:maxLines="2"
                 android:textColor="@android:color/white"
-                android:textSize="26sp"/> <!-- maximum size -->
+                android:textSize="24sp"/> <!-- maximum size -->
 
             <com.bluejamesbond.text.DocumentView
                 xmlns:ext="http://schemas.android.com/apk/res-auto"

@@ -18,6 +18,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -94,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     final String IMAGE_EXT = ".jpg";
 
     // First available APOD date
-    final Calendar MIN_DATE = new GregorianCalendar(2000, 1, 1);
+    final Calendar MIN_DATE = new GregorianCalendar(2000, 0, 1);
 
     // NASA API key
     // final private String API_KEY = "***REMOVED***";
@@ -196,6 +197,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         titleText = (AutoResizeTextView) findViewById(R.id.title);
 
         tooEarly = false;
+        disabledDays = new Calendar[DISABLED_DAYS];
         new setDisabledDays().execute();
 
         // Set scrollable description text
@@ -242,6 +244,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 dpd.setThemeDark(true);
                 dpd.setMinDate(MIN_DATE);
                 dpd.setMaxDate(today);
+                dpd.setDisabledDays(disabledDays);
                 dpd.vibrate(false);
                 dpd.show(getFragmentManager(), "Datepickerdialog");
             }
@@ -1016,17 +1019,16 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     private class setDisabledDays extends AsyncTask<Integer, Void, Void> {
         @Override
         protected Void doInBackground(Integer... params) {
-            disabledDays = new Calendar[DISABLED_DAYS];
-            int i = 0;
-            for (Calendar day : disabledDays) {
+
+            for (int i = 0; i < DISABLED_DAYS; i++) {
+                disabledDays[i] = Calendar.getInstance();
                 try {
-                    day = Calendar.getInstance();
-                    day.setTime(NUMERICAL_FORMAT.parse(disabledDayStrings[i]));
+                    disabledDays[i].setTime(NUMERICAL_FORMAT.parse(disabledDayStrings[i]));
                 }
                 catch (ParseException e) {
+                    Log.i("PARSE", "EXCEPTION");
                     e.printStackTrace();
                 }
-                i++;
             }
             return null;
         }
