@@ -51,8 +51,6 @@ import com.android.volley.toolbox.DiskBasedCache;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 import com.bluejamesbond.text.DocumentView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -69,6 +67,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -80,7 +80,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.concurrent.CountDownLatch;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -122,6 +121,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     String imgUrl;
     String sdUrl;
     SharedPreferences sharedPref;
+    RequestQueue queue;
     private String[] disabledDayStrings = {"2000-01-05", "2000-01-06", "2000-01-08",
             "2000-02-08", "2000-02-29", "2000-03-07", "2000-03-21", "2000-03-28", "2000-05-19",
             "2000-07-28", "2000-08-17", "2000-08-29", "2000-09-06", "2000-09-29", "2000-10-13",
@@ -162,6 +162,13 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         cal.setTime(date);
         return cal;
     }
+
+    public static String getHtmlTitle(String fragment) {
+        int index = fragment.indexOf("-");
+        return fragment.substring(index + 1).trim();
+    }
+
+    // Date Methods
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -349,8 +356,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             }
         });
     } // End onCreate method
-
-    // Date Methods
 
     // Inflate options menu
     @Override
@@ -759,7 +764,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                         }).into(imageView);
             }
             else {
-                openNonImageContent(expandedToNumericalDate(date), sdUrl);
+                openNonImageContent(sdUrl);
             }
             tooEarly = false;
         }
@@ -777,7 +782,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         final String mDate = date;
         // Parse date
         String apiDate = expandedToNumericalDate(date);
-        RequestQueue queue;
+
         // Instantiate the cache
         Cache cache = new DiskBasedCache(getCacheDir(), 1024 * 1024); // 1MB cap
         // Set up the network to use HttpURLConnection as the HTTP client.
@@ -803,7 +808,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             @Override
             public void onErrorResponse(VolleyError error) {
                 int messageId;
-                progressBar.setVisibility(View.GONE);
 
                 if (error instanceof TimeoutError || error instanceof NoConnectionError) {
                     messageId = R.string.error_network;
@@ -812,13 +816,13 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                     messageId = R.string.error_auth;
                 }
                 else if (error instanceof ServerError) {
-                    messageId = R.string.error_server;
                     tooEarly = true;
 
                     if (mDate.equals(today)) {
                         messageId = R.string.error_today;
                     }
                     else {
+                        messageId = -1;
                         parseHtml();
                     }
                 }
@@ -833,7 +837,10 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 }
 
                 // Display long toast message
-                Toast.makeText(MainActivity.this, messageId, Toast.LENGTH_SHORT).show();
+                if (messageId != -1) {
+                    progressBar.setVisibility(View.GONE);
+                    Toast.makeText(MainActivity.this, messageId, Toast.LENGTH_SHORT).show();
+                }
             }
 
         }) {
@@ -901,52 +908,116 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         queue.add(jsonObjectRequest);
     }
 
-    public Document GetDocument(String site) throws Exception {
-        RequestQueue myRequestQueue = null;
-        final Document[] doc = new Document[1];
-        final CountDownLatch cdl = new CountDownLatch(1);
+    private void parseHtml() {
+        final String EXPLANATION_HEADER = "Explanation:";
+        final String YT_BASE_URL = "https://www.youtube.com/watch?v=";
+        final String VM_BASE_URL = "https://vimeo.com/";
+        String url = getFullUrl();
+        Document doc = null;
+        String contentUrl;
 
-        StringRequest documentRequest = new StringRequest( //
-                Request.Method.GET, //
-                site, //
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        doc[0] = Jsoup.parse(response);
-                        cdl.countDown();
-                    }
-                }, //
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        // Error handling
-                        System.out.println("Houston we have a problem ... !");
-                        error.printStackTrace();
-                    }
-                } //
-        );
+        Log.i("URL", url);
 
-        if (myRequestQueue == null) {
-            myRequestQueue = Volley.newRequestQueue(this);
+
+        if (doc == null)
+            Log.i("Document", "NULL");
+        // Image
+
+        Element image = doc.select("img").first();
+        Element video = doc.select("iframe[src~=(youtube\\.com|vimeo\\.com)], object[data~=" +
+                "(youtube\\.com|vimeo\\.com)], embed[src~=(youtube\\.com|vimeo\\.com)]").first();
+        Log.i("element gotten", "reached");
+        // String imageUrl = image.absUrl("img");
+        if (image != null) {
+            contentUrl = image.absUrl("src");
+            Glide.with(MainActivity.this).load(contentUrl) // Load from URL
+                    .diskCacheStrategy(DiskCacheStrategy.SOURCE) // Or .RESULT
+                    //.dontAnimate() // No cross-fade
+                    .skipMemoryCache(true) // Use disk cache only
+                    .listener(new RequestListener<String, GlideDrawable>() {
+                        @Override
+                        public boolean onException(Exception e, String model,
+                                                   Target<GlideDrawable> target, boolean
+                                                           isFirstResource) {
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(GlideDrawable resource, String model,
+                                                       Target<GlideDrawable> target, boolean
+                                                               isFromMemoryCache, boolean
+                                                               isFirstResource) {
+                            progressBar.setVisibility(View.GONE);
+                            return false;
+                        }
+
+                    }).into(imageView);
+        }
+        else if (video != null) {
+            contentUrl = video.absUrl("src");
+            System.out.print("Video URL: " + contentUrl);
+            System.out.println(", ID: " + getVideoId(contentUrl));
+
+            if (contentUrl.contains("youtu")) {
+                contentUrl = YT_BASE_URL + getVideoId(contentUrl);
+            }
+            else if (contentUrl.contains("vimeo")) {
+                contentUrl = VM_BASE_URL + getVideoId(contentUrl);
+            }
+        }
+        // Maybe do this after loading title, explanation?
+        else {
+            openNonImageContent(getFullUrl());
         }
 
-        // Add the request to the queue...
-        myRequestQueue.add(documentRequest);
+        // Parse image, links first, then remove links
+        // doc.select("a").remove();
+        // Title
+        Element title = doc.select("title").first();
+        // System.out.println("Title: " +
+        String htmlTitle = getHtmlTitle(title.ownText());
 
-        // ... and wait for the document.
-        // NOTA: Be aware of user experience here. We don't want to freeze the app...
-        cdl.await();
+        // Explanation
+        String html = doc.html();
+        // Some pages are badly formatted, this fixes that
+        html = html.replaceAll("   <p> </p>\n  </center>", "</center>\n<p>");
 
-        return doc[0];
-    }
+        doc = Jsoup.parse(html);
 
-    private void parseHtml() {
+        Elements elements = doc.select("p");
+        String explanation = "";
 
-    }
+        for (Element e : elements) {
+            if (e.text().contains(EXPLANATION_HEADER)) {
+                explanation = e.text();
+                break;
+            }
+        }
+        if (explanation.equals("")) {
+            elements = doc.select("TD");
+            for (Element e : elements) {
+                if (e.text().contains(EXPLANATION_HEADER)) {
+                    explanation = e.text();
+                    break;
+                }
+            }
+        }
+        if (explanation.equals("")) {
+            html = html.replaceAll("<hr>", "<p>");
 
-    public static String getHtmlTitle(String fragment) {
-        int index = fragment.indexOf("-");
-        return fragment.substring(index + 1).trim();
+            doc = Jsoup.parse(html);
+            elements = doc.select("p");
+            explanation = "";
+
+            for (Element e : elements) {
+                if (e.text().contains(EXPLANATION_HEADER)) {
+                    explanation = e.text();
+                    break;
+                }
+            }
+        }
+        titleText.setText(htmlTitle);
+        description.setText(explanation);
     }
 
     private String getVideoId(String url) {
@@ -996,11 +1067,11 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     /**
      * Open non-image content in suitable application
      */
-    private void openNonImageContent(String date, String url) {
+    private void openNonImageContent(String url) {
         final String uri = url;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         String message = String.format(getResources().getString(R.string.dialog_browser_desc),
-                numericalToExpandedDate(date));
+                date);
 
         imageView.setImageResource(0);
         progressBar.setVisibility(View.GONE);
@@ -1025,6 +1096,141 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         });
 
         builder.create().show();
+    }
+
+    // Title AsyncTask
+    private class Title extends AsyncTask<String, Void, Void> {
+        boolean isImage;
+        String contentUrl;
+        String htmlTitle;
+        String explanation;
+
+        @Override
+        protected Void doInBackground(String... url) {
+            final String EXPLANATION_HEADER = "Explanation:";
+            final String YT_BASE_URL = "https://www.youtube.com/watch?v=";
+            final String VM_BASE_URL = "https://vimeo.com/";
+
+            Document doc;
+
+            Log.i("URL", url[0]);
+            try {
+                doc = Jsoup.parse(url[0]);
+
+
+                // Image
+
+                Element image = doc.select("img").first();
+                Element video = doc.select("iframe[src~=(youtube\\.com|vimeo\\.com)], " +
+                        "object[data~=(youtube\\.com|vimeo\\.com)], embed[src~=(youtube\\" +
+                        ".com|vimeo\\.com)]").first();
+
+                if (image != null) {
+                    isImage = true;
+                    contentUrl = image.absUrl("src");
+                }
+                else if (video != null) {
+                    isImage = false;
+                    contentUrl = video.absUrl("src");
+
+                    if (contentUrl.contains("youtu")) {
+                        contentUrl = YT_BASE_URL + getVideoId(contentUrl);
+                    }
+                    else if (contentUrl.contains("vimeo")) {
+                        contentUrl = VM_BASE_URL + getVideoId(contentUrl);
+                    }
+                }
+                else {
+                    isImage = false;
+                    contentUrl = getFullUrl();
+                }
+
+                // Parse image, links first, then remove links
+                // doc.select("a").remove();
+                // Title
+                Element title = doc.select("title").first();
+                // System.out.println("Title: " +
+                htmlTitle = getHtmlTitle(title.ownText());
+
+                // Explanation
+                String html = doc.html();
+                // Some pages are badly formatted, this fixes that
+                html = html.replaceAll("   <p> </p>\n  </center>", "</center>\n<p>");
+
+                doc = Jsoup.parse(html);
+
+                Elements elements = doc.select("p");
+
+                for (Element e : elements) {
+                    if (e.text().contains(EXPLANATION_HEADER)) {
+                        explanation = e.text();
+                        break;
+                    }
+                }
+                if (explanation.equals("")) {
+                    elements = doc.select("TD");
+                    for (Element e : elements) {
+                        if (e.text().contains(EXPLANATION_HEADER)) {
+                            explanation = e.text();
+                            break;
+                        }
+                    }
+                }
+                if (explanation.equals("")) {
+                    html = html.replaceAll("<hr>", "<p>");
+
+                    doc = Jsoup.parse(html);
+                    elements = doc.select("p");
+                    explanation = "";
+
+                    for (Element e : elements) {
+                        if (e.text().contains(EXPLANATION_HEADER)) {
+                            explanation = e.text();
+                            break;
+                        }
+                    }
+                }
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+
+            titleText.setText(htmlTitle);
+            description.setText(explanation);
+
+            if (isImage) {
+                Glide.with(MainActivity.this).load(contentUrl) // Load from URL
+                        .diskCacheStrategy(DiskCacheStrategy.SOURCE) // Or .RESULT
+                        //.dontAnimate() // No cross-fade
+                        .skipMemoryCache(true) // Use disk cache only
+                        .listener(new RequestListener<String, GlideDrawable>() {
+                            @Override
+                            public boolean onException(Exception e, String model,
+                                                       Target<GlideDrawable> target, boolean
+                                                               isFirstResource) {
+                                return false;
+                            }
+
+                            @Override
+                            public boolean onResourceReady(GlideDrawable resource, String
+                                    model, Target<GlideDrawable> target, boolean
+                                                                   isFromMemoryCache, boolean
+                                                                   isFirstResource) {
+                                progressBar.setVisibility(View.GONE);
+                                return false;
+                            }
+
+                        }).into(imageView);
+            }
+            else {
+                openNonImageContent(getFullUrl());
+            }
+        }
     }
 
     /**
@@ -1070,7 +1276,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             }
             else {
                 if (imageView.getDrawable() == null) {
-                    openNonImageContent(expandedToNumericalDate(date), sdUrl);
+                    openNonImageContent(sdUrl);
                 }
                 else {
                     launchFullImageView(sdUrl, expandedToNumericalDate(date), false);
