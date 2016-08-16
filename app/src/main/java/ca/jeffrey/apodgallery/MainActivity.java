@@ -51,6 +51,8 @@ import com.android.volley.toolbox.DiskBasedCache;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.bluejamesbond.text.DocumentView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -65,6 +67,8 @@ import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -76,10 +80,11 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.concurrent.CountDownLatch;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-// TODO Add disabled days
-// TODO Make date picker + title portion smaller
-// TODO Make imageview show more of the picture
+// TODO Fix ImageView scaling
 // TODO Alternate views (gallery)
 
 public class MainActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
@@ -813,6 +818,9 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                     if (mDate.equals(today)) {
                         messageId = R.string.error_today;
                     }
+                    else {
+                        parseHtml();
+                    }
                 }
                 else if (error instanceof NetworkError) {
                     messageId = R.string.error_network;
@@ -893,12 +901,82 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         queue.add(jsonObjectRequest);
     }
 
+    public Document GetDocument(String site) throws Exception {
+        RequestQueue myRequestQueue = null;
+        final Document[] doc = new Document[1];
+        final CountDownLatch cdl = new CountDownLatch(1);
+
+        StringRequest documentRequest = new StringRequest( //
+                Request.Method.GET, //
+                site, //
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        doc[0] = Jsoup.parse(response);
+                        cdl.countDown();
+                    }
+                }, //
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // Error handling
+                        System.out.println("Houston we have a problem ... !");
+                        error.printStackTrace();
+                    }
+                } //
+        );
+
+        if (myRequestQueue == null) {
+            myRequestQueue = Volley.newRequestQueue(this);
+        }
+
+        // Add the request to the queue...
+        myRequestQueue.add(documentRequest);
+
+        // ... and wait for the document.
+        // NOTA: Be aware of user experience here. We don't want to freeze the app...
+        cdl.await();
+
+        return doc[0];
+    }
+
+    private void parseHtml() {
+
+    }
+
+    public static String getHtmlTitle(String fragment) {
+        int index = fragment.indexOf("-");
+        return fragment.substring(index + 1).trim();
+    }
+
+    private String getVideoId(String url) {
+        final int ID_GROUP = 6;
+        String videoId = "";
+
+        if (url != null && url.trim().length() > 0) {
+            String expression = "(http:|https:|)\\/\\/(player.|www.)?(vimeo\\.com|youtu(be\\" +
+                    ".com|\\.be|be\\.googleapis\\.com))\\/(video\\/|embed\\/|watch\\?v=|v\\/)?" +
+                    "([A-Za-z0-9._%-]*)(\\&\\S+)?";
+            CharSequence input = url;
+            Pattern pattern = Pattern.compile(expression, Pattern.CASE_INSENSITIVE);
+            Matcher matcher = pattern.matcher(input);
+
+            if (matcher.find()) {
+                String groupIndex = matcher.group(ID_GROUP);
+                if (groupIndex != null) {
+                    videoId = groupIndex;
+                }
+            }
+        }
+        return videoId;
+    }
+
     /**
      * Launch activity to display image in fullscreen
      *
      * @param url URL of the image
      */
-    public void launchFullImageView(String url, String numericalDate, boolean setWallpaper) {
+    private void launchFullImageView(String url, String numericalDate, boolean setWallpaper) {
         Intent intent = new Intent(MainActivity.this, ImageActivity.class);
         intent.putExtra("url", url);
         intent.putExtra("date", numericalDate);
