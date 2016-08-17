@@ -21,3 +21,6 @@
 -keep class android.support.v7.app.** { *; }
 -keep interface android.support.v7.app.** { *; }
 -keep class com.bumptech.glide.integration.volley.VolleyGlideModule
+-keeppackagenames org.jsoup.nodes
+-keeppackagenames com.anupcowkur.reservoir
+-keep class com.anupcowkur.reservoir.** { *; }

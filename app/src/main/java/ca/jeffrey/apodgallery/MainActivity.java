@@ -51,6 +51,7 @@ import com.android.volley.toolbox.DiskBasedCache;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.anupcowkur.reservoir.Reservoir;
 import com.bluejamesbond.text.DocumentView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -122,6 +123,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     String sdUrl;
     SharedPreferences sharedPref;
     RequestQueue queue;
+
+
     private String[] disabledDayStrings = {"2000-01-05", "2000-01-06", "2000-01-08",
             "2000-02-08", "2000-02-29", "2000-03-07", "2000-03-21", "2000-03-28", "2000-05-19",
             "2000-07-28", "2000-08-17", "2000-08-29", "2000-09-06", "2000-09-29", "2000-10-13",
@@ -163,7 +166,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         return cal;
     }
 
-    public static String getHtmlTitle(String fragment) {
+    public String getHtmlTitle(String fragment) {
         int index = fragment.indexOf("-");
         return fragment.substring(index + 1).trim();
     }
@@ -190,9 +193,15 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             myToolbar.showOverflowMenu();
         }
 
-        // Initialize preferences
+        // Initialize preferences and cache
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+
+        try {
+            Reservoir.init(this, 5000000); //in bytes
+        } catch (Exception e) {
+            //failure
+        }
 
         // Initiate image views
         imageView = (ImageView) findViewById(R.id.image);
@@ -705,6 +714,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         String hdUrl;
         String title;
 
+        tooEarly = false;
         try {
             // final String numericalDate = response.getString("date");
             explanation = response.getString("explanation");
@@ -766,7 +776,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             else {
                 openNonImageContent(sdUrl);
             }
-            tooEarly = false;
         }
         catch (JSONException e) {
             e.printStackTrace();
@@ -816,9 +825,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                     messageId = R.string.error_auth;
                 }
                 else if (error instanceof ServerError) {
-                    tooEarly = true;
-
                     if (mDate.equals(today)) {
+                        tooEarly = true;
                         messageId = R.string.error_today;
                     }
                     else {
@@ -909,115 +917,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     }
 
     private void parseHtml() {
-        final String EXPLANATION_HEADER = "Explanation:";
-        final String YT_BASE_URL = "https://www.youtube.com/watch?v=";
-        final String VM_BASE_URL = "https://vimeo.com/";
-        String url = getFullUrl();
-        Document doc = null;
-        String contentUrl;
-
-        Log.i("URL", url);
-
-
-        if (doc == null)
-            Log.i("Document", "NULL");
-        // Image
-
-        Element image = doc.select("img").first();
-        Element video = doc.select("iframe[src~=(youtube\\.com|vimeo\\.com)], object[data~=" +
-                "(youtube\\.com|vimeo\\.com)], embed[src~=(youtube\\.com|vimeo\\.com)]").first();
-        Log.i("element gotten", "reached");
-        // String imageUrl = image.absUrl("img");
-        if (image != null) {
-            contentUrl = image.absUrl("src");
-            Glide.with(MainActivity.this).load(contentUrl) // Load from URL
-                    .diskCacheStrategy(DiskCacheStrategy.SOURCE) // Or .RESULT
-                    //.dontAnimate() // No cross-fade
-                    .skipMemoryCache(true) // Use disk cache only
-                    .listener(new RequestListener<String, GlideDrawable>() {
-                        @Override
-                        public boolean onException(Exception e, String model,
-                                                   Target<GlideDrawable> target, boolean
-                                                           isFirstResource) {
-                            return false;
-                        }
-
-                        @Override
-                        public boolean onResourceReady(GlideDrawable resource, String model,
-                                                       Target<GlideDrawable> target, boolean
-                                                               isFromMemoryCache, boolean
-                                                               isFirstResource) {
-                            progressBar.setVisibility(View.GONE);
-                            return false;
-                        }
-
-                    }).into(imageView);
-        }
-        else if (video != null) {
-            contentUrl = video.absUrl("src");
-            System.out.print("Video URL: " + contentUrl);
-            System.out.println(", ID: " + getVideoId(contentUrl));
-
-            if (contentUrl.contains("youtu")) {
-                contentUrl = YT_BASE_URL + getVideoId(contentUrl);
-            }
-            else if (contentUrl.contains("vimeo")) {
-                contentUrl = VM_BASE_URL + getVideoId(contentUrl);
-            }
-        }
-        // Maybe do this after loading title, explanation?
-        else {
-            openNonImageContent(getFullUrl());
-        }
-
-        // Parse image, links first, then remove links
-        // doc.select("a").remove();
-        // Title
-        Element title = doc.select("title").first();
-        // System.out.println("Title: " +
-        String htmlTitle = getHtmlTitle(title.ownText());
-
-        // Explanation
-        String html = doc.html();
-        // Some pages are badly formatted, this fixes that
-        html = html.replaceAll("   <p> </p>\n  </center>", "</center>\n<p>");
-
-        doc = Jsoup.parse(html);
-
-        Elements elements = doc.select("p");
-        String explanation = "";
-
-        for (Element e : elements) {
-            if (e.text().contains(EXPLANATION_HEADER)) {
-                explanation = e.text();
-                break;
-            }
-        }
-        if (explanation.equals("")) {
-            elements = doc.select("TD");
-            for (Element e : elements) {
-                if (e.text().contains(EXPLANATION_HEADER)) {
-                    explanation = e.text();
-                    break;
-                }
-            }
-        }
-        if (explanation.equals("")) {
-            html = html.replaceAll("<hr>", "<p>");
-
-            doc = Jsoup.parse(html);
-            elements = doc.select("p");
-            explanation = "";
-
-            for (Element e : elements) {
-                if (e.text().contains(EXPLANATION_HEADER)) {
-                    explanation = e.text();
-                    break;
-                }
-            }
-        }
-        titleText.setText(htmlTitle);
-        description.setText(explanation);
+        new GetHtmlData().execute(getFullUrl());
     }
 
     private String getVideoId(String url) {
@@ -1098,12 +998,14 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         builder.create().show();
     }
 
-    // Title AsyncTask
-    private class Title extends AsyncTask<String, Void, Void> {
+    // AsyncTask
+    private class GetHtmlData extends AsyncTask<String, Void, Void> {
         boolean isImage;
         String contentUrl;
+        String hdImageUrl;
         String htmlTitle;
         String explanation;
+        DocumentSerializer docHolder = new DocumentSerializer();
 
         @Override
         protected Void doInBackground(String... url) {
@@ -1111,15 +1013,28 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             final String YT_BASE_URL = "https://www.youtube.com/watch?v=";
             final String VM_BASE_URL = "https://vimeo.com/";
 
-            Document doc;
+            Document doc = null;
 
-            Log.i("URL", url[0]);
             try {
-                doc = Jsoup.parse(url[0]);
+                if (Reservoir.contains(url[0])){
+                    DocumentSerializer test = Reservoir.get(url[0], DocumentSerializer.class);
+                    Log.i("Test", test.getString());
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
+            try {
+                doc = Jsoup.connect(url[0]).get();
+                try {
+                    // docHolder.setDocument(doc);
+                    docHolder.setString(doc.outerHtml());
+                    Reservoir.put(url[0], docHolder);
+                } catch (Exception e) {
+                    Log.i("Exception!", "null");
+                }
 
                 // Image
-
                 Element image = doc.select("img").first();
                 Element video = doc.select("iframe[src~=(youtube\\.com|vimeo\\.com)], " +
                         "object[data~=(youtube\\.com|vimeo\\.com)], embed[src~=(youtube\\" +
@@ -1127,7 +1042,9 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
                 if (image != null) {
                     isImage = true;
+                    Element hdElement = image.parent();
                     contentUrl = image.absUrl("src");
+                    hdImageUrl = hdElement.absUrl("href");
                 }
                 else if (video != null) {
                     isImage = false;
@@ -1149,7 +1066,10 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 // doc.select("a").remove();
                 // Title
                 Element title = doc.select("title").first();
-                // System.out.println("Title: " +
+
+                if (title == null) {
+                    Log.i("doc", doc.html());
+                }
                 htmlTitle = getHtmlTitle(title.ownText());
 
                 // Explanation
@@ -1167,6 +1087,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                         break;
                     }
                 }
+
                 if (explanation.equals("")) {
                     elements = doc.select("TD");
                     for (Element e : elements) {
@@ -1204,7 +1125,11 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             description.setText(explanation);
 
             if (isImage) {
-                Glide.with(MainActivity.this).load(contentUrl) // Load from URL
+                sdUrl = contentUrl;
+                // Get actual HD url later on...
+                imgUrl = hdImageUrl;
+
+                Glide.with(MainActivity.this).load(sdUrl) // Load from URL
                         .diskCacheStrategy(DiskCacheStrategy.SOURCE) // Or .RESULT
                         //.dontAnimate() // No cross-fade
                         .skipMemoryCache(true) // Use disk cache only
@@ -1267,7 +1192,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 if (date.equals(today)) {
                     Toast.makeText(MainActivity.this, R.string.error_today, Toast.LENGTH_SHORT)
                             .show();
-
                 }
                 else {
                     Toast.makeText(MainActivity.this, R.string.error_server, Toast.LENGTH_SHORT)
