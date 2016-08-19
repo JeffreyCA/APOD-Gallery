@@ -50,12 +50,30 @@
         </PreferenceScreen>
 
         <PreferenceScreen
+            android:key="credit_jsoup"
+            android:summary="Jonathan Hedley"
+            android:title="jsoup: Java HTML Parser">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://jsoup.org"/>
+        </PreferenceScreen>
+
+        <PreferenceScreen
             android:key="credit_date_picker"
             android:summary="wdullaer"
             android:title="MaterialDateTimePicker">
             <intent
                 android:action="android.intent.action.VIEW"
                 android:data="https://github.com/wdullaer/MaterialDateTimePicker"/>
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="credit_reservoir"
+            android:summary="anupcowkur"
+            android:title="Reservoir">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://github.com/anupcowkur/Reservoir"/>
         </PreferenceScreen>
 
         <PreferenceScreen

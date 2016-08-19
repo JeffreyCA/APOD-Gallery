@@ -22,5 +22,37 @@
 -keep interface android.support.v7.app.** { *; }
 -keep class com.bumptech.glide.integration.volley.VolleyGlideModule
 -keeppackagenames org.jsoup.nodes
--keeppackagenames com.anupcowkur.reservoir
--keep class com.anupcowkur.reservoir.** { *; }
+
+# GSON Rules
+-keepattributes Signature
+# For using GSON @Expose annotation
+-keepattributes *Annotation*
+# Gson specific classes
+-keep class sun.misc.Unsafe { *; }
+#-keep class com.google.gson.stream.** { *; }
+# Application classes that will be serialized/deserialized over Gson
+-keep class com.google.gson.examples.android.model.** { *; }
+
+
+# rxjava
+-dontwarn rx.**
+-keep class rx.schedulers.Schedulers {
+    public static <methods>;
+}
+-keep class rx.schedulers.ImmediateScheduler {
+    public <methods>;
+}
+-keep class rx.schedulers.TestScheduler {
+    public <methods>;
+}
+-keep class rx.schedulers.Schedulers {
+    public static ** test();
+}
+-keepclassmembers class rx.internal.util.unsafe.*ArrayQueue*Field* {
+    long producerIndex;
+    long consumerIndex;
+}
+-keepclassmembers class rx.internal.util.unsafe.BaseLinkedQueueProducerNodeRef {
+    long producerNode;
+    long consumerNode;
+}

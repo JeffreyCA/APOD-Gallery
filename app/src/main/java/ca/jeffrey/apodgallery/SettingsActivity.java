@@ -16,11 +16,15 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.anupcowkur.reservoir.Reservoir;
 import com.bumptech.glide.Glide;
+
+import java.io.File;
+import java.io.IOException;
 
 public class SettingsActivity extends Activity implements SharedPreferences
         .OnSharedPreferenceChangeListener {
-    public static final String KEY_PREF_SYNC_CONN = "pref_syncConnectionType";
+
     private static Activity thisActivity;
     private static EditTextPreference saveDirectory;
     private SharedPreferences prefs;
@@ -93,6 +97,51 @@ public class SettingsActivity extends Activity implements SharedPreferences
         editor.apply();
     }
 
+    /**
+     * Clear app cache
+     */
+    private void clearApplicationCache() {
+        File cacheDirectory = thisActivity.getCacheDir();
+        File volleyDirectory = new File(thisActivity.getCacheDir() + "/volley/");
+        File[] cacheFiles = cacheDirectory.listFiles();
+        File[] volleyFiles = volleyDirectory.listFiles();
+        if (cacheDirectory.exists()) {
+            for (File file : cacheFiles) {
+                if (file.isFile()) {
+                    deleteFile(file);
+                }
+            }
+        }
+
+        /*if (volleyDirectory.exists()) {
+            for (File volleyFile : volleyFiles) {
+                deleteFile(volleyFile);
+            }
+        }*/
+    }
+
+    /**
+     * Delete file from device
+     * @param file File to be deleted
+     * @return true, if deletion is successful, otherwise false
+     */
+    private boolean deleteFile(File file) {
+        boolean deletedAll = true;
+        if (file != null) {
+            if (file.isDirectory()) {
+                String[] children = file.list();
+                for (int i = 0; i < children.length; i++) {
+
+                    deletedAll = deleteFile(new File(file, children[i])) && deletedAll;
+                }
+            }
+            else {
+                deletedAll = file.delete();
+            }
+        }
+        return deletedAll;
+    }
+
     public static class PrefsFragment extends PreferenceFragment {
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -107,8 +156,16 @@ public class SettingsActivity extends Activity implements SharedPreferences
             Preference clearCache = findPreference("pref_clear_cache");
             clearCache.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 public boolean onPreferenceClick(Preference preference) {
+                    SettingsActivity instance = new SettingsActivity();
                     ClearCacheTask task = new ClearCacheTask(thisActivity);
                     task.execute();
+                    try {
+                        Reservoir.clear();
+                    }
+                    catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    instance.clearApplicationCache();
                     return true;
                 }
             });

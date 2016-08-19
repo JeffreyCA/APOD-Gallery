@@ -87,10 +87,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 // TODO Fix ImageView scaling
-// TODO Alternate views (gallery)
-// TODO Clear cache preference for Reservoir and Volley
-// TODO Remove Log
-// TODO Expand earliest date
+// TODO Overhaul permissions management
 
 public class MainActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
 
@@ -102,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     final String IMAGE_EXT = ".jpg";
 
     // First available APOD date
-    final Calendar MIN_DATE = new GregorianCalendar(2000, 0, 1);
+    final Calendar MIN_DATE = new GregorianCalendar(1995, 5, 20);
     // Date formats
     final SimpleDateFormat EXPANDED_FORMAT = new SimpleDateFormat("MMMM d, y");
     final SimpleDateFormat NUMERICAL_FORMAT = new SimpleDateFormat("y-MM-dd");
@@ -721,10 +718,11 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
     /**
      * Handle content loading from Reservoir cache
-     * @param isImage true, if the content URL is an image, otherwise false
-     * @param contentUrl URL of the content
-     * @param hdImageUrl URL of the HD image, if available
-     * @param htmlTitle Title of the featured content
+     *
+     * @param isImage     true, if the content URL is an image, otherwise false
+     * @param contentUrl  URL of the content
+     * @param hdImageUrl  URL of the HD image, if available
+     * @param htmlTitle   Title of the featured content
      * @param explanation Explanation of the featured content
      */
     private void onHtmlResponse(boolean isImage, String contentUrl, String hdImageUrl, String
@@ -751,6 +749,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                         public boolean onException(Exception e, String model,
                                                    Target<GlideDrawable> target, boolean
                                                            isFirstResource) {
+                            Log.i("MSG", e.getMessage());
                             return false;
                         }
 
@@ -829,6 +828,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                             public boolean onException(Exception e, String model,
                                                        Target<GlideDrawable> target, boolean
                                                                isFirstResource) {
+                                Log.i("MSG", e.getMessage());
                                 return false;
                             }
 
@@ -1005,7 +1005,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
     /**
      * Execute retrieval of HTML of the APOD page via Jsoup scraping
-     *
      */
     private void parseHtml() {
         new GetHtmlData().execute(getFullUrl());
@@ -1013,7 +1012,9 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
     /**
      * Get Youtube or Vimeo video ID from URL
+     *
      * @param url Video URL (Youtube or Vimeo)
+     *
      * @return video ID of the link
      */
     private String getVideoId(String url) {
@@ -1283,6 +1284,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                             public boolean onException(Exception e, String model,
                                                        Target<GlideDrawable> target, boolean
                                                                isFirstResource) {
+                                Log.i("MSG", e.getMessage());
                                 return false;
                             }
 

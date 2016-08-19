@@ -28,6 +28,7 @@
 
         <Preference
             android:key="pref_clear_cache"
+            android:summary="@string/pref_summary_cache"
             android:title="@string/pref_cache"/>
     </PreferenceCategory>
 
