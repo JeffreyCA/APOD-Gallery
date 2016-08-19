@@ -78,32 +78,46 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 // TODO Fix ImageView scaling
 // TODO Alternate views (gallery)
+// TODO Clear cache preference for Reservoir and Volley
+// TODO Remove Log
+// TODO Expand earliest date
 
 public class MainActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
 
-    // Date formats
-    final SimpleDateFormat EXPANDED_FORMAT = new SimpleDateFormat("MMMM d, y");
-    final SimpleDateFormat NUMERICAL_FORMAT = new SimpleDateFormat("y-MM-dd");
-    final SimpleDateFormat SHORT_FORMAT = new SimpleDateFormat("yyMMdd");
-    final float SLIDING_ANCHOR_POINT = 0.42f;
-    final int DISABLED_DAYS = 155;
+    // NASA API key
+    final String API_KEY = "***REMOVED***";
+    final String DATE_PICKER_TAG = "date_picker";
     final String DEFAULT_IMAGE_DIRECTORY = Environment.getExternalStorageDirectory().getPath() +
             File.separator + "APOD";
     final String IMAGE_EXT = ".jpg";
 
     // First available APOD date
     final Calendar MIN_DATE = new GregorianCalendar(2000, 0, 1);
+    // Date formats
+    final SimpleDateFormat EXPANDED_FORMAT = new SimpleDateFormat("MMMM d, y");
+    final SimpleDateFormat NUMERICAL_FORMAT = new SimpleDateFormat("y-MM-dd");
+    final SimpleDateFormat SHORT_FORMAT = new SimpleDateFormat("yyMMdd");
 
-    // NASA API key
-    // final private String API_KEY = "***REMOVED***";
+    // Anchor height
+    final float SLIDING_ANCHOR_POINT = 0.42f;
+
+    // Member variables
+    boolean tooEarly;
+    String date;
+    String today;
+    String imgUrl;
+    String sdUrl;
+
     AutoResizeTextView titleText;
     DocumentView description;
     FloatingActionButton fab;
@@ -113,17 +127,10 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     ImageView yesterday;
     LinearLayout mainView;
     ProgressBar progressBar;
+    RequestQueue queue;
+    SharedPreferences sharedPref;
     SlidingUpPanelLayout slidingPanel;
     TextView dateText;
-    boolean tooEarly;
-    Calendar[] disabledDays;
-    String date;
-    String today;
-    String imgUrl;
-    String sdUrl;
-    SharedPreferences sharedPref;
-    RequestQueue queue;
-
 
     private String[] disabledDayStrings = {"2000-01-05", "2000-01-06", "2000-01-08",
             "2000-02-08", "2000-02-29", "2000-03-07", "2000-03-21", "2000-03-28", "2000-05-19",
@@ -175,6 +182,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Prevent multiple activities from launching
         if (!isTaskRoot() && getIntent().hasCategory(Intent.CATEGORY_LAUNCHER) && getIntent()
                 .getAction() != null && getIntent().getAction().equals(Intent.ACTION_MAIN)) {
 
@@ -193,14 +201,16 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             myToolbar.showOverflowMenu();
         }
 
-        // Initialize preferences and cache
+        // Initialize preferences
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 
+        // Initialize Reservoir cache
         try {
-            Reservoir.init(this, 5000000); //in bytes
-        } catch (Exception e) {
-            //failure
+            Reservoir.init(this, 5000000);
+        }
+        catch (IOException e) {
+            Toast.makeText(MainActivity.this, R.string.error_cache, Toast.LENGTH_SHORT).show();
         }
 
         // Initiate image views
@@ -215,11 +225,12 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         fabLayout = (FloatingActionButtonLayout) findViewById(R.id.fab_layout);
         mainView = (LinearLayout) findViewById(R.id.main_view);
         progressBar = (ProgressBar) findViewById(R.id.progress);
+        slidingPanel = (SlidingUpPanelLayout) findViewById(R.id.sliding_panel_layout);
         titleText = (AutoResizeTextView) findViewById(R.id.title);
 
         tooEarly = false;
-        disabledDays = new Calendar[DISABLED_DAYS];
-        new setDisabledDays().execute();
+        // disabledDays = new Calendar[DISABLED_DAYS];
+        // new setDisabledDays().execute();
 
         // Set scrollable description text
         if (description != null)
@@ -265,15 +276,13 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 dpd.setThemeDark(true);
                 dpd.setMinDate(MIN_DATE);
                 dpd.setMaxDate(today);
-                dpd.setDisabledDays(disabledDays);
+                // dpd.setDisabledDays(disabledDays);
                 dpd.vibrate(false);
-                dpd.show(getFragmentManager(), "Datepickerdialog");
+                dpd.show(getFragmentManager(), DATE_PICKER_TAG);
             }
         });
 
         // Sliding up panel listener
-        slidingPanel = (SlidingUpPanelLayout) findViewById(R.id.sliding_panel_layout);
-        fab = (FloatingActionButton) findViewById(R.id.fab);
         slidingPanel.setAnchorPoint(SLIDING_ANCHOR_POINT);
         slidingPanel.setScrollableView(description);
         slidingPanel.setPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
@@ -385,9 +394,9 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         return true;
     }
 
+    // Handle menu item selection
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle item selection
         switch (item.getItemId()) {
             case R.id.action_share:
                 shareImage(titleText.getText().toString());
@@ -590,6 +599,11 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         return "";
     }
 
+    /**
+     * Share image or media content
+     *
+     * @param title Title of featured content
+     */
     public void shareImage(String title) {
         final String IMAGE_DIRECTORY = sharedPref.getString("pref_save_location",
                 DEFAULT_IMAGE_DIRECTORY);
@@ -602,7 +616,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         else if (imageView.getDrawable() == null) {
             share.setType("text/plain");
             share.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
             share.putExtra(Intent.EXTRA_SUBJECT, title);
             share.putExtra(Intent.EXTRA_TEXT, getFullUrl());
 
@@ -624,6 +637,11 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         }
     }
 
+    /**
+     * Save image to external storage
+     *
+     * @param imageDate Date of featured image
+     */
     public void saveImage(String imageDate) {
         // Exit if no image is available
         if (imageView.getDrawable() == null) {
@@ -634,6 +652,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         final String DATE = imageDate;
         final String IMAGE_DIRECTORY = sharedPref.getString("pref_save_location",
                 DEFAULT_IMAGE_DIRECTORY);
+
+        // Verify storage permissions
         ImageActivity.verifyStoragePermissions(this);
 
         if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission
@@ -648,6 +668,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
                     File imageDirectory = new File(IMAGE_DIRECTORY);
 
+                    // Make image directory if it does not exist
                     if (!imageDirectory.exists()) {
                         imageDirectory.mkdir();
                     }
@@ -699,6 +720,57 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     }
 
     /**
+     * Handle content loading from Reservoir cache
+     * @param isImage true, if the content URL is an image, otherwise false
+     * @param contentUrl URL of the content
+     * @param hdImageUrl URL of the HD image, if available
+     * @param htmlTitle Title of the featured content
+     * @param explanation Explanation of the featured content
+     */
+    private void onHtmlResponse(boolean isImage, String contentUrl, String hdImageUrl, String
+            htmlTitle, String explanation) {
+        titleText.setText(htmlTitle);
+        description.setText(explanation);
+        sdUrl = contentUrl;
+
+        if (isImage) {
+            // Check preferences if user wants HD images saved
+            if (sharedPref.getString("image_quality", "").equals("1") && !hdImageUrl.equals("")) {
+                imgUrl = hdImageUrl;
+            }
+            else {
+                imgUrl = sdUrl;
+            }
+
+            Glide.with(MainActivity.this).load(sdUrl) // Load from URL
+                    .diskCacheStrategy(DiskCacheStrategy.SOURCE) // Or .RESULT
+                    //.dontAnimate() // No cross-fade
+                    .skipMemoryCache(true) // Use disk cache only
+                    .listener(new RequestListener<String, GlideDrawable>() {
+                        @Override
+                        public boolean onException(Exception e, String model,
+                                                   Target<GlideDrawable> target, boolean
+                                                           isFirstResource) {
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(GlideDrawable resource, String model,
+                                                       Target<GlideDrawable> target, boolean
+                                                               isFromMemoryCache, boolean
+                                                               isFirstResource) {
+                            progressBar.setVisibility(View.GONE);
+                            return false;
+                        }
+
+                    }).into(imageView);
+        }
+        else {
+            openNonImageContent(sdUrl);
+        }
+    }
+
+    /**
      * Get & parse image data and display image to screen
      *
      * @param response JSON object
@@ -716,12 +788,10 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
         tooEarly = false;
         try {
-            // final String numericalDate = response.getString("date");
             explanation = response.getString("explanation");
             mediaType = response.getString("media_type");
             sdUrl = response.getString("url");
             title = response.getString("title");
-
             hdUrl = "";
             prefHd = sharedPref.getString("image_quality", "").equals("1");
             prefCopyright = sharedPref.getBoolean("pref_display_credit", false);
@@ -778,7 +848,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             }
         }
         catch (JSONException e) {
-            e.printStackTrace();
+            Toast.makeText(MainActivity.this, R.string.error_server, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -802,8 +872,25 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         queue.start();
 
         String url = "https://api.nasa" +
-                ".gov/planetary/apod?api_key=***REMOVED***" + "&date="
-                + apiDate;
+                ".gov/planetary/apod?api_key=" + API_KEY + "&date=" + apiDate;
+
+        try {
+            if (Reservoir.contains(getFullUrl())) {
+                List<String> list = Reservoir.get(getFullUrl(), List.class);
+
+                boolean isImage = list.get(0).equals("true");
+                String contentUrl = list.get(1);
+                String hdImageUrl = list.get(2);
+                String htmlTitle = list.get(3);
+                String explanation = list.get(4);
+
+                onHtmlResponse(isImage, contentUrl, hdImageUrl, htmlTitle, explanation);
+                return;
+            }
+        }
+        catch (IOException e) {
+            Toast.makeText(MainActivity.this, R.string.error_server, Toast.LENGTH_SHORT).show();
+        }
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url,
                 null, new Response.Listener<JSONObject>() {
@@ -916,10 +1003,19 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         queue.add(jsonObjectRequest);
     }
 
+    /**
+     * Execute retrieval of HTML of the APOD page via Jsoup scraping
+     *
+     */
     private void parseHtml() {
         new GetHtmlData().execute(getFullUrl());
     }
 
+    /**
+     * Get Youtube or Vimeo video ID from URL
+     * @param url Video URL (Youtube or Vimeo)
+     * @return video ID of the link
+     */
     private String getVideoId(String url) {
         final int ID_GROUP = 6;
         String videoId = "";
@@ -1000,12 +1096,13 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
     // AsyncTask
     private class GetHtmlData extends AsyncTask<String, Void, Void> {
+        List<String> bundle = new ArrayList<String>();
         boolean isImage;
+
         String contentUrl;
         String hdImageUrl;
         String htmlTitle;
         String explanation;
-        DocumentSerializer docHolder = new DocumentSerializer();
 
         @Override
         protected Void doInBackground(String... url) {
@@ -1014,72 +1111,111 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             final String VM_BASE_URL = "https://vimeo.com/";
 
             Document doc = null;
+            contentUrl = "";
+            hdImageUrl = "";
+            htmlTitle = "";
+            hdImageUrl = "";
+            explanation = "";
 
-            try {
-                if (Reservoir.contains(url[0])){
-                    DocumentSerializer test = Reservoir.get(url[0], DocumentSerializer.class);
-                    Log.i("Test", test.getString());
+            // Code not reached (Reservoir check before JSONRequest)
+            // )
+            /* try {
+                if (Reservoir.contains(url[0])) {
+                    List<String> list = Reservoir.get(url[0], List.class);
+                    // DocumentSerializer cache = Reservoir.get(url[0], DocumentSerializer.class);
+                    // doc = Jsoup.parse(cache.getString());
+                    Log.i("!DOC1", list.get(0));
+                    Log.i("!DOC2", list.get(1));
+                    Log.i("!DOC3", list.get(2));
+
+                    isImage = list.get(0).equals("true");
+                    contentUrl = list.get(1);
+                    hdImageUrl = list.get(2);
+                    htmlTitle = list.get(3);
+                    explanation = list.get(4);
+
+                    return null;
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
             }
+            catch (IOException e) {
+                e.printStackTrace();
+            }*/
 
             try {
                 doc = Jsoup.connect(url[0]).get();
-                try {
-                    // docHolder.setDocument(doc);
-                    docHolder.setString(doc.outerHtml());
-                    Reservoir.put(url[0], docHolder);
-                } catch (Exception e) {
-                    Log.i("Exception!", "null");
+            }
+            catch (IOException e) {
+                Toast.makeText(MainActivity.this, R.string.error_server, Toast.LENGTH_SHORT).show();
+            }
+
+            // Image
+            Element image = doc.select("img").first();
+            Element video = doc.select("iframe[src~=(youtube\\.com|vimeo\\.com)], " +
+                    "object[data~=(youtube\\.com|vimeo\\.com)], embed[src~=(youtube\\" +
+                    ".com|vimeo\\.com)]").first();
+
+            if (image != null) {
+                isImage = true;
+                Element hdElement = image.parent();
+                contentUrl = image.absUrl("src");
+                hdImageUrl = hdElement.absUrl("href");
+            }
+            else if (video != null) {
+                isImage = false;
+                contentUrl = video.absUrl("src");
+
+                if (contentUrl.contains("youtu")) {
+                    contentUrl = YT_BASE_URL + getVideoId(contentUrl);
                 }
-
-                // Image
-                Element image = doc.select("img").first();
-                Element video = doc.select("iframe[src~=(youtube\\.com|vimeo\\.com)], " +
-                        "object[data~=(youtube\\.com|vimeo\\.com)], embed[src~=(youtube\\" +
-                        ".com|vimeo\\.com)]").first();
-
-                if (image != null) {
-                    isImage = true;
-                    Element hdElement = image.parent();
-                    contentUrl = image.absUrl("src");
-                    hdImageUrl = hdElement.absUrl("href");
+                else if (contentUrl.contains("vimeo")) {
+                    contentUrl = VM_BASE_URL + getVideoId(contentUrl);
                 }
-                else if (video != null) {
-                    isImage = false;
-                    contentUrl = video.absUrl("src");
+            }
+            else {
+                isImage = false;
+                contentUrl = getFullUrl();
+            }
 
-                    if (contentUrl.contains("youtu")) {
-                        contentUrl = YT_BASE_URL + getVideoId(contentUrl);
+            // doc.select("a").remove();
+            // Title
+            Element title = doc.select("title").first();
+
+            if (title == null) {
+                Log.i("doc", doc.html());
+            }
+            htmlTitle = getHtmlTitle(title.ownText());
+
+            // Explanation
+            String html = doc.html();
+            // Some pages are badly formatted, this fixes that
+            html = html.replaceAll("   <p> </p>\n  </center>", "</center>\n<p>");
+
+            doc = Jsoup.parse(html);
+
+            Elements elements = doc.select("p");
+
+            for (Element e : elements) {
+                if (e.text().contains(EXPLANATION_HEADER)) {
+                    explanation = e.text();
+                    break;
+                }
+            }
+
+            if (explanation.equals("")) {
+                elements = doc.select("TD");
+                for (Element e : elements) {
+                    if (e.text().contains(EXPLANATION_HEADER)) {
+                        explanation = e.text();
+                        break;
                     }
-                    else if (contentUrl.contains("vimeo")) {
-                        contentUrl = VM_BASE_URL + getVideoId(contentUrl);
-                    }
                 }
-                else {
-                    isImage = false;
-                    contentUrl = getFullUrl();
-                }
-
-                // Parse image, links first, then remove links
-                // doc.select("a").remove();
-                // Title
-                Element title = doc.select("title").first();
-
-                if (title == null) {
-                    Log.i("doc", doc.html());
-                }
-                htmlTitle = getHtmlTitle(title.ownText());
-
-                // Explanation
-                String html = doc.html();
-                // Some pages are badly formatted, this fixes that
-                html = html.replaceAll("   <p> </p>\n  </center>", "</center>\n<p>");
+            }
+            if (explanation.equals("")) {
+                html = html.replaceAll("<hr>", "<p>");
 
                 doc = Jsoup.parse(html);
-
-                Elements elements = doc.select("p");
+                elements = doc.select("p");
+                //explanation = "";
 
                 for (Element e : elements) {
                     if (e.text().contains(EXPLANATION_HEADER)) {
@@ -1087,47 +1223,56 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                         break;
                     }
                 }
-
-                if (explanation.equals("")) {
-                    elements = doc.select("TD");
-                    for (Element e : elements) {
-                        if (e.text().contains(EXPLANATION_HEADER)) {
-                            explanation = e.text();
-                            break;
-                        }
-                    }
-                }
-                if (explanation.equals("")) {
-                    html = html.replaceAll("<hr>", "<p>");
-
-                    doc = Jsoup.parse(html);
-                    elements = doc.select("p");
-                    explanation = "";
-
-                    for (Element e : elements) {
-                        if (e.text().contains(EXPLANATION_HEADER)) {
-                            explanation = e.text();
-                            break;
-                        }
-                    }
-                }
             }
-            catch (Exception e) {
-                e.printStackTrace();
+
+            explanation = explanation.replace(EXPLANATION_HEADER, "");
+            explanation = explanation.trim();
+
+            Log.i("EXP", explanation);
+
+            // 0 - is image
+            if (isImage) {
+                bundle.add("true");
             }
+            else {
+                bundle.add("false");
+            }
+
+            // 1 - URL
+            bundle.add(contentUrl);
+            // 2 - HD URL
+            bundle.add(hdImageUrl);
+            // 3 - Title
+            bundle.add(htmlTitle);
+            // 4 - Explanation
+            bundle.add(explanation);
+
+            try {
+                Reservoir.put(url[0], bundle);
+            }
+            catch (IOException e) {
+                Toast.makeText(MainActivity.this, R.string.error_server, Toast.LENGTH_SHORT).show();
+            }
+
             return null;
         }
 
         @Override
         protected void onPostExecute(Void result) {
-
             titleText.setText(htmlTitle);
             description.setText(explanation);
 
+            sdUrl = contentUrl;
+
             if (isImage) {
-                sdUrl = contentUrl;
-                // Get actual HD url later on...
-                imgUrl = hdImageUrl;
+                // Check preferences if user wants HD images saved
+                if (sharedPref.getString("image_quality", "").equals("1") && !hdImageUrl.equals
+                        ("")) {
+                    imgUrl = hdImageUrl;
+                }
+                else {
+                    imgUrl = sdUrl;
+                }
 
                 Glide.with(MainActivity.this).load(sdUrl) // Load from URL
                         .diskCacheStrategy(DiskCacheStrategy.SOURCE) // Or .RESULT
@@ -1142,8 +1287,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                             }
 
                             @Override
-                            public boolean onResourceReady(GlideDrawable resource, String
-                                    model, Target<GlideDrawable> target, boolean
+                            public boolean onResourceReady(GlideDrawable resource, String model,
+                                                           Target<GlideDrawable> target, boolean
                                                                    isFromMemoryCache, boolean
                                                                    isFirstResource) {
                                 progressBar.setVisibility(View.GONE);
@@ -1153,7 +1298,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                         }).into(imageView);
             }
             else {
-                openNonImageContent(getFullUrl());
+                openNonImageContent(sdUrl);
             }
         }
     }
@@ -1189,20 +1334,13 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
             if (tooEarly) {
-                if (date.equals(today)) {
-                    Toast.makeText(MainActivity.this, R.string.error_today, Toast.LENGTH_SHORT)
-                            .show();
-                }
-                else {
-                    Toast.makeText(MainActivity.this, R.string.error_server, Toast.LENGTH_SHORT)
-                            .show();
-                }
+                Toast.makeText(MainActivity.this, R.string.error_today, Toast.LENGTH_SHORT).show();
             }
-            else {
+            else if (progressBar.getVisibility() == View.GONE) {
                 if (imageView.getDrawable() == null) {
                     openNonImageContent(sdUrl);
                 }
-                else {
+                else if (progressBar.getVisibility() != View.VISIBLE) {
                     launchFullImageView(sdUrl, expandedToNumericalDate(date), false);
                 }
             }
@@ -1221,28 +1359,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 Toast.makeText(MainActivity.this, R.string.toast_view_image, Toast.LENGTH_SHORT)
                         .show();
             }
-        }
-    }
-
-    private class setDisabledDays extends AsyncTask<Integer, Void, Void> {
-        @Override
-        protected Void doInBackground(Integer... params) {
-
-            for (int i = 0; i < DISABLED_DAYS; i++) {
-                disabledDays[i] = Calendar.getInstance();
-                try {
-                    disabledDays[i].setTime(NUMERICAL_FORMAT.parse(disabledDayStrings[i]));
-                }
-                catch (ParseException e) {
-                    Log.i("PARSE", "EXCEPTION");
-                    e.printStackTrace();
-                }
-            }
-            return null;
-        }
-
-        protected void onPostExecute(Void v) {
-            disabledDayStrings = null;
         }
     }
 }

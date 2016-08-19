@@ -9,6 +9,7 @@
     <string name="dialog_browser_desc">The featured content for %s is not an image. Do you want to view the content in an external application?</string>
     <string name="dialog_browser_title">Open external link?</string>
     <string name="error_auth">Authentication error.</string>
+    <string name="error_cache">Cache error, please free up some storage space.</string>
     <string name="error_general">Error.</string>
     <string name="error_network">Network error, please check your Internet connection.</string>
     <string name="error_parse">Parsing error.</string>
