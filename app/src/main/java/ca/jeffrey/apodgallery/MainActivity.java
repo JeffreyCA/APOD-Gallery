@@ -27,8 +27,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Interpolator;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -122,7 +122,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     ImageView imageView;
     ImageView tomorrow;
     ImageView yesterday;
-    LinearLayout mainView;
+    RelativeLayout mainView;
     ProgressBar progressBar;
     RequestQueue queue;
     SharedPreferences sharedPref;
@@ -220,7 +220,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         description = (DocumentView) findViewById(R.id.description);
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fabLayout = (FloatingActionButtonLayout) findViewById(R.id.fab_layout);
-        mainView = (LinearLayout) findViewById(R.id.main_view);
+        mainView = (RelativeLayout) findViewById(R.id.main_view);
         progressBar = (ProgressBar) findViewById(R.id.progress);
         slidingPanel = (SlidingUpPanelLayout) findViewById(R.id.sliding_panel_layout);
         titleText = (AutoResizeTextView) findViewById(R.id.title);

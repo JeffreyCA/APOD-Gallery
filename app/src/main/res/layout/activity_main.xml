@@ -45,7 +45,7 @@
                 app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
             </android.support.v7.widget.Toolbar>
 
-            <LinearLayout
+            <RelativeLayout
                 android:id="@+id/main_view"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
@@ -112,27 +112,24 @@
                     android:contentDescription="@string/desc_image"
                     android:scaleType="centerCrop"/> -->
 
-                <!--<ca.jeffrey.apodgallery.DynamicImageView
+                <ca.jeffrey.apodgallery.BetterImageView
                     android:id="@+id/image"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:scaleType="centerCrop"/>-->
-
-                <ca.jeffrey.apodgallery.ProportionalImageView
-                    android:id="@+id/image"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:adjustViewBounds="true"/>
+                    android:layout_below="@id/date_nav"
+                    android:layout_gravity="center"
+                    android:adjustViewBounds="true"
+                    android:scaleType="centerCrop"/>
 
                 <ProgressBar
                     android:id="@+id/progress"
                     style="?android:attr/progressBarStyleLarge"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
                     android:layout_gravity="center"
                     android:visibility="visible"/>
-            </LinearLayout>
+            </RelativeLayout>
         </LinearLayout>
 
         <!-- SLIDING LAYOUT -->

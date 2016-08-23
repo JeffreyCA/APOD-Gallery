@@ -98,28 +98,39 @@
     <PreferenceCategory
         android:key="category_stackoverflow"
         android:title="StackOverflow code snippets">
+
         <PreferenceScreen
             android:key="credit_resize_textview"
             android:summary="M-WaJeEh"
             android:title="AutoResizeTextView">
             <intent
                 android:action="android.intent.action.VIEW"
-                android:data="http://stackoverflow.com/questions/5033012/auto-scale-textview-text-to-fit-within
-            * -bounds/17782522#17782522"/>
+                android:data="http://stackoverflow.com/a/17782522"/>
         </PreferenceScreen>
+
         <PreferenceScreen
             android:key="credit_imageview_fling"
             android:summary="Alex Orlov"
             android:title="ImageView fling gesture">
             <intent
                 android:action="android.intent.action.VIEW"
-                android:data="http://stackoverflow.com/questions/4098198/adding-fling-gesture-to-an-image-view-android"/>
+                android:data="http://stackoverflow.com/a/4098447"/>
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="credit_betterimageview"
+            android:summary="Mark Martinsson"
+            android:title="Better ImageView">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="http://stackoverflow.com/a/17424313"/>
         </PreferenceScreen>
     </PreferenceCategory>
 
     <PreferenceCategory
         android:key="category_icon"
         android:title="Icon credits">
+
         <PreferenceScreen
             android:key="credit_icon"
             android:summary="Final design by JeffreyCA, icon elements made by Freepik"
@@ -128,5 +139,6 @@
                 android:action="android.intent.action.VIEW"
                 android:data="http://www.flaticon.com/packs/space-6"/>
         </PreferenceScreen>
+
     </PreferenceCategory>
 </PreferenceScreen>
