@@ -86,7 +86,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-// TODO Fix ImageView scaling
 // TODO Overhaul permissions management
 
 public class MainActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
@@ -356,14 +355,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         // Set swiping gestures
         final GestureDetector gdt = new GestureDetector(MainActivity.this, new GestureListener());
         imageView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(final View view, final MotionEvent event) {
-                gdt.onTouchEvent(event);
-                return true;
-            }
-        });
-
-        mainView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(final View view, final MotionEvent event) {
                 gdt.onTouchEvent(event);
@@ -656,7 +647,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission
                 .WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             // Load image with Glide as bitmap
-            Glide.with(this).load(imgUrl).asBitmap().diskCacheStrategy(DiskCacheStrategy.SOURCE)
+            Glide.with(this).load(imgUrl).asBitmap().diskCacheStrategy(DiskCacheStrategy.RESULT)
                     .into(new SimpleTarget<Bitmap>() {
 
                 @Override
@@ -740,10 +731,11 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 imgUrl = sdUrl;
             }
 
+            // imageView.clearAnimation();
             Glide.with(MainActivity.this).load(sdUrl) // Load from URL
-                    .diskCacheStrategy(DiskCacheStrategy.SOURCE) // Or .RESULT
+                    .diskCacheStrategy(DiskCacheStrategy.RESULT) // Or .RESULT
                     //.dontAnimate() // No cross-fade
-                    .skipMemoryCache(true) // Use disk cache only
+                    //.skipMemoryCache(true) // Use disk cache only
                     .listener(new RequestListener<String, GlideDrawable>() {
                         @Override
                         public boolean onException(Exception e, String model,
@@ -820,9 +812,9 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
             if (mediaType.equals(IMAGE_TYPE)) {
                 Glide.with(MainActivity.this).load(sdUrl) // Load from URL
-                        .diskCacheStrategy(DiskCacheStrategy.SOURCE) // Or .RESULT
+                        .diskCacheStrategy(DiskCacheStrategy.RESULT) // Or .RESULT
                         //.dontAnimate() // No cross-fade
-                        .skipMemoryCache(true) // Use disk cache only
+                         // Use disk cache only
                         .listener(new RequestListener<String, GlideDrawable>() {
                             @Override
                             public boolean onException(Exception e, String model,
@@ -837,6 +829,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                                                            Target<GlideDrawable> target, boolean
                                                                    isFromMemoryCache, boolean
                                                                    isFirstResource) {
+                                Log.i("MSG", "loaded");
                                 progressBar.setVisibility(View.GONE);
                                 return false;
                             }
@@ -1276,9 +1269,9 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 }
 
                 Glide.with(MainActivity.this).load(sdUrl) // Load from URL
-                        .diskCacheStrategy(DiskCacheStrategy.SOURCE) // Or .RESULT
+                        .diskCacheStrategy(DiskCacheStrategy.RESULT) // Or .RESULT
                         //.dontAnimate() // No cross-fade
-                        .skipMemoryCache(true) // Use disk cache only
+                        //.skipMemoryCache(true) // Use disk cache only
                         .listener(new RequestListener<String, GlideDrawable>() {
                             @Override
                             public boolean onException(Exception e, String model,
@@ -1314,17 +1307,21 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+
             // Right to left
             if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) >
                     SWIPE_THRESHOLD_VELOCITY) {
                 // Prevent user from navigation to future days
-                if (!date.equals(today))
+                if (!date.equals(today)) {
+                    Glide.clear(imageView);
                     nextDay();
+                }
                 return false;
             }
             // Left to right
             else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) >
                     SWIPE_THRESHOLD_VELOCITY) {
+                Glide.clear(imageView);
                 previousDay();
                 return false;
             }

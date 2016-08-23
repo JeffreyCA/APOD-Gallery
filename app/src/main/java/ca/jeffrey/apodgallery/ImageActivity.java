@@ -66,7 +66,7 @@ public class ImageActivity extends Activity {
 
         // Load image with Glide as bitmap
         Glide.with(ImageActivity.this).load(url).asBitmap().diskCacheStrategy(DiskCacheStrategy
-                .SOURCE).into(new SimpleTarget<Bitmap>() {
+                .RESULT).into(new SimpleTarget<Bitmap>() {
             @Override
             public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap>
                     glideAnimation) {
