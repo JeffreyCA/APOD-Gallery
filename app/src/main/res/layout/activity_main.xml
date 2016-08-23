@@ -112,11 +112,18 @@
                     android:contentDescription="@string/desc_image"
                     android:scaleType="centerCrop"/> -->
 
-                <ca.jeffrey.apodgallery.DynamicImageView
+                <!--<ca.jeffrey.apodgallery.DynamicImageView
                     android:id="@+id/image"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:scaleType="centerCrop"/>
+                    android:scaleType="centerCrop"/>-->
+
+                <ca.jeffrey.apodgallery.ProportionalImageView
+                    android:id="@+id/image"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:adjustViewBounds="true"/>
 
                 <ProgressBar
                     android:id="@+id/progress"
