@@ -47,8 +47,8 @@
 
             <LinearLayout
                 android:id="@+id/main_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
                 android:orientation="vertical">
 
                 <RelativeLayout
@@ -110,15 +110,12 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:contentDescription="@string/desc_image"
-                    android:adjustViewBounds="true"
-                    android:scaleType="fitCenter"/> -->
+                    android:scaleType="centerCrop"/> -->
 
-                <ImageView
+                <ca.jeffrey.apodgallery.DynamicImageView
                     android:id="@+id/image"
-                    android:layout_width="wrap_content"
+                    android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:contentDescription="@string/desc_image"
                     android:scaleType="centerCrop"/>
 
                 <ProgressBar
