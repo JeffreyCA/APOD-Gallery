@@ -121,6 +121,7 @@ int counter = 0;
     ImageView imageView;
     ImageView tomorrow;
     ImageView yesterday;
+    RelativeLayout dateNav;
     RelativeLayout mainView;
     ProgressBar progressBar;
     RequestQueue queue;
@@ -220,6 +221,7 @@ int counter = 0;
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fabLayout = (FloatingActionButtonLayout) findViewById(R.id.fab_layout);
         mainView = (RelativeLayout) findViewById(R.id.main_view);
+        dateNav = (RelativeLayout) findViewById(R.id.date_nav);
         progressBar = (ProgressBar) findViewById(R.id.progress);
         slidingPanel = (SlidingUpPanelLayout) findViewById(R.id.sliding_panel_layout);
         titleText = (AutoResizeTextView) findViewById(R.id.title);
@@ -238,6 +240,13 @@ int counter = 0;
 
         // Set image
         getImageData(date);
+
+        dateNav.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return true;
+            }
+        });
 
         // No "tomorrow" image available if default day is "today"
         tomorrow.setVisibility(View.INVISIBLE);
