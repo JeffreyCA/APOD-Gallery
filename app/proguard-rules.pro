@@ -56,3 +56,5 @@
     long producerNode;
     long consumerNode;
 }
+
+-dontwarn com.squareup.okhttp.**

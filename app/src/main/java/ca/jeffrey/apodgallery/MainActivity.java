@@ -89,7 +89,7 @@ import java.util.regex.Pattern;
 // TODO Overhaul permissions management
 
 public class MainActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
-
+int counter = 0;
     // NASA API key
     final String API_KEY = "***REMOVED***";
     final String DATE_PICKER_TAG = "date_picker";
@@ -272,7 +272,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 dpd.setThemeDark(true);
                 dpd.setMinDate(MIN_DATE);
                 dpd.setMaxDate(today);
-                // dpd.setDisabledDays(disabledDays);
                 dpd.vibrate(false);
                 dpd.show(getFragmentManager(), DATE_PICKER_TAG);
             }
@@ -361,6 +360,14 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 return true;
             }
         });
+
+        mainView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(final View view, final MotionEvent event) {
+                gdt.onTouchEvent(event);
+                return true;
+            }
+        });
     } // End onCreate method
 
     // Inflate options menu
@@ -407,7 +414,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
      * Set next day text
      */
     private void nextDay() {
-        Glide.clear(imageView);
         progressBar.setVisibility(View.VISIBLE);
 
         date = getNextDay(date);
@@ -429,7 +435,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
      * Set previous day text
      */
     private void previousDay() {
-        Glide.clear(imageView);
         progressBar.setVisibility(View.VISIBLE);
 
         // Display previous day
@@ -813,8 +818,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             if (mediaType.equals(IMAGE_TYPE)) {
                 Glide.with(MainActivity.this).load(sdUrl) // Load from URL
                         .diskCacheStrategy(DiskCacheStrategy.RESULT) // Or .RESULT
-                        //.dontAnimate() // No cross-fade
-                         // Use disk cache only
+                         //.dontAnimate() // No cross-fade
+                        .skipMemoryCache(true) // Use disk cache only
                         .listener(new RequestListener<String, GlideDrawable>() {
                             @Override
                             public boolean onException(Exception e, String model,
@@ -829,7 +834,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                                                            Target<GlideDrawable> target, boolean
                                                                    isFromMemoryCache, boolean
                                                                    isFirstResource) {
-                                Log.i("MSG", "loaded");
                                 progressBar.setVisibility(View.GONE);
                                 return false;
                             }
@@ -859,13 +863,18 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         Cache cache = new DiskBasedCache(getCacheDir(), 1024 * 1024); // 1MB cap
         // Set up the network to use HttpURLConnection as the HTTP client.
         Network network = new BasicNetwork(new HurlStack());
-        // Instantiate the RequestQueue with the cache and network.
-        queue = new RequestQueue(cache, network);
-        // Start the queue
-        queue.start();
+
+        if (queue == null) {
+            // Instantiate the RequestQueue with the cache and network.
+            queue = new RequestQueue(cache, network);
+            // Start the queue
+            queue.start();
+        }
 
         String url = "https://api.nasa" +
                 ".gov/planetary/apod?api_key=" + API_KEY + "&date=" + apiDate;
+
+        Glide.clear(imageView);
 
         try {
             if (Reservoir.contains(getFullUrl())) {
@@ -989,9 +998,11 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             }
         };
 
-        jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20 * 1000, 0, DefaultRetryPolicy
-                .DEFAULT_BACKOFF_MULT));
-
+        // jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(0, -1, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(
+                0,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         // Add the request to the RequestQueue.
         queue.add(jsonObjectRequest);
     }
@@ -1313,7 +1324,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                     SWIPE_THRESHOLD_VELOCITY) {
                 // Prevent user from navigation to future days
                 if (!date.equals(today)) {
-                    Glide.clear(imageView);
                     nextDay();
                 }
                 return false;
@@ -1321,7 +1331,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             // Left to right
             else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) >
                     SWIPE_THRESHOLD_VELOCITY) {
-                Glide.clear(imageView);
                 previousDay();
                 return false;
             }
@@ -1332,6 +1341,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         // determined that the first tap stands alone, and is not part of a double tap.
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
+            Log.i("COOr", "" + e.getX() + " " + e.getY());
             if (tooEarly) {
                 Toast.makeText(MainActivity.this, R.string.error_today, Toast.LENGTH_SHORT).show();
             }
