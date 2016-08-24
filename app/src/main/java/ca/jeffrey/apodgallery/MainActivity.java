@@ -644,7 +644,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission
                 .WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             // Load image with Glide as bitmap
-            Glide.with(this).load(imgUrl).asBitmap().diskCacheStrategy(DiskCacheStrategy.RESULT)
+            Glide.with(this).load(imgUrl).asBitmap().diskCacheStrategy(DiskCacheStrategy.SOURCE)
                     .into(new SimpleTarget<Bitmap>() {
 
                 @Override
@@ -729,7 +729,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             }
 
             Glide.with(MainActivity.this).load(sdUrl) // Load from URL
-                    .diskCacheStrategy(DiskCacheStrategy.RESULT) // Or .RESULT
+                    .diskCacheStrategy(DiskCacheStrategy.SOURCE) // Or .RESULT
                     //.skipMemoryCache(true) // Use disk cache only
                     .listener(new RequestListener<String, GlideDrawable>() {
                         @Override
@@ -808,7 +808,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
         if (mediaType.equals(IMAGE_TYPE)) {
             Glide.with(MainActivity.this).load(sdUrl) // Load from URL
-                    .diskCacheStrategy(DiskCacheStrategy.RESULT) // Or .RESULT
+                    .diskCacheStrategy(DiskCacheStrategy.SOURCE) // Or .RESULT
                     .skipMemoryCache(true) // Use disk cache only
                     .listener(new RequestListener<String, GlideDrawable>() {
                         @Override
@@ -1228,7 +1228,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 }
 
                 Glide.with(MainActivity.this).load(sdUrl) // Load from URL
-                        .diskCacheStrategy(DiskCacheStrategy.RESULT) // Or .RESULT
+                        .diskCacheStrategy(DiskCacheStrategy.SOURCE) // Or .RESULT
                         //.skipMemoryCache(true) // Use disk cache only
                         .listener(new RequestListener<String, GlideDrawable>() {
                             @Override
@@ -1289,14 +1289,16 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         // determined that the first tap stands alone, and is not part of a double tap.
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
+            boolean imageAvailable = !titleText.getText().equals(getResources().getString(R.string
+                    .title_image_unavailable));
             if (tooEarly) {
                 Toast.makeText(MainActivity.this, R.string.error_today, Toast.LENGTH_SHORT).show();
             }
             else if (progressBar.getVisibility() == View.GONE) {
-                if (imageView.getDrawable() == null) {
+                if (imageAvailable && imageView.getDrawable() == null) {
                     openNonImageContent(sdUrl);
                 }
-                else if (progressBar.getVisibility() != View.VISIBLE) {
+                else if (imageView.getDrawable() != null) {
                     launchFullImageView(sdUrl, expandedToNumericalDate(date), false);
                 }
             }

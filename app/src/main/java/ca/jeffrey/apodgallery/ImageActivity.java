@@ -65,8 +65,7 @@ public class ImageActivity extends Activity {
         imageView.setMaxZoom(3.5f);
 
         // Load image with Glide as bitmap
-        Glide.with(ImageActivity.this).load(url).asBitmap().diskCacheStrategy(DiskCacheStrategy
-                .RESULT).into(new SimpleTarget<Bitmap>() {
+        Glide.with(ImageActivity.this).load(url).asBitmap().diskCacheStrategy(DiskCacheStrategy.SOURCE).into(new SimpleTarget<Bitmap>() {
             @Override
             public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap>
                     glideAnimation) {

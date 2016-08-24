@@ -14,15 +14,6 @@
         </PreferenceScreen>
 
         <PreferenceScreen
-            android:key="credit_volley"
-            android:summary="The Android Open Source Project"
-            android:title="Android Volley">
-            <intent
-                android:action="android.intent.action.VIEW"
-                android:data="https://android.googlesource.com/platform/frameworks/volley"/>
-        </PreferenceScreen>
-
-        <PreferenceScreen
             android:key="credit_autofit_text"
             android:summary="grantland"
             android:title="AutoFitTextView">
@@ -65,6 +56,15 @@
             <intent
                 android:action="android.intent.action.VIEW"
                 android:data="https://github.com/wdullaer/MaterialDateTimePicker"/>
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="credit_okhttp"
+            android:summary="Square"
+            android:title="OkHttp3">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="http://square.github.io/okhttp"/>
         </PreferenceScreen>
 
         <PreferenceScreen
