@@ -1,6 +1,7 @@
 package ca.jeffrey.apodgallery;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -8,6 +9,8 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -18,7 +21,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -32,25 +34,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.Cache;
-import com.android.volley.DefaultRetryPolicy;
-import com.android.volley.Network;
-import com.android.volley.NetworkError;
-import com.android.volley.NetworkResponse;
-import com.android.volley.NoConnectionError;
-import com.android.volley.ParseError;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.ServerError;
-import com.android.volley.TimeoutError;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.BasicNetwork;
-import com.android.volley.toolbox.DiskBasedCache;
-import com.android.volley.toolbox.HttpHeaderParser;
-import com.android.volley.toolbox.HurlStack;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.anupcowkur.reservoir.Reservoir;
 import com.bluejamesbond.text.DocumentView;
 import com.bumptech.glide.Glide;
@@ -75,7 +58,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -86,27 +68,34 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import okhttp3.Cache;
+import okhttp3.CacheControl;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Interceptor;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
 // TODO Overhaul permissions management
 
 public class MainActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
-int counter = 0;
     // NASA API key
     final String API_KEY = "***REMOVED***";
     final String DATE_PICKER_TAG = "date_picker";
     final String DEFAULT_IMAGE_DIRECTORY = Environment.getExternalStorageDirectory().getPath() +
             File.separator + "APOD";
     final String IMAGE_EXT = ".jpg";
-
     // First available APOD date
     final Calendar MIN_DATE = new GregorianCalendar(1995, 5, 20);
     // Date formats
     final SimpleDateFormat EXPANDED_FORMAT = new SimpleDateFormat("MMMM d, y");
     final SimpleDateFormat NUMERICAL_FORMAT = new SimpleDateFormat("y-MM-dd");
     final SimpleDateFormat SHORT_FORMAT = new SimpleDateFormat("yyMMdd");
-
     // Anchor height
     final float SLIDING_ANCHOR_POINT = 0.42f;
-
+    int counter = 0;
+    OkHttpClient client;
     // Member variables
     boolean tooEarly;
     String date;
@@ -124,7 +113,6 @@ int counter = 0;
     RelativeLayout dateNav;
     RelativeLayout mainView;
     ProgressBar progressBar;
-    RequestQueue queue;
     SharedPreferences sharedPref;
     SlidingUpPanelLayout slidingPanel;
     TextView dateText;
@@ -164,18 +152,16 @@ int counter = 0;
      *
      * @return Calendar object
      */
-    public static Calendar dateToCalendar(Date date) {
+    private static Calendar dateToCalendar(Date date) {
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
         return cal;
     }
 
-    public String getHtmlTitle(String fragment) {
+    private String getHtmlTitle(String fragment) {
         int index = fragment.indexOf("-");
         return fragment.substring(index + 1).trim();
     }
-
-    // Date Methods
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -210,6 +196,23 @@ int counter = 0;
             Toast.makeText(MainActivity.this, R.string.error_cache, Toast.LENGTH_SHORT).show();
         }
 
+        client = new OkHttpClient.Builder().cache(new Cache(getCacheDir(), 10 * 1024 * 1024)) // 10M
+                .addInterceptor(new Interceptor() {
+                    @Override
+                    public Response intercept(Chain chain) throws IOException {
+                        Request request = chain.request();
+                        if (isNetworkAvailable(MainActivity.this)) {
+                            request = request.newBuilder().header("Cache-Control", "public, " +
+                                    "max-age=" + 60).build();
+                        }
+                        else {
+                            request = request.newBuilder().header("Cache-Control", "public, " +
+                                    "only-if-cached, max-stale=" + 60 * 60 * 24 * 7).build();
+                        }
+                        return chain.proceed(request);
+                    }
+                }).build();
+
         // Initiate image views
         imageView = (ImageView) findViewById(R.id.image);
         yesterday = (ImageView) findViewById(R.id.left_chevron);
@@ -227,8 +230,6 @@ int counter = 0;
         titleText = (AutoResizeTextView) findViewById(R.id.title);
 
         tooEarly = false;
-        // disabledDays = new Calendar[DISABLED_DAYS];
-        // new setDisabledDays().execute();
 
         // Set scrollable description text
         if (description != null)
@@ -240,13 +241,6 @@ int counter = 0;
 
         // Set image
         getImageData(date);
-
-        dateNav.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return true;
-            }
-        });
 
         // No "tomorrow" image available if default day is "today"
         tomorrow.setVisibility(View.INVISIBLE);
@@ -362,6 +356,14 @@ int counter = 0;
 
         // Set swiping gestures
         final GestureDetector gdt = new GestureDetector(MainActivity.this, new GestureListener());
+        // Fixes bug where tapping date nav bar would trigger fullscreen image view
+        dateNav.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return true;
+            }
+        });
+
         imageView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(final View view, final MotionEvent event) {
@@ -556,25 +558,6 @@ int counter = 0;
     }
 
     /**
-     * Convert date format to MMMM dd, yyyy
-     *
-     * @param date date in numerical format
-     *
-     * @return date in expanded format
-     */
-
-    private String numericalToExpandedDate(String date) {
-        try {
-            return EXPANDED_FORMAT.format(NUMERICAL_FORMAT.parse(date));
-        }
-        catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-        return "";
-    }
-
-    /**
      * Display toast when image is not available
      */
     private void displayImageNotAvailableToast() {
@@ -745,17 +728,16 @@ int counter = 0;
                 imgUrl = sdUrl;
             }
 
-            // imageView.clearAnimation();
             Glide.with(MainActivity.this).load(sdUrl) // Load from URL
                     .diskCacheStrategy(DiskCacheStrategy.RESULT) // Or .RESULT
-                    //.dontAnimate() // No cross-fade
                     //.skipMemoryCache(true) // Use disk cache only
                     .listener(new RequestListener<String, GlideDrawable>() {
                         @Override
                         public boolean onException(Exception e, String model,
                                                    Target<GlideDrawable> target, boolean
                                                            isFirstResource) {
-                            Log.i("MSG", e.getMessage());
+                            Toast.makeText(MainActivity.this, R.string.error_general, Toast
+                                    .LENGTH_SHORT).show();
                             return false;
                         }
 
@@ -780,7 +762,7 @@ int counter = 0;
      *
      * @param response JSON object
      */
-    private void onJsonResponse(JSONObject response) {
+    private void onJsonResponse(JSONObject response) throws JSONException {
         final String IMAGE_TYPE = "image";
 
         boolean prefHd;
@@ -792,69 +774,65 @@ int counter = 0;
         String title;
 
         tooEarly = false;
-        try {
-            explanation = response.getString("explanation");
-            mediaType = response.getString("media_type");
-            sdUrl = response.getString("url");
-            title = response.getString("title");
-            hdUrl = "";
-            prefHd = sharedPref.getString("image_quality", "").equals("1");
-            prefCopyright = sharedPref.getBoolean("pref_display_credit", false);
 
-            // Check if HD image URL is included in response
-            if (response.has("hdurl")) {
-                hdUrl = response.getString("hdurl");
-            }
+        explanation = response.getString("explanation");
+        mediaType = response.getString("media_type");
+        sdUrl = response.getString("url");
+        title = response.getString("title");
+        hdUrl = "";
+        prefHd = sharedPref.getString("image_quality", "").equals("1");
+        prefCopyright = sharedPref.getBoolean("pref_display_credit", false);
 
-            // Add copyright credits to end of description if setting allows it
-            if (prefCopyright && response.has("copyright")) {
-                copyright = response.getString("copyright");
-                explanation += getResources().getString(R.string.title_credits) + copyright;
-            }
-
-            // Set image url depending on user preference and image availability
-            if (prefHd && !hdUrl.equals("")) {
-                imgUrl = hdUrl;
-            }
-            else {
-                imgUrl = sdUrl;
-            }
-
-            // Set text
-            titleText.setText(title);
-            description.setText(explanation);
-
-            if (mediaType.equals(IMAGE_TYPE)) {
-                Glide.with(MainActivity.this).load(sdUrl) // Load from URL
-                        .diskCacheStrategy(DiskCacheStrategy.RESULT) // Or .RESULT
-                         //.dontAnimate() // No cross-fade
-                        .skipMemoryCache(true) // Use disk cache only
-                        .listener(new RequestListener<String, GlideDrawable>() {
-                            @Override
-                            public boolean onException(Exception e, String model,
-                                                       Target<GlideDrawable> target, boolean
-                                                               isFirstResource) {
-                                Log.i("MSG", e.getMessage());
-                                return false;
-                            }
-
-                            @Override
-                            public boolean onResourceReady(GlideDrawable resource, String model,
-                                                           Target<GlideDrawable> target, boolean
-                                                                   isFromMemoryCache, boolean
-                                                                   isFirstResource) {
-                                progressBar.setVisibility(View.GONE);
-                                return false;
-                            }
-
-                        }).into(imageView);
-            }
-            else {
-                openNonImageContent(sdUrl);
-            }
+        // Check if HD image URL is included in response
+        if (response.has("hdurl")) {
+            hdUrl = response.getString("hdurl");
         }
-        catch (JSONException e) {
-            Toast.makeText(MainActivity.this, R.string.error_server, Toast.LENGTH_SHORT).show();
+
+        // Add copyright credits to end of description if setting allows it
+        if (prefCopyright && response.has("copyright")) {
+            copyright = response.getString("copyright");
+            explanation += getResources().getString(R.string.title_credits) + copyright;
+        }
+
+        // Set image url depending on user preference and image availability
+        if (prefHd && !hdUrl.equals("")) {
+            imgUrl = hdUrl;
+        }
+        else {
+            imgUrl = sdUrl;
+        }
+
+        // Set text
+        titleText.setText(title);
+        description.setText(explanation);
+
+        if (mediaType.equals(IMAGE_TYPE)) {
+            Glide.with(MainActivity.this).load(sdUrl) // Load from URL
+                    .diskCacheStrategy(DiskCacheStrategy.RESULT) // Or .RESULT
+                    .skipMemoryCache(true) // Use disk cache only
+                    .listener(new RequestListener<String, GlideDrawable>() {
+                        @Override
+                        public boolean onException(Exception e, String model,
+                                                   Target<GlideDrawable> target, boolean
+                                                           isFirstResource) {
+                            Toast.makeText(MainActivity.this, R.string.error_general, Toast
+                                    .LENGTH_SHORT).show();
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(GlideDrawable resource, String model,
+                                                       Target<GlideDrawable> target, boolean
+                                                               isFromMemoryCache, boolean
+                                                               isFirstResource) {
+                            progressBar.setVisibility(View.GONE);
+                            return false;
+                        }
+
+                    }).into(imageView);
+        }
+        else {
+            openNonImageContent(sdUrl);
         }
     }
 
@@ -864,27 +842,15 @@ int counter = 0;
      * @param date selected date
      */
     private void getImageData(String date) {
-        final String mDate = date;
         // Parse date
         String apiDate = expandedToNumericalDate(date);
-
-        // Instantiate the cache
-        Cache cache = new DiskBasedCache(getCacheDir(), 1024 * 1024); // 1MB cap
-        // Set up the network to use HttpURLConnection as the HTTP client.
-        Network network = new BasicNetwork(new HurlStack());
-
-        if (queue == null) {
-            // Instantiate the RequestQueue with the cache and network.
-            queue = new RequestQueue(cache, network);
-            // Start the queue
-            queue.start();
-        }
 
         String url = "https://api.nasa" +
                 ".gov/planetary/apod?api_key=" + API_KEY + "&date=" + apiDate;
 
         Glide.clear(imageView);
 
+        // Reservoir for HTML scraping
         try {
             if (Reservoir.contains(getFullUrl())) {
                 List<String> list = Reservoir.get(getFullUrl(), List.class);
@@ -903,117 +869,119 @@ int counter = 0;
             Toast.makeText(MainActivity.this, R.string.error_server, Toast.LENGTH_SHORT).show();
         }
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url,
-                null, new Response.Listener<JSONObject>() {
+        // Regular OKHTTP request
+        try {
+            doJsonRequest(url);
+        }
+        catch (IOException e) {
+            Toast.makeText(MainActivity.this, R.string.error_server, Toast.LENGTH_SHORT).show();
+        }
+    }
 
-            @Override
-            public void onResponse(JSONObject response) {
-                onJsonResponse(response);
+    /**
+     * Check if device has internet access
+     *
+     * @param context Context
+     *
+     * @return true, if able to connect to Internet, otherwise false
+     */
+    private boolean isNetworkAvailable(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context
+                .CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        if (activeNetwork != null) {
+            // Connected
+            if (activeNetwork.getType() == ConnectivityManager.TYPE_WIFI || activeNetwork.getType
+                    () == ConnectivityManager.TYPE_MOBILE) {
+                return true;
             }
-        }, new Response.ErrorListener() {
-            // Handle Volley errors
+        }
+        // Not connected
+        else {
+            return false;
+        }
+        return false;
+    }
+
+    /**
+     * Initiate JSON request via OkHttp3
+     *
+     * @param url Request URL
+     *
+     * @throws IOException Handled directly in catch statement
+     */
+    private void doJsonRequest(String url) throws IOException {
+        // Build request
+        Request request = new Request.Builder().cacheControl(new CacheControl.Builder()
+                .onlyIfCached().build()).url(url).build();
+        // Request call
+        client.newCall(request).enqueue(new Callback() {
             @Override
-            public void onErrorResponse(VolleyError error) {
-                int messageId;
-
-                if (error instanceof TimeoutError || error instanceof NoConnectionError) {
-                    messageId = R.string.error_network;
-                }
-                else if (error instanceof AuthFailureError) {
-                    messageId = R.string.error_auth;
-                }
-                else if (error instanceof ServerError) {
-                    if (mDate.equals(today)) {
-                        tooEarly = true;
-                        messageId = R.string.error_today;
-                    }
-                    else {
-                        messageId = -1;
-                        parseHtml();
-                    }
-                }
-                else if (error instanceof NetworkError) {
-                    messageId = R.string.error_network;
-                }
-                else if (error instanceof ParseError) {
-                    messageId = R.string.error_parse;
-                }
-                else {
-                    messageId = R.string.error_general;
-                }
-
-                // Display long toast message
-                if (messageId != -1) {
-                    progressBar.setVisibility(View.GONE);
-                    Toast.makeText(MainActivity.this, messageId, Toast.LENGTH_SHORT).show();
-                }
-            }
-
-        }) {
-            // Set caching
-            @Override
-            protected Response<JSONObject> parseNetworkResponse(NetworkResponse response) {
-                try {
-                    Cache.Entry cacheEntry = HttpHeaderParser.parseCacheHeaders(response);
-                    if (cacheEntry == null) {
-                        cacheEntry = new Cache.Entry();
-                    }
-
-                    final long cacheHitButRefreshed = 3 * 60 * 1000; // in 3 minutes cache will
-                    // be hit, but also refreshed on background
-                    final long cacheExpired = 24 * 60 * 60 * 1000; // in 24 hours this cache
-                    // entry expires completely
-                    long now = System.currentTimeMillis();
-                    final long softExpire = now + cacheHitButRefreshed;
-                    final long ttl = now + cacheExpired;
-
-                    cacheEntry.data = response.data;
-                    cacheEntry.softTtl = softExpire;
-                    cacheEntry.ttl = ttl;
-                    String headerValue;
-
-                    headerValue = response.headers.get("Date");
-                    if (headerValue != null) {
-                        cacheEntry.serverDate = HttpHeaderParser.parseDateAsEpoch(headerValue);
-                    }
-
-                    headerValue = response.headers.get("Last-Modified");
-                    if (headerValue != null) {
-                        cacheEntry.lastModified = HttpHeaderParser.parseDateAsEpoch(headerValue);
-                    }
-
-                    cacheEntry.responseHeaders = response.headers;
-                    final String jsonString = new String(response.data, HttpHeaderParser
-                            .parseCharset(response.headers));
-
-                    return Response.success(new JSONObject(jsonString), cacheEntry);
-                }
-                catch (UnsupportedEncodingException e) {
-                    return Response.error(new ParseError(e));
-                }
-                catch (JSONException e) {
-                    return Response.error(new ParseError(e));
-                }
+            public void onFailure(final Call call, IOException e) {
+                Toast.makeText(MainActivity.this, R.string.error_general, Toast.LENGTH_SHORT)
+                        .show();
             }
 
             @Override
-            protected void deliverResponse(JSONObject response) {
-                super.deliverResponse(response);
-            }
+            public void onResponse(Call call, final Response response) throws IOException {
+                // Run on main UI thread
+                runOnUiThread(new Runnable() {
+                    String res = response.body().string();
 
-            @Override
-            public void deliverError(VolleyError error) {
-                super.deliverError(error);
-            }
-        };
+                    @Override
+                    public void run() {
+                        JSONObject object;
+                        // Parse JSON object
+                        try {
+                            object = new JSONObject(res);
+                            onJsonResponse(object);
+                        }
+                        // Error handling
+                        catch (JSONException e) {
+                            int code = response.code();
+                            int messageId;
 
-        // jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(0, -1, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-        jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(
-                0,
-                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-        // Add the request to the RequestQueue.
-        queue.add(jsonObjectRequest);
+                            switch (code) {
+                                // Server error
+                                case 500:
+                                    if (date.equals(today)) {
+                                        messageId = R.string.error_today;
+                                    }
+                                    else {
+                                        tooEarly = true;
+                                        parseHtml();
+                                        messageId = -1;
+                                    }
+                                    break;
+                                // Client-side network error
+                                case 504:
+                                    messageId = R.string.error_network;
+                                    break;
+                                // Default server error
+                                default:
+                                    messageId = R.string.error_server;
+                            }
+
+                            progressBar.setVisibility(View.GONE);
+                            resetText();
+
+                            if (messageId != -1) {
+                                Toast.makeText(MainActivity.this, messageId, Toast.LENGTH_SHORT)
+                                        .show();
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    /**
+     * Clear title text and description
+     */
+    private void resetText() {
+        titleText.setText(R.string.title_image_unavailable);
+        description.setText("");
     }
 
     /**
@@ -1131,30 +1099,6 @@ int counter = 0;
             hdImageUrl = "";
             explanation = "";
 
-            // Code not reached (Reservoir check before JSONRequest)
-            // )
-            /* try {
-                if (Reservoir.contains(url[0])) {
-                    List<String> list = Reservoir.get(url[0], List.class);
-                    // DocumentSerializer cache = Reservoir.get(url[0], DocumentSerializer.class);
-                    // doc = Jsoup.parse(cache.getString());
-                    Log.i("!DOC1", list.get(0));
-                    Log.i("!DOC2", list.get(1));
-                    Log.i("!DOC3", list.get(2));
-
-                    isImage = list.get(0).equals("true");
-                    contentUrl = list.get(1);
-                    hdImageUrl = list.get(2);
-                    htmlTitle = list.get(3);
-                    explanation = list.get(4);
-
-                    return null;
-                }
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-            }*/
-
             try {
                 doc = Jsoup.connect(url[0]).get();
             }
@@ -1194,9 +1138,6 @@ int counter = 0;
             // Title
             Element title = doc.select("title").first();
 
-            if (title == null) {
-                Log.i("doc", doc.html());
-            }
             htmlTitle = getHtmlTitle(title.ownText());
 
             // Explanation
@@ -1241,8 +1182,6 @@ int counter = 0;
 
             explanation = explanation.replace(EXPLANATION_HEADER, "");
             explanation = explanation.trim();
-
-            Log.i("EXP", explanation);
 
             // 0 - is image
             if (isImage) {
@@ -1290,14 +1229,14 @@ int counter = 0;
 
                 Glide.with(MainActivity.this).load(sdUrl) // Load from URL
                         .diskCacheStrategy(DiskCacheStrategy.RESULT) // Or .RESULT
-                        //.dontAnimate() // No cross-fade
                         //.skipMemoryCache(true) // Use disk cache only
                         .listener(new RequestListener<String, GlideDrawable>() {
                             @Override
                             public boolean onException(Exception e, String model,
                                                        Target<GlideDrawable> target, boolean
                                                                isFirstResource) {
-                                Log.i("MSG", e.getMessage());
+                                Toast.makeText(MainActivity.this, R.string.error_general, Toast
+                                        .LENGTH_SHORT).show();
                                 return false;
                             }
 
@@ -1350,7 +1289,6 @@ int counter = 0;
         // determined that the first tap stands alone, and is not part of a double tap.
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
-            Log.i("COOr", "" + e.getX() + " " + e.getY());
             if (tooEarly) {
                 Toast.makeText(MainActivity.this, R.string.error_today, Toast.LENGTH_SHORT).show();
             }
