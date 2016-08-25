@@ -64,7 +64,7 @@ public class ImageActivity extends Activity {
      * @param imageDate date of featured image
      */
     private void setAsWallpaper(String imageDate) {
-        final String IMAGE_DIRECTORY = sharedPref.getString(MainActivity.TAG_PREF_LOCATION,
+        final String IMAGE_DIRECTORY = sharedPref.getString(SettingsActivity.TAG_PREF_LOCATION,
                 DEFAULT_IMAGE_DIRECTORY);
 
         File image = new File(IMAGE_DIRECTORY + imageDate + IMAGE_EXT);
