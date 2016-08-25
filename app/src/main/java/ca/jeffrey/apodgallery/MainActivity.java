@@ -85,7 +85,7 @@ import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
 
-    final int WRITE_PERMISSION = 100;
+    final static int WRITE_PERMISSION = 100;
     // NASA API key
     final private String API_KEY = "***REMOVED***";
     final private String DATE_PICKER_TAG = "date_picker";

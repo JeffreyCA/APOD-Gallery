@@ -32,9 +32,9 @@
         </PreferenceScreen>
 
         <PreferenceScreen
-            android:key="credit_volley_integration"
+            android:key="credit_okhttp_integration"
             android:summary="bumptech"
-            android:title="Glide-volley integration library">
+            android:title="Glide-OkHttp3 integration library">
             <intent
                 android:action="android.intent.action.VIEW"
                 android:data="https://github.com/bumptech/glide/wiki/Integration-Libraries"/>
