@@ -71,11 +71,7 @@ public class ImageActivity extends Activity {
                 imageView.setImageBitmap(resource);
 
                 if (setWallpaper) {
-                    boolean hasPermission = MainActivity.checkPermission(ImageActivity.this);
-
-                    if (hasPermission) {
                         setAsWallpaper(date);
-                    }
                 }
             }
         });
@@ -95,20 +91,6 @@ public class ImageActivity extends Activity {
         intent.addCategory(Intent.CATEGORY_DEFAULT);
         intent.setDataAndType(Uri.fromFile(image), "image/jpeg");
         intent.putExtra("mimeType", "image/jpeg");
-        this.startActivity(Intent.createChooser(intent, "Set as:"));
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[]
-            grantResults) {
-        if (requestCode == MainActivity.WRITE_PERMISSION) {
-            for (int i = 0, len = permissions.length; i < len; i++) {
-                if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                    // Toast.makeText(this, R.string.toast_permission_granted, Toast.LENGTH_SHORT).show();
-                    finish();
-                    return;
-                }
-            }
-        }
+        this.startActivity(Intent.createChooser(intent, getString(R.string.title_intent_wallpaper)));
     }
 }

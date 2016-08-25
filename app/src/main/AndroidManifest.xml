@@ -23,6 +23,7 @@
             </intent-filter>
         </activity>
         <activity
+            android:configChanges="keyboardHidden|orientation|screenSize"
             android:name=".ImageActivity"
             android:label="@string/app_name"/>
         <activity

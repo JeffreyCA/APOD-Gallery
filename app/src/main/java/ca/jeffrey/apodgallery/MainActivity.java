@@ -86,6 +86,7 @@ import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
     final static int WRITE_PERMISSION = 100;
+    final String TAG_PREF_LOCATION = "pref_save_location";
     // NASA API key
     final String API_KEY = "***REMOVED***";
     final String DATE_PICKER_TAG = "date_picker";
@@ -370,8 +371,9 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             public void onClick(View v) {
                 // Save image to device if image is visible
                 if (imageView.getDrawable() != null) {
-                    saveImage(expandedToNumericalDate(date), true);
-                    launchFullImageView(imgUrl, expandedToNumericalDate(date), true);
+                    if (saveImage()) {
+                        launchFullImageView(imgUrl, expandedToNumericalDate(date), true);
+                    }
                 }
                 // No image available
                 else {
@@ -442,7 +444,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 shareImage(titleText.getText().toString());
                 return true;
             case R.id.action_save:
-                saveImage(expandedToNumericalDate(date), false);
+                saveImage();
                 return true;
             case R.id.action_open_link:
                 openLink();
@@ -624,7 +626,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
      * @param title Title of featured content
      */
     public void shareImage(String title) {
-        final String IMAGE_DIRECTORY = sharedPref.getString("pref_save_location",
+        final String IMAGE_DIRECTORY = sharedPref.getString(TAG_PREF_LOCATION,
                 DEFAULT_IMAGE_DIRECTORY);
         Intent share = new Intent(Intent.ACTION_SEND);
 
@@ -638,48 +640,39 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             share.putExtra(Intent.EXTRA_SUBJECT, title);
             share.putExtra(Intent.EXTRA_TEXT, getFullUrl());
 
-            startActivity(Intent.createChooser(share, "Share link"));
+            startActivity(Intent.createChooser(share, getString(R.string.title_intent_share_link)));
         }
         // Otherwise share image
         else {
             share.setType("image/jpeg");
             share.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
-            saveImage(expandedToNumericalDate(date),false);
+            if (saveImage()) {
+                String path = IMAGE_DIRECTORY + expandedToNumericalDate(date) + IMAGE_EXT;
+                File image = new File(path);
+                Uri uri = Uri.fromFile(image);
 
-            String path = IMAGE_DIRECTORY + expandedToNumericalDate(date) + IMAGE_EXT;
-            File image = new File(path);
-            Uri uri = Uri.fromFile(image);
-
-            share.putExtra(Intent.EXTRA_STREAM, uri);
-            startActivity(Intent.createChooser(share, "Share image"));
+                share.putExtra(Intent.EXTRA_STREAM, uri);
+                startActivity(Intent.createChooser(share, getString(R.string.title_intent_share)));
+            }
         }
     }
 
     /**
      * Save image to external storage
-     *
-     * @param imageDate Date of featured image
      */
-    public void saveImage(String imageDate, boolean launchImageIntent) {
+    public boolean saveImage() {
         // Exit if no image is available
         if (imageView.getDrawable() == null) {
             displayImageNotAvailableToast();
-            return;
+            return false;
         }
 
-        final String DATE = imageDate;
-        final String IMAGE_DIRECTORY = sharedPref.getString("pref_save_location",
+        final String DATE = expandedToNumericalDate(date);
+        final String IMAGE_DIRECTORY = sharedPref.getString(TAG_PREF_LOCATION,
                 DEFAULT_IMAGE_DIRECTORY);
 
-        boolean hasPermission;
-
-        if (launchImageIntent) {
-            hasPermission = true;
-        }
-        else {
-            hasPermission = checkPermission(this);
-        }
+        boolean hasPermission = checkPermission(this);
 
         if (hasPermission) {
             // Load image with Glide as bitmap
@@ -699,7 +692,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                     String filename = DATE + IMAGE_EXT;
                     File image = new File(imageDirectory, filename);
 
-                    String message = getResources().getString(R.string.toast_save_image) +
+                    String message = getString(R.string.toast_save_image) +
                             IMAGE_DIRECTORY + filename;
 
                     // Encode the file as a JPG image.
@@ -723,7 +716,9 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                     }
                 }
             });
+            return true;
         }
+        return false;
     }
 
     @Override
@@ -732,7 +727,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         if (requestCode == MainActivity.WRITE_PERMISSION) {
             for (int i = 0, len = permissions.length; i < len; i++) {
                 if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(this, R.string.toast_permission_granted, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.toast_permission_granted, Toast.LENGTH_SHORT)
+                            .show();
                     return;
                 }
             }
@@ -840,7 +836,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         // Add copyright credits to end of description if setting allows it
         if (prefCopyright && response.has("copyright")) {
             copyright = response.getString("copyright");
-            explanation += getResources().getString(R.string.title_credits) + copyright;
+            explanation += getString(R.string.title_credits) + copyright;
         }
 
         // Set image url depending on user preference and image availability
@@ -1029,7 +1025,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
      * Clear title text and description
      */
     private void resetText() {
-        titleText.setText(R.string.title_image_unavailable);
+        titleText.setText(R.string.title_text_image_unavailable);
         description.setText("");
     }
 
@@ -1097,8 +1093,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     private void openNonImageContent(String url) {
         final String uri = url;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        String message = String.format(getResources().getString(R.string.dialog_browser_desc),
-                date);
+        String message = String.format(getString(R.string.dialog_browser_desc), date);
 
         imageView.setImageResource(0);
         progressBar.setVisibility(View.GONE);
@@ -1338,8 +1333,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         // determined that the first tap stands alone, and is not part of a double tap.
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
-            boolean imageAvailable = !titleText.getText().equals(getResources().getString(R
-                    .string.title_image_unavailable));
+            boolean imageAvailable = !titleText.getText().equals(getString(R.string
+                    .title_text_image_unavailable));
             if (tooEarly) {
                 Toast.makeText(MainActivity.this, R.string.error_today, Toast.LENGTH_SHORT).show();
             }
