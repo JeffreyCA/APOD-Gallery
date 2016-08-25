@@ -88,40 +88,41 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     final static int WRITE_PERMISSION = 100;
     final String TAG_PREF_LOCATION = "pref_save_location";
     // NASA API key
-    final String API_KEY = "***REMOVED***";
-    final String DATE_PICKER_TAG = "date_picker";
-    final String DEFAULT_IMAGE_DIRECTORY = Environment.getExternalStorageDirectory().getPath() +
+    final private String API_KEY = "***REMOVED***";
+    final private String DATE_PICKER_TAG = "date_picker";
+    final private String DEFAULT_IMAGE_DIRECTORY = Environment.getExternalStorageDirectory()
+            .getPath() +
             File.separator + "APOD";
-    final String IMAGE_EXT = ".jpg";
+    final private String IMAGE_EXT = ".jpg";
     // First available APOD date
-    final Calendar MIN_DATE = new GregorianCalendar(1995, 5, 20);
+    final private Calendar MIN_DATE = new GregorianCalendar(1995, 5, 20);
     // Date formats
-    final SimpleDateFormat EXPANDED_FORMAT = new SimpleDateFormat("MMMM d, y");
-    final SimpleDateFormat NUMERICAL_FORMAT = new SimpleDateFormat("y-MM-dd");
-    final SimpleDateFormat SHORT_FORMAT = new SimpleDateFormat("yyMMdd");
+    final private SimpleDateFormat EXPANDED_FORMAT = new SimpleDateFormat("MMMM d, y");
+    final private SimpleDateFormat NUMERICAL_FORMAT = new SimpleDateFormat("y-MM-dd");
+    final private SimpleDateFormat SHORT_FORMAT = new SimpleDateFormat("yyMMdd");
     // Anchor height
-    final float SLIDING_ANCHOR_POINT = 0.42f;
-    OkHttpClient client;
+    final private float SLIDING_ANCHOR_POINT = 0.42f;
+    private OkHttpClient client;
     // Member variables
-    boolean tooEarly;
-    String date;
-    String today;
-    String imgUrl;
-    String sdUrl;
+    private boolean tooEarly;
+    private String date;
+    private String today;
+    private String imgUrl;
+    private String sdUrl;
 
-    AutoResizeTextView titleText;
-    DocumentView description;
-    FloatingActionButton fab;
-    FloatingActionButtonLayout fabLayout;
-    ImageView imageView;
-    ImageView tomorrow;
-    ImageView yesterday;
-    RelativeLayout dateNav;
-    RelativeLayout mainView;
-    ProgressBar progressBar;
-    SharedPreferences sharedPref;
-    SlidingUpPanelLayout slidingPanel;
-    TextView dateText;
+    private AutoResizeTextView titleText;
+    private DocumentView description;
+    private FloatingActionButton fab;
+    private FloatingActionButtonLayout fabLayout;
+    private ImageView imageView;
+    private ImageView tomorrow;
+    private ImageView yesterday;
+    private RelativeLayout dateNav;
+    private RelativeLayout mainView;
+    private ProgressBar progressBar;
+    private SharedPreferences sharedPref;
+    private SlidingUpPanelLayout slidingPanel;
+    private TextView dateText;
 
     private String[] disabledDayStrings = {"2000-01-05", "2000-01-06", "2000-01-08",
             "2000-02-08", "2000-02-29", "2000-03-07", "2000-03-21", "2000-03-28", "2000-05-19",
@@ -165,7 +166,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    public static boolean checkPermission(Activity a) {
+    private static boolean checkPermission(Activity a) {
         final Activity activity = a;
         final String[] PERMISSIONS_STORAGE = {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest
                 .permission.WRITE_EXTERNAL_STORAGE};
@@ -625,7 +626,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
      *
      * @param title Title of featured content
      */
-    public void shareImage(String title) {
+    private void shareImage(String title) {
         final String IMAGE_DIRECTORY = sharedPref.getString(TAG_PREF_LOCATION,
                 DEFAULT_IMAGE_DIRECTORY);
         Intent share = new Intent(Intent.ACTION_SEND);
@@ -661,7 +662,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     /**
      * Save image to external storage
      */
-    public boolean saveImage() {
+    private boolean saveImage() {
         // Exit if no image is available
         if (imageView.getDrawable() == null) {
             displayImageNotAvailableToast();
@@ -674,6 +675,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
         boolean hasPermission = checkPermission(this);
 
+
         if (hasPermission) {
             // Load image with Glide as bitmap
             Glide.with(this).load(imgUrl).asBitmap().diskCacheStrategy(DiskCacheStrategy.SOURCE)
@@ -682,35 +684,45 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 @Override
                 public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap>
                         glideAnimation) {
-
+                    boolean writeDirectory;
                     File imageDirectory = new File(IMAGE_DIRECTORY);
 
                     // Make image directory if it does not exist
-                    if (!imageDirectory.exists()) {
-                        imageDirectory.mkdir();
+                    if (imageDirectory.exists()) {
+                        writeDirectory = true;
                     }
-                    String filename = DATE + IMAGE_EXT;
-                    File image = new File(imageDirectory, filename);
-
-                    String message = getString(R.string.toast_save_image) +
-                            IMAGE_DIRECTORY + filename;
-
-                    // Encode the file as a JPG image.
-                    FileOutputStream outStream;
-                    try {
-                        outStream = new FileOutputStream(image);
-                        resource.compress(Bitmap.CompressFormat.JPEG, 100, outStream);
-
-                        outStream.flush();
-                        outStream.close();
-
-                        Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
+                    else {
+                        writeDirectory = imageDirectory.mkdir();
                     }
-                    catch (FileNotFoundException e) {
-                        Toast.makeText(MainActivity.this, R.string.error_saving, Toast
-                                .LENGTH_SHORT).show();
+
+                    if (writeDirectory) {
+                        String filename = DATE + IMAGE_EXT;
+                        File image = new File(imageDirectory, filename);
+
+                        String message = getString(R.string.toast_save_image) +
+                                IMAGE_DIRECTORY + filename;
+
+                        // Encode the file as a JPG image.
+                        FileOutputStream outStream;
+                        try {
+                            outStream = new FileOutputStream(image);
+                            resource.compress(Bitmap.CompressFormat.JPEG, 100, outStream);
+
+                            outStream.flush();
+                            outStream.close();
+
+                            Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
+                        }
+                        catch (FileNotFoundException e) {
+                            Toast.makeText(MainActivity.this, R.string.error_saving, Toast.LENGTH_SHORT).show();
+
+                        }
+                        catch (IOException e) {
+                            Toast.makeText(MainActivity.this, R.string.error_saving, Toast
+                                    .LENGTH_SHORT).show();
+                        }
                     }
-                    catch (IOException e) {
+                    else {
                         Toast.makeText(MainActivity.this, R.string.error_saving, Toast
                                 .LENGTH_SHORT).show();
                     }
@@ -915,12 +927,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         }
 
         // Regular OKHTTP request
-        try {
-            doJsonRequest(url);
-        }
-        catch (IOException e) {
-            Toast.makeText(MainActivity.this, R.string.error_server, Toast.LENGTH_SHORT).show();
-        }
+        doJsonRequest(url);
+
     }
 
     /**
@@ -955,7 +963,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
      *
      * @throws IOException Handled directly in catch statement
      */
-    private void doJsonRequest(String url) throws IOException {
+    private void doJsonRequest(String url) {
         // Build request
         Request request = new Request.Builder().cacheControl(new CacheControl.Builder()
                 .onlyIfCached().build()).url(url).build();
@@ -991,6 +999,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                                 case 500:
                                     if (date.equals(today)) {
                                         messageId = R.string.error_today;
+                                        resetText();
                                     }
                                     else {
                                         tooEarly = true;
@@ -1001,14 +1010,15 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                                 // Client-side network error
                                 case 504:
                                     messageId = R.string.error_network;
+                                    resetText();
                                     break;
                                 // Default server error
                                 default:
                                     messageId = R.string.error_server;
+                                    resetText();
                             }
 
                             progressBar.setVisibility(View.GONE);
-                            resetText();
 
                             if (messageId != -1) {
                                 Toast.makeText(MainActivity.this, messageId, Toast.LENGTH_SHORT)
@@ -1051,9 +1061,9 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             String expression = "(http:|https:|)\\/\\/(player.|www.)?(vimeo\\.com|youtu(be\\" +
                     ".com|\\.be|be\\.googleapis\\.com))\\/(video\\/|embed\\/|watch\\?v=|v\\/)?" +
                     "([A-Za-z0-9._%-]*)(\\&\\S+)?";
-            CharSequence input = url;
+
             Pattern pattern = Pattern.compile(expression, Pattern.CASE_INSENSITIVE);
-            Matcher matcher = pattern.matcher(input);
+            Matcher matcher = pattern.matcher(url);
 
             if (matcher.find()) {
                 String groupIndex = matcher.group(ID_GROUP);
@@ -1122,7 +1132,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
     // AsyncTask
     private class GetHtmlData extends AsyncTask<String, Void, Void> {
-        List<String> bundle = new ArrayList<String>();
+        List<String> bundle = new ArrayList<>();
         boolean isImage;
 
         String contentUrl;

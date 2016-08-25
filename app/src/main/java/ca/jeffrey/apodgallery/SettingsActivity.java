@@ -104,7 +104,7 @@ public class SettingsActivity extends Activity implements SharedPreferences
         File cacheDirectory = thisActivity.getCacheDir();
         File volleyDirectory = new File(thisActivity.getCacheDir() + "/volley/");
         File[] cacheFiles = cacheDirectory.listFiles();
-        File[] volleyFiles = volleyDirectory.listFiles();
+
         if (cacheDirectory.exists()) {
             for (File file : cacheFiles) {
                 if (file.isFile()) {
@@ -112,12 +112,6 @@ public class SettingsActivity extends Activity implements SharedPreferences
                 }
             }
         }
-
-        /*if (volleyDirectory.exists()) {
-            for (File volleyFile : volleyFiles) {
-                deleteFile(volleyFile);
-            }
-        }*/
     }
 
     /**
@@ -131,7 +125,6 @@ public class SettingsActivity extends Activity implements SharedPreferences
             if (file.isDirectory()) {
                 String[] children = file.list();
                 for (int i = 0; i < children.length; i++) {
-
                     deletedAll = deleteFile(new File(file, children[i])) && deletedAll;
                 }
             }
