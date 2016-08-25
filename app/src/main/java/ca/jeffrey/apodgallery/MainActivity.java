@@ -1,6 +1,8 @@
 package ca.jeffrey.apodgallery;
 
 import android.Manifest;
+import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -13,10 +15,12 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -78,8 +82,10 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 // TODO Overhaul permissions management
+// TODO Optimize string names, strings.xml, variables
 
 public class MainActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
+    final static int WRITE_PERMISSION = 100;
     // NASA API key
     final String API_KEY = "***REMOVED***";
     final String DATE_PICKER_TAG = "date_picker";
@@ -94,7 +100,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     final SimpleDateFormat SHORT_FORMAT = new SimpleDateFormat("yyMMdd");
     // Anchor height
     final float SLIDING_ANCHOR_POINT = 0.42f;
-    int counter = 0;
     OkHttpClient client;
     // Member variables
     boolean tooEarly;
@@ -156,6 +161,35 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
         return cal;
+    }
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    public static boolean checkPermission(Activity a) {
+        final Activity activity = a;
+        final String[] PERMISSIONS_STORAGE = {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest
+                .permission.WRITE_EXTERNAL_STORAGE};
+
+        int currentAPIVersion = Build.VERSION.SDK_INT;
+
+        if (currentAPIVersion >= android.os.Build.VERSION_CODES.M) {
+            if (ContextCompat.checkSelfPermission(activity, Manifest.permission
+                    .WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(activity, PERMISSIONS_STORAGE, WRITE_PERMISSION);
+
+                if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest
+                        .permission.WRITE_EXTERNAL_STORAGE)) {
+                    Toast.makeText(activity, R.string.toast_storage, Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    if (ContextCompat.checkSelfPermission(activity, Manifest.permission
+                            .WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+                        Toast.makeText(activity, R.string.toast_storage, Toast.LENGTH_SHORT).show();
+                    }
+                }
+                return false;
+            }
+        }
+        return true;
     }
 
     private String getHtmlTitle(String fragment) {
@@ -336,7 +370,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             public void onClick(View v) {
                 // Save image to device if image is visible
                 if (imageView.getDrawable() != null) {
-                    saveImage(expandedToNumericalDate(date));
+                    saveImage(expandedToNumericalDate(date), true);
                     launchFullImageView(imgUrl, expandedToNumericalDate(date), true);
                 }
                 // No image available
@@ -408,7 +442,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 shareImage(titleText.getText().toString());
                 return true;
             case R.id.action_save:
-                saveImage(expandedToNumericalDate(date));
+                saveImage(expandedToNumericalDate(date), false);
                 return true;
             case R.id.action_open_link:
                 openLink();
@@ -611,7 +645,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             share.setType("image/jpeg");
             share.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
-            saveImage(expandedToNumericalDate(date));
+            saveImage(expandedToNumericalDate(date),false);
 
             String path = IMAGE_DIRECTORY + expandedToNumericalDate(date) + IMAGE_EXT;
             File image = new File(path);
@@ -627,7 +661,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
      *
      * @param imageDate Date of featured image
      */
-    public void saveImage(String imageDate) {
+    public void saveImage(String imageDate, boolean launchImageIntent) {
         // Exit if no image is available
         if (imageView.getDrawable() == null) {
             displayImageNotAvailableToast();
@@ -638,11 +672,16 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         final String IMAGE_DIRECTORY = sharedPref.getString("pref_save_location",
                 DEFAULT_IMAGE_DIRECTORY);
 
-        // Verify storage permissions
-        ImageActivity.verifyStoragePermissions(this);
+        boolean hasPermission;
 
-        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission
-                .WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+        if (launchImageIntent) {
+            hasPermission = true;
+        }
+        else {
+            hasPermission = checkPermission(this);
+        }
+
+        if (hasPermission) {
             // Load image with Glide as bitmap
             Glide.with(this).load(imgUrl).asBitmap().diskCacheStrategy(DiskCacheStrategy.SOURCE)
                     .into(new SimpleTarget<Bitmap>() {
@@ -685,8 +724,18 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 }
             });
         }
-        else {
-            Toast.makeText(MainActivity.this, R.string.toast_storage, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[]
+            grantResults) {
+        if (requestCode == MainActivity.WRITE_PERMISSION) {
+            for (int i = 0, len = permissions.length; i < len; i++) {
+                if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(this, R.string.toast_permission_granted, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            }
         }
     }
 
@@ -1289,8 +1338,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         // determined that the first tap stands alone, and is not part of a double tap.
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
-            boolean imageAvailable = !titleText.getText().equals(getResources().getString(R.string
-                    .title_image_unavailable));
+            boolean imageAvailable = !titleText.getText().equals(getResources().getString(R
+                    .string.title_image_unavailable));
             if (tooEarly) {
                 Toast.makeText(MainActivity.this, R.string.error_today, Toast.LENGTH_SHORT).show();
             }

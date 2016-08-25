@@ -15,8 +15,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -65,21 +63,18 @@ public class ImageActivity extends Activity {
         imageView.setMaxZoom(3.5f);
 
         // Load image with Glide as bitmap
-        Glide.with(ImageActivity.this).load(url).asBitmap().diskCacheStrategy(DiskCacheStrategy.SOURCE).into(new SimpleTarget<Bitmap>() {
+        Glide.with(ImageActivity.this).load(url).asBitmap().diskCacheStrategy(DiskCacheStrategy
+                .SOURCE).into(new SimpleTarget<Bitmap>() {
             @Override
             public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap>
                     glideAnimation) {
                 imageView.setImageBitmap(resource);
 
                 if (setWallpaper) {
-                    verifyStoragePermissions(ImageActivity.this);
-                    if (ContextCompat.checkSelfPermission(ImageActivity.this, Manifest.permission
-                            .WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                    boolean hasPermission = MainActivity.checkPermission(ImageActivity.this);
+
+                    if (hasPermission) {
                         setAsWallpaper(date);
-                    }
-                    else {
-                        Toast.makeText(ImageActivity.this, R.string.toast_storage, Toast
-                                .LENGTH_SHORT).show();
                     }
                 }
             }
@@ -88,6 +83,7 @@ public class ImageActivity extends Activity {
 
     /**
      * Set saved image as device wallpaper
+     *
      * @param imageDate date of featured image
      */
     public void setAsWallpaper(String imageDate) {
@@ -100,5 +96,19 @@ public class ImageActivity extends Activity {
         intent.setDataAndType(Uri.fromFile(image), "image/jpeg");
         intent.putExtra("mimeType", "image/jpeg");
         this.startActivity(Intent.createChooser(intent, "Set as:"));
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[]
+            grantResults) {
+        if (requestCode == MainActivity.WRITE_PERMISSION) {
+            for (int i = 0, len = permissions.length; i < len; i++) {
+                if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                    // Toast.makeText(this, R.string.toast_permission_granted, Toast.LENGTH_SHORT).show();
+                    finish();
+                    return;
+                }
+            }
+        }
     }
 }

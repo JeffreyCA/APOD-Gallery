@@ -20,7 +20,6 @@
 -keep interface android.support.v4.app.** { *; }
 -keep class android.support.v7.app.** { *; }
 -keep interface android.support.v7.app.** { *; }
--keep class com.bumptech.glide.integration.volley.VolleyGlideModule
 -keep class com.bumptech.glide.integration.okhttp3.OkHttpGlideModule
 -keeppackagenames org.jsoup.nodes
 
