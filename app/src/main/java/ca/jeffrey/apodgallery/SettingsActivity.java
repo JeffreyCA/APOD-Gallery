@@ -24,6 +24,11 @@ import java.io.IOException;
 
 public class SettingsActivity extends Activity implements SharedPreferences
         .OnSharedPreferenceChangeListener {
+    final static String TAG_PREF_CACHE = "pref_clear_cache";
+    final static String TAG_PREF_CREDIT = "pref_display_credit";
+    final static String TAG_PREF_LOCATION = "pref_save_location";
+    final static String TAG_PREF_QUALITY = "pref_image_quality";
+    final static String TAG_PREF_VERSION = "pref_version";
 
     private static Activity thisActivity;
     private static EditTextPreference saveDirectory;
@@ -80,7 +85,7 @@ public class SettingsActivity extends Activity implements SharedPreferences
         SharedPreferences.Editor editor = prefs.edit();
 
         switch (key) {
-            case "pref_save_location":
+            case TAG_PREF_LOCATION:
                 String directory = saveDirectory.getText();
                 if (directory.charAt(directory.length() - 1) != '/') {
                     directory += '/';
@@ -89,7 +94,7 @@ public class SettingsActivity extends Activity implements SharedPreferences
                 editor.putString(key, directory);
                 saveDirectory.setSummary(directory);
                 break;
-            case "pref_display_credit":
+            case TAG_PREF_CREDIT:
                 break;
             default:
                 break;
@@ -102,7 +107,6 @@ public class SettingsActivity extends Activity implements SharedPreferences
      */
     private void clearApplicationCache() {
         File cacheDirectory = thisActivity.getCacheDir();
-        File volleyDirectory = new File(thisActivity.getCacheDir() + "/volley/");
         File[] cacheFiles = cacheDirectory.listFiles();
 
         if (cacheDirectory.exists()) {
@@ -143,10 +147,10 @@ public class SettingsActivity extends Activity implements SharedPreferences
             addPreferencesFromResource(R.xml.preferences);
 
             // Set app version number
-            PreferenceScreen appVersion = (PreferenceScreen) findPreference("pref_version");
+            PreferenceScreen appVersion = (PreferenceScreen) findPreference(TAG_PREF_VERSION);
             appVersion.setSummary(BuildConfig.VERSION_NAME);
 
-            Preference clearCache = findPreference("pref_clear_cache");
+            Preference clearCache = findPreference(TAG_PREF_CACHE);
             clearCache.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 public boolean onPreferenceClick(Preference preference) {
                     SettingsActivity instance = new SettingsActivity();
@@ -164,7 +168,7 @@ public class SettingsActivity extends Activity implements SharedPreferences
             });
 
             // Set save location summary to its contents
-            saveDirectory = (EditTextPreference) findPreference("pref_save_location");
+            saveDirectory = (EditTextPreference) findPreference(TAG_PREF_LOCATION);
             saveDirectory.setSummary(saveDirectory.getText());
         }
 

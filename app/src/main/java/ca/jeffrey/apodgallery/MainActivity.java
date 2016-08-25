@@ -81,12 +81,11 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-// TODO Overhaul permissions management
 // TODO Optimize string names, strings.xml, variables
 
 public class MainActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
-    final static int WRITE_PERMISSION = 100;
-    final String TAG_PREF_LOCATION = "pref_save_location";
+
+    final int WRITE_PERMISSION = 100;
     // NASA API key
     final private String API_KEY = "***REMOVED***";
     final private String DATE_PICKER_TAG = "date_picker";
@@ -94,6 +93,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             .getPath() +
             File.separator + "APOD";
     final private String IMAGE_EXT = ".jpg";
+
     // First available APOD date
     final private Calendar MIN_DATE = new GregorianCalendar(1995, 5, 20);
     // Date formats
@@ -627,7 +627,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
      * @param title Title of featured content
      */
     private void shareImage(String title) {
-        final String IMAGE_DIRECTORY = sharedPref.getString(TAG_PREF_LOCATION,
+        final String IMAGE_DIRECTORY = sharedPref.getString(SettingsActivity.TAG_PREF_LOCATION,
                 DEFAULT_IMAGE_DIRECTORY);
         Intent share = new Intent(Intent.ACTION_SEND);
 
@@ -670,7 +670,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         }
 
         final String DATE = expandedToNumericalDate(date);
-        final String IMAGE_DIRECTORY = sharedPref.getString(TAG_PREF_LOCATION,
+        final String IMAGE_DIRECTORY = sharedPref.getString(SettingsActivity.TAG_PREF_LOCATION,
                 DEFAULT_IMAGE_DIRECTORY);
 
         boolean hasPermission = checkPermission(this);
@@ -714,7 +714,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                             Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
                         }
                         catch (FileNotFoundException e) {
-                            Toast.makeText(MainActivity.this, R.string.error_saving, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity.this, R.string.error_saving, Toast
+                                    .LENGTH_SHORT).show();
 
                         }
                         catch (IOException e) {
@@ -778,7 +779,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
         if (isImage) {
             // Check preferences if user wants HD images saved
-            if (sharedPref.getString("image_quality", "").equals("1") && !hdImageUrl.equals("")) {
+            if (sharedPref.getString(SettingsActivity.TAG_PREF_QUALITY, "").equals("1") &&
+                    !hdImageUrl.equals("")) {
                 imgUrl = hdImageUrl;
             }
             else {
@@ -1273,8 +1275,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
             if (isImage) {
                 // Check preferences if user wants HD images saved
-                if (sharedPref.getString("image_quality", "").equals("1") && !hdImageUrl.equals
-                        ("")) {
+                if (sharedPref.getString(SettingsActivity.TAG_PREF_QUALITY, "").equals("1") &&
+                        !hdImageUrl.equals("")) {
                     imgUrl = hdImageUrl;
                 }
                 else {
