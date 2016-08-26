@@ -87,14 +87,15 @@ public class SettingsActivity extends Activity implements SharedPreferences
         switch (key) {
             case TAG_PREF_LOCATION:
                 String directory = saveDirectory.getText();
-                if (directory.charAt(directory.length() - 1) != '/') {
-                    directory += '/';
-                    saveDirectory.setText(directory);
+                if (directory.length() == 0) {
+                    directory = "/sdcard/APOD/";
                 }
+                else if (directory.charAt(directory.length() - 1) != '/') {
+                    directory += '/';
+                }
+                saveDirectory.setText(directory);
                 editor.putString(key, directory);
                 saveDirectory.setSummary(directory);
-                break;
-            case TAG_PREF_CREDIT:
                 break;
             default:
                 break;
