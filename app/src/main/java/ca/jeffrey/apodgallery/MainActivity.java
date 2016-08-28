@@ -1025,13 +1025,20 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
                             switch (code) {
                                 // Server error
+                                case 400:
+                                    if (date.equals(today)) {
+                                        tooEarly = true;
+                                        messageId = R.string.error_today;
+                                        resetText();
+                                        break;
+                                    }
                                 case 500:
                                     if (date.equals(today)) {
+                                        tooEarly = true;
                                         messageId = R.string.error_today;
                                         resetText();
                                     }
                                     else {
-                                        tooEarly = true;
                                         parseHtml();
                                         messageId = -1;
                                     }
