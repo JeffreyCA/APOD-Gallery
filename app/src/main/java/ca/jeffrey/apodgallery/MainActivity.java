@@ -85,7 +85,9 @@ import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
 
+    // Write permission ID
     final static int WRITE_PERMISSION = 100;
+
     // NASA API key
     final private String API_KEY = "***REMOVED***";
     final private String DATE_PICKER_TAG = "date_picker";
@@ -117,9 +119,9 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     private ImageView imageView;
     private ImageView tomorrow;
     private ImageView yesterday;
+    private ProgressBar progressBar;
     private RelativeLayout dateNav;
     private RelativeLayout mainView;
-    private ProgressBar progressBar;
     private SharedPreferences sharedPref;
     private SlidingUpPanelLayout slidingPanel;
     private TextView dateText;
@@ -165,6 +167,13 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         return cal;
     }
 
+    /**
+     * Check if user has given permission for app to write and read to/from external storage
+     *
+     * @param a Activity
+     *
+     * @return true, if permission is given, otherwise false
+     */
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private static boolean checkPermission(Activity a) {
         final Activity activity = a;
@@ -173,7 +182,9 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
         int currentAPIVersion = Build.VERSION.SDK_INT;
 
+        // Only necessary on Marshmallow+
         if (currentAPIVersion >= android.os.Build.VERSION_CODES.M) {
+            // Not yet granted
             if (ContextCompat.checkSelfPermission(activity, Manifest.permission
                     .WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(activity, PERMISSIONS_STORAGE, WRITE_PERMISSION);
@@ -182,11 +193,9 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                         .permission.WRITE_EXTERNAL_STORAGE)) {
                     Toast.makeText(activity, R.string.toast_storage, Toast.LENGTH_SHORT).show();
                 }
-                else {
-                    if (ContextCompat.checkSelfPermission(activity, Manifest.permission
-                            .WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
-                        Toast.makeText(activity, R.string.toast_storage, Toast.LENGTH_SHORT).show();
-                    }
+                else if (ContextCompat.checkSelfPermission(activity, Manifest.permission
+                        .WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+                    Toast.makeText(activity, R.string.toast_storage, Toast.LENGTH_SHORT).show();
                 }
                 return false;
             }
@@ -194,6 +203,13 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         return true;
     }
 
+    /**
+     * Get title of featured content from HTML source code
+     *
+     * @param fragment Portion of source code pertaining to <title> tag
+     *
+     * @return title of the featured content
+     */
     private String getHtmlTitle(String fragment) {
         int index = fragment.indexOf("-");
         return fragment.substring(index + 1).trim();
@@ -232,6 +248,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             Toast.makeText(MainActivity.this, R.string.error_cache, Toast.LENGTH_SHORT).show();
         }
 
+        // Initialize OkHttp client and cache
         client = new OkHttpClient.Builder().cache(new Cache(getCacheDir(), 10 * 1024 * 1024)) // 10M
                 .addInterceptor(new Interceptor() {
                     @Override
@@ -251,8 +268,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
         // Initiate image views
         imageView = (ImageView) findViewById(R.id.image);
-        yesterday = (ImageView) findViewById(R.id.left_chevron);
         tomorrow = (ImageView) findViewById(R.id.right_chevron);
+        yesterday = (ImageView) findViewById(R.id.left_chevron);
 
         // Other views
         dateText = (TextView) findViewById(R.id.date);
@@ -367,6 +384,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             public void onPanelLayout(View panel, SlidingUpPanelLayout.PanelState state) {
             }
         });
+
         // Floating action button listener
         fab.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -734,12 +752,20 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         return false;
     }
 
+    /**
+     * Display permission granted toast
+     *
+     * @param requestCode  permission request code
+     * @param permissions  array of permissions asked
+     * @param grantResults results if permissions were granted or revoked
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[]
             grantResults) {
         if (requestCode == MainActivity.WRITE_PERMISSION) {
             for (int i = 0, len = permissions.length; i < len; i++) {
                 if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                    // Display permission granted toast
                     Toast.makeText(this, R.string.toast_permission_granted, Toast.LENGTH_SHORT)
                             .show();
                     return;
@@ -908,6 +934,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 ".gov/planetary/apod?api_key=" + API_KEY + "&date=" + apiDate;
 
         Glide.clear(imageView);
+        tooEarly = false;
 
         // Reservoir for HTML scraping
         try {
