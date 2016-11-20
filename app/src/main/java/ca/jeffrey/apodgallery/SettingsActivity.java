@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
@@ -30,7 +31,8 @@ public class SettingsActivity extends Activity implements SharedPreferences
     final static String TAG_PREF_QUALITY = "pref_image_quality";
     final static String TAG_PREF_VERSION = "pref_version";
 
-    private static Activity thisActivity;
+
+    private Activity thisActivity;
     private static EditTextPreference saveDirectory;
     private SharedPreferences prefs;
 
@@ -66,8 +68,15 @@ public class SettingsActivity extends Activity implements SharedPreferences
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
-        LinearLayout root = (LinearLayout) findViewById(android.R.id.list).getParent().getParent
-                ().getParent();
+        LinearLayout root;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            root = (LinearLayout) findViewById(android.R.id.list).getParent().getParent();
+        }
+        else {
+            root = (LinearLayout) findViewById(android.R.id.list).getParent();
+        }
+
         Toolbar bar = (Toolbar) LayoutInflater.from(this).inflate(R.layout.view_toolbar, root,
                 false);
         bar.setTitle(R.string.title_activity_settings);
@@ -107,7 +116,7 @@ public class SettingsActivity extends Activity implements SharedPreferences
      * Clear app cache
      */
     private void clearApplicationCache() {
-        File cacheDirectory = thisActivity.getCacheDir();
+        File cacheDirectory = this.getCacheDir();
         File[] cacheFiles = cacheDirectory.listFiles();
 
         if (cacheDirectory.exists()) {
@@ -154,8 +163,8 @@ public class SettingsActivity extends Activity implements SharedPreferences
             Preference clearCache = findPreference(TAG_PREF_CACHE);
             clearCache.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 public boolean onPreferenceClick(Preference preference) {
-                    SettingsActivity instance = new SettingsActivity();
-                    ClearCacheTask task = new ClearCacheTask(thisActivity);
+                    SettingsActivity instance = ((SettingsActivity) getActivity());
+                    ClearCacheTask task = new ClearCacheTask(getActivity());
                     task.execute();
                     try {
                         Reservoir.clear();
@@ -191,7 +200,7 @@ public class SettingsActivity extends Activity implements SharedPreferences
 
             @Override
             protected void onPostExecute(Long result) {
-                Toast.makeText(thisActivity, R.string.toast_clear_cache, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), R.string.toast_clear_cache, Toast.LENGTH_SHORT).show();
             }
         }
     }

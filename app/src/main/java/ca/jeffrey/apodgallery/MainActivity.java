@@ -81,8 +81,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-// TODO Optimize string names, strings.xml, variables
-
 public class MainActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
 
     // Write permission ID
