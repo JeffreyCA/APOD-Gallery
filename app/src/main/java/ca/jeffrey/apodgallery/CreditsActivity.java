@@ -1,6 +1,7 @@
 package ca.jeffrey.apodgallery;
 
 import android.app.Activity;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
 import android.support.v7.widget.Toolbar;
@@ -20,8 +21,15 @@ public class CreditsActivity extends Activity {
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
-        LinearLayout root = (LinearLayout) findViewById(android.R.id.list).getParent().getParent
-                ().getParent();
+        LinearLayout root;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            root = (LinearLayout) findViewById(android.R.id.list).getParent().getParent();
+        }
+        else {
+            root = (LinearLayout) findViewById(android.R.id.list).getParent();
+        }
+
         Toolbar bar = (Toolbar) LayoutInflater.from(this).inflate(R.layout.view_toolbar, root,
                 false);
         bar.setTitle(R.string.title_activity_credits);
