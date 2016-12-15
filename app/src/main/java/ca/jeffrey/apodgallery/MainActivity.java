@@ -22,6 +22,7 @@ import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -211,6 +212,25 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     private String getHtmlTitle(String fragment) {
         int index = fragment.indexOf("-");
         return fragment.substring(index + 1).trim();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Glide.with(this).pauseRequests();
+    }
+
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        Glide.with(this).pauseRequests();
+    }
+
+    @Override
+    protected void onResume() {
+        // Log.i("RESUME", "1");
+        super.onResume();
+        Glide.with(this).resumeRequests();
     }
 
     @Override
@@ -667,7 +687,15 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             if (saveImage()) {
                 String path = IMAGE_DIRECTORY + expandedToNumericalDate(date) + IMAGE_EXT;
                 File image = new File(path);
-                Uri uri = Uri.fromFile(image);
+                Uri uri;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    share.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    uri = FileProvider.getUriForFile(this, this.getApplicationContext().getPackageName()
+                            + ".provider", image);
+                }
+                else {
+                    uri = Uri.fromFile(image);
+                }
 
                 share.putExtra(Intent.EXTRA_STREAM, uri);
                 startActivity(Intent.createChooser(share, getString(R.string.title_intent_share)));
