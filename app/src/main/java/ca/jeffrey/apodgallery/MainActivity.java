@@ -217,20 +217,23 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     @Override
     protected void onPause() {
         super.onPause();
-        Glide.with(this).pauseRequests();
+        Glide.get(this).clearMemory();
+        // Glide.with(this).pauseRequests();
     }
 
     @Override
     protected void onDestroy(){
         super.onDestroy();
-        Glide.with(this).pauseRequests();
+        Glide.get(this).clearMemory();
+        // Glide.with(this).pauseRequests();
     }
 
     @Override
     protected void onResume() {
         // Log.i("RESUME", "1");
         super.onResume();
-        Glide.with(this).resumeRequests();
+        Glide.get(this).clearMemory();
+        // Glide.with(this).resumeRequests();
     }
 
     @Override
@@ -722,7 +725,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
         if (hasPermission) {
             // Load image with Glide as bitmap
-            Glide.with(this).load(imgUrl).asBitmap().diskCacheStrategy(DiskCacheStrategy.SOURCE)
+            Glide.with(MainActivity.this).load(imgUrl).asBitmap().diskCacheStrategy(DiskCacheStrategy.SOURCE)
                     .into(new SimpleTarget<Bitmap>() {
 
                 @Override
