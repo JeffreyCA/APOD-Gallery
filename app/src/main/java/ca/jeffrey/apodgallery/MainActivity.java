@@ -215,28 +215,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        Glide.get(this).clearMemory();
-        // Glide.with(this).pauseRequests();
-    }
-
-    @Override
-    protected void onDestroy(){
-        super.onDestroy();
-        Glide.get(this).clearMemory();
-        // Glide.with(this).pauseRequests();
-    }
-
-    @Override
-    protected void onResume() {
-        // Log.i("RESUME", "1");
-        super.onResume();
-        Glide.get(this).clearMemory();
-        // Glide.with(this).resumeRequests();
-    }
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         // Prevent multiple activities from launching
         if (!isTaskRoot() && getIntent().hasCategory(Intent.CATEGORY_LAUNCHER) && getIntent()
@@ -986,7 +964,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
         // Regular OKHTTP request
         doJsonRequest(url);
-
     }
 
     /**
