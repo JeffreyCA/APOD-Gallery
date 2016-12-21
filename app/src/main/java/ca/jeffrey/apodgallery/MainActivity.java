@@ -217,15 +217,14 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
         if (!isTaskRoot() && getIntent().hasCategory(Intent.CATEGORY_LAUNCHER) && getIntent()
                 .getAction() != null && getIntent().getAction().equals(Intent.ACTION_MAIN)) {
-
             finish();
             return;
         }
-
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
         // Initialize toolbar
         Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
