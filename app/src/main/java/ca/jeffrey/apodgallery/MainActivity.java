@@ -458,6 +458,11 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.action_refresh:
+                Glide.clear(imageView);
+                progressBar.setVisibility(View.VISIBLE);
+                getImageData(date);
+                return true;
             case R.id.action_share:
                 shareImage(titleText.getText().toString());
                 return true;
