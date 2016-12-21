@@ -214,9 +214,9 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         return fragment.substring(index + 1).trim();
     }
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // Prevent multiple activities from launching
         if (!isTaskRoot() && getIntent().hasCategory(Intent.CATEGORY_LAUNCHER) && getIntent()
                 .getAction() != null && getIntent().getAction().equals(Intent.ACTION_MAIN)) {
 
@@ -828,8 +828,13 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                         public boolean onException(Exception e, String model,
                                                    Target<GlideDrawable> target, boolean
                                                            isFirstResource) {
-                            Toast.makeText(MainActivity.this, R.string.error_general, Toast
-                                    .LENGTH_SHORT).show();
+                            MainActivity.this.runOnUiThread(new Runnable() {
+                                public void run() {
+                                    Toast.makeText(MainActivity.this, R.string.error_general, Toast
+                                            .LENGTH_SHORT).show();
+                                }
+                            });
+
                             return false;
                         }
 
@@ -1006,8 +1011,12 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(final Call call, IOException e) {
-                Toast.makeText(MainActivity.this, R.string.error_general, Toast.LENGTH_SHORT)
-                        .show();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(MainActivity.this,R.string.error_server,Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
 
             @Override
@@ -1199,7 +1208,12 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 doc = Jsoup.connect(url[0]).get();
             }
             catch (IOException e) {
-                Toast.makeText(MainActivity.this, R.string.error_server, Toast.LENGTH_SHORT).show();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(MainActivity.this,R.string.error_server,Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
 
             // Image
@@ -1300,7 +1314,12 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 Reservoir.put(url[0], bundle);
             }
             catch (IOException e) {
-                Toast.makeText(MainActivity.this, R.string.error_server, Toast.LENGTH_SHORT).show();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(MainActivity.this,R.string.error_server,Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
 
             return null;
@@ -1331,8 +1350,12 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                             public boolean onException(Exception e, String model,
                                                        Target<GlideDrawable> target, boolean
                                                                isFirstResource) {
-                                Toast.makeText(MainActivity.this, R.string.error_general, Toast
-                                        .LENGTH_SHORT).show();
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(MainActivity.this,R.string.error_general, Toast.LENGTH_SHORT).show();
+                                    }
+                                });
                                 return false;
                             }
 

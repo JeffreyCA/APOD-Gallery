@@ -14,7 +14,7 @@
     <string name="error_network">Network error, please check your Internet connection.</string>
     <string name="error_parse">Parsing error.</string>
     <string name="error_saving">Error saving file. Please check your image save directory.</string>
-    <string name="error_server">Server error, unable to retrieve image.</string>
+    <string name="error_server">Server error, unable to retrieve content. Please try again later.</string>
     <string name="error_today">Image is not available yet. Please check again later.</string>
     <string name="menu_browser">Open in browser</string>
     <string name="menu_save">Save to device</string>
