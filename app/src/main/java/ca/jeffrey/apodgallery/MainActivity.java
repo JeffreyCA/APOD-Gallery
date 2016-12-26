@@ -48,6 +48,7 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
+import com.google.firebase.crash.FirebaseCrash;
 import com.sothree.slidinguppanel.FloatingActionButtonLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
@@ -1186,7 +1187,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     }
 
     // AsyncTask
-    private class GetHtmlData extends AsyncTask<String, Void, Void> {
+    private class GetHtmlData extends AsyncTask<String, Void, Boolean> {
         List<String> bundle = new ArrayList<>();
         boolean isImage;
 
@@ -1196,7 +1197,9 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         String explanation;
 
         @Override
-        protected Void doInBackground(String... url) {
+        protected Boolean doInBackground(String... url) {
+            FirebaseCrash.log("Date: " + date);
+
             final String EXPLANATION_HEADER = "Explanation:";
             final String YT_BASE_URL = "https://www.youtube.com/watch?v=";
             final String VM_BASE_URL = "https://vimeo.com/";
@@ -1218,6 +1221,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                         Toast.makeText(MainActivity.this,R.string.error_server,Toast.LENGTH_SHORT).show();
                     }
                 });
+                return false;
             }
 
             // Image
@@ -1326,11 +1330,11 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 });
             }
 
-            return null;
+            return true;
         }
 
         @Override
-        protected void onPostExecute(Void result) {
+        protected void onPostExecute(Boolean result) {
             titleText.setText(htmlTitle);
             description.setText(explanation);
 
