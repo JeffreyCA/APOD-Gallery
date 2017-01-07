@@ -78,11 +78,11 @@
 
         <PreferenceScreen
             android:key="credit_text_justify"
-            android:summary="bluejamesbond"
+            android:summary="Nikhil Lohia"
             android:title="TextJustify-Android">
             <intent
                 android:action="android.intent.action.VIEW"
-                android:data="https://github.com/bluejamesbond/TextJustify-Android"/>
+                android:data="https://github.com/nikoo28/justify-textview-android"/>
         </PreferenceScreen>
 
         <PreferenceScreen

@@ -35,11 +35,11 @@ import android.view.animation.Interpolator;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.anupcowkur.reservoir.Reservoir;
-import com.bluejamesbond.text.DocumentView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
@@ -73,6 +73,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import ca.jeffrey.apodgallery.text.AutoResizeTextView;
+import ca.jeffrey.apodgallery.text.TextViewEx;
 import okhttp3.Cache;
 import okhttp3.CacheControl;
 import okhttp3.Call;
@@ -114,7 +116,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     private String sdUrl;
 
     private AutoResizeTextView titleText;
-    private DocumentView description;
+    private ScrollView descriptionScroll;
+    private TextViewEx description;
     private FloatingActionButton fab;
     private ImageView imageView;
     private ImageView tomorrow;
@@ -184,7 +187,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
         // Other views
         dateText = (TextView) findViewById(R.id.date);
-        description = (DocumentView) findViewById(R.id.description);
+        description = (TextViewEx) findViewById(R.id.description);
+        descriptionScroll = (ScrollView) findViewById(R.id.description_scroll);
         fab = (FloatingActionButton) findViewById(R.id.fab);
         mainView = (RelativeLayout) findViewById(R.id.main_view);
         dateNav = (RelativeLayout) findViewById(R.id.date_nav);
@@ -193,10 +197,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         titleText = (AutoResizeTextView) findViewById(R.id.title);
 
         tooEarly = false;
-
-        // Set scrollable description text
-        if (description != null)
-            description.setVerticalScrollBarEnabled(true);
 
         // Set date view
         today = date = EXPANDED_FORMAT.format(new Date());
@@ -260,7 +260,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             public void onPanelCollapsed(View panel) {
                 fab.show();
                 // Scroll text up so it is hidden when panel is collapsed
-                description.smoothScrollTo(0, 0);
+                descriptionScroll.smoothScrollTo(0, 0);
             }
 
             @Override
@@ -828,7 +828,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     private void onHtmlResponse(boolean isImage, String contentUrl, String hdImageUrl, String
             htmlTitle, String explanation) {
         titleText.setText(htmlTitle);
-        description.setText(explanation);
+        description.setText(explanation, true);
         sdUrl = contentUrl;
 
         if (isImage) {
@@ -921,7 +921,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
         // Set text
         titleText.setText(title);
-        description.setText(explanation);
+        description.setText(explanation, true);
 
         if (mediaType.equals(IMAGE_TYPE)) {
             Glide.with(MainActivity.this).load(sdUrl) // Load from URL
@@ -1355,7 +1355,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         @Override
         protected void onPostExecute(Boolean result) {
             titleText.setText(htmlTitle);
-            description.setText(explanation);
+            description.setText(explanation, true);
 
             sdUrl = contentUrl;
 

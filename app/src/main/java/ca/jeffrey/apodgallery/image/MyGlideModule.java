@@ -1,4 +1,4 @@
-package ca.jeffrey.apodgallery;
+package ca.jeffrey.apodgallery.image;
 
 import android.content.Context;
 

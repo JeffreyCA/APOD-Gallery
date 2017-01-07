@@ -104,7 +104,7 @@
                         android:textSize="26sp"/>
                 </RelativeLayout>
 
-                <ca.jeffrey.apodgallery.BetterImageView
+                <ca.jeffrey.apodgallery.image.BetterImageView
                     android:id="@+id/image"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
@@ -136,7 +136,7 @@
             android:orientation="vertical">
 
             <!-- layout_height controls the height of entire TextView -->
-            <ca.jeffrey.apodgallery.AutoResizeTextView
+            <ca.jeffrey.apodgallery.text.AutoResizeTextView
                 android:id="@+id/title"
                 android:layout_width="match_parent"
                 android:layout_height="64dp"
@@ -149,6 +149,7 @@
                 android:textColor="@android:color/white"
                 android:textSize="24sp"/> <!-- maximum size -->
 
+            <!--
             <com.bluejamesbond.text.DocumentView
                 xmlns:ext="http://schemas.android.com/apk/res-auto"
                 android:id="@+id/description"
@@ -163,6 +164,26 @@
                 ext:documentView_textFormat="plain"
                 ext:documentView_textSize="18sp"
                 sothree:umanoScrollableView="@id/description"/>
+                -->
+
+            <ScrollView
+                android:id="@+id/description_scroll"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="vertical"
+                android:fillViewport="true">
+
+                <ca.jeffrey.apodgallery.text.TextViewEx
+                    android:id="@+id/description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:focusable="true"
+                    android:textColor="@color/colorWhite"
+                    android:textSize="18sp"
+                    android:padding="16dp"
+                    android:lineSpacingMultiplier="1.5"/>
+            </ScrollView>
+
     </LinearLayout>
 
 </com.sothree.slidinguppanel.SlidingUpPanelLayout>

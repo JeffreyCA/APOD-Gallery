@@ -6,7 +6,7 @@
               android:gravity="center"
               android:orientation="vertical">
 
-    <ca.jeffrey.apodgallery.TouchImageView
+    <ca.jeffrey.apodgallery.image.TouchImageView
         android:id="@+id/zoom_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>

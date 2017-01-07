@@ -1,4 +1,4 @@
-package ca.jeffrey.apodgallery;
+package ca.jeffrey.apodgallery.image;
 
 /**
  * https://github.com/MikeOrtiz/TouchImageView

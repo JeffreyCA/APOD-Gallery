@@ -22,6 +22,8 @@ import com.bumptech.glide.request.target.SimpleTarget;
 
 import java.io.File;
 
+import ca.jeffrey.apodgallery.image.TouchImageView;
+
 public class ImageActivity extends Activity {
     private final float MAX_ZOOM = 3.5f;
     private final String DEFAULT_IMAGE_DIRECTORY = Environment.getExternalStorageDirectory().getPath() +

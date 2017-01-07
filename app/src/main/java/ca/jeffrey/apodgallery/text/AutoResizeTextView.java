@@ -1,4 +1,4 @@
-package ca.jeffrey.apodgallery;
+package ca.jeffrey.apodgallery.text;
 
 /**
  * Taken from http://stackoverflow.com/questions/5033012/auto-scale-textview-text-to-fit-within
