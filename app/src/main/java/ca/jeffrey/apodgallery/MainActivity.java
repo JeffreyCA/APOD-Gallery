@@ -126,6 +126,18 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     private SlidingUpPanelLayout slidingPanel;
     private TextView dateText;
 
+    /**
+     * Convert Date object to Calendar object
+     *
+     * @param date Date object
+     * @return Calendar object
+     */
+    private static Calendar dateToCalendar(Date date) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        return cal;
+    }
+
     // OnCreate
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -301,8 +313,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                     if (MyVersion >= Build.VERSION_CODES.M) {
                         if (!checkPermission()) {
                             ActivityCompat.requestPermissions(MainActivity.this,
-                                    new String[]{ Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                                            Manifest.permission.READ_EXTERNAL_STORAGE }, WALLPAPER_PERMISSION);
+                                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                            Manifest.permission.READ_EXTERNAL_STORAGE}, WALLPAPER_PERMISSION);
                         } else {
                             setAsWallpaper();
                         }
@@ -458,20 +470,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             default:
                 super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
-    }
-
-
-
-    /**
-     * Convert Date object to Calendar object
-     *
-     * @param date Date object
-     * @return Calendar object
-     */
-    private static Calendar dateToCalendar(Date date) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-        return cal;
     }
 
     /**
@@ -682,14 +680,15 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         share.putExtra(Intent.EXTRA_STREAM, uri);
         startActivity(Intent.createChooser(share, getString(R.string.title_intent_share)));
     }
+
     private void shareImagePermission() {
         int MyVersion = Build.VERSION.SDK_INT;
 
         if (MyVersion >= Build.VERSION_CODES.M) {
             if (!checkPermission()) {
                 ActivityCompat.requestPermissions(MainActivity.this,
-                        new String[]{ Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                                Manifest.permission.READ_EXTERNAL_STORAGE }, SHARE_PERMISSION);
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                Manifest.permission.READ_EXTERNAL_STORAGE}, SHARE_PERMISSION);
             } else {
                 shareImage();
             }
@@ -700,7 +699,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
     /**
      * Share image or media content
-     *
      */
     private void share() {
         String title = titleText.getText().toString();
@@ -727,8 +725,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             if (MyVersion >= Build.VERSION_CODES.M) {
                 if (!checkPermission()) {
                     ActivityCompat.requestPermissions(MainActivity.this,
-                            new String[]{ Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                                    Manifest.permission.READ_EXTERNAL_STORAGE }, SAVE_PERMISSION);
+                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                    Manifest.permission.READ_EXTERNAL_STORAGE}, SAVE_PERMISSION);
                 } else {
                     saveImage();
                 }
