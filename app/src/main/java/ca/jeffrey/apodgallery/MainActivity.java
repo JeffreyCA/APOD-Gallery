@@ -755,36 +755,30 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             grantResults) {
         switch (requestCode) {
             case WALLPAPER_PERMISSION:
-                for (int i = 0, len = permissions.length; i < len; i++) {
-                    if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                        setAsWallpaper();
-                        return;
-                    } else {
-                        Toast.makeText(MainActivity.this, R.string.toast_storage, Toast.LENGTH_SHORT)
-                                .show();
-                    }
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    setAsWallpaper();
+                    return;
+                } else {
+                    Toast.makeText(MainActivity.this, R.string.toast_storage, Toast.LENGTH_SHORT)
+                            .show();
                 }
                 break;
             case SHARE_PERMISSION:
-                for (int i = 0, len = permissions.length; i < len; i++) {
-                    if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                        shareImage();
-                        return;
-                    } else {
-                        Toast.makeText(MainActivity.this, R.string.toast_storage, Toast.LENGTH_SHORT)
-                                .show();
-                    }
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    shareImage();
+                    return;
+                } else {
+                    Toast.makeText(MainActivity.this, R.string.toast_storage, Toast.LENGTH_SHORT)
+                            .show();
                 }
                 break;
             case SAVE_PERMISSION:
-                for (int i = 0, len = permissions.length; i < len; i++) {
-                    if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                        saveImage();
-                        return;
-                    } else {
-                        Toast.makeText(MainActivity.this, R.string.toast_storage, Toast.LENGTH_SHORT)
-                                .show();
-                    }
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    saveImage();
+                    return;
+                } else {
+                    Toast.makeText(MainActivity.this, R.string.toast_storage, Toast.LENGTH_SHORT)
+                            .show();
                 }
                 break;
             default:
