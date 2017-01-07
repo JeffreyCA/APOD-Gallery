@@ -48,7 +48,7 @@
     <string name="toast_no_image">Image not available</string>
     <string name="toast_permission_granted">Permission granted, please retry your previous action</string>
     <string name="toast_save_image">Image saved to </string>
-    <string name="toast_storage">Enable storage permissions to complete this action</string>
+    <string name="toast_storage">Please enable storage permissions to complete this action</string>
     <string name="toast_view_external">Tap to view in external application</string>
     <string name="toast_view_image">Tap image to view in fullscreen</string>
 </resources>
