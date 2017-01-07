@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
@@ -26,6 +27,7 @@ import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -49,7 +51,6 @@ import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
 import com.google.firebase.crash.FirebaseCrash;
-import com.sothree.slidinguppanel.FloatingActionButtonLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 
@@ -71,6 +72,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -115,7 +117,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     private AutoResizeTextView titleText;
     private DocumentView description;
     private FloatingActionButton fab;
-    private FloatingActionButtonLayout fabLayout;
     private ImageView imageView;
     private ImageView tomorrow;
     private ImageView yesterday;
@@ -125,34 +126,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     private SharedPreferences sharedPref;
     private SlidingUpPanelLayout slidingPanel;
     private TextView dateText;
-
-    private String[] disabledDayStrings = {"2000-01-05", "2000-01-06", "2000-01-08",
-            "2000-02-08", "2000-02-29", "2000-03-07", "2000-03-21", "2000-03-28", "2000-05-19",
-            "2000-07-28", "2000-08-17", "2000-08-29", "2000-09-06", "2000-09-29", "2000-10-13",
-            "2000-11-03", "2000-11-06", "2000-11-08", "2000-11-18", "2000-12-06", "2000-12-27",
-            "2000-12-28", "2001-01-22", "2001-02-14", "2001-02-19", "2001-02-20", "2001-02-23",
-            "2001-02-24", "2001-02-25", "2001-02-27", "2001-03-01", "2001-03-08", "2001-04-09",
-            "2001-04-28", "2001-07-06", "2001-07-11", "2001-07-31", "2001-08-08", "2001-12-03",
-            "2002-01-13", "2002-02-25", "2002-03-03", "2002-03-14", "2002-05-22", "2002-05-30",
-            "2002-06-21", "2002-07-09", "2002-09-16", "2002-10-15", "2002-10-31", "2002-11-18",
-            "2002-11-27", "2002-12-04", "2002-12-06", "2003-02-27", "2003-02-27", "2003-03-09",
-            "2003-04-21", "2003-06-18", "2003-09-29", "2003-10-07", "2003-10-17", "2003-12-29",
-            "2004-01-12", "2004-03-25", "2004-03-26", "2004-03-27", "2004-08-25", "2004-09-28",
-            "2004-09-28", "2005-01-29", "2005-04-09", "2005-04-09", "2005-05-22", "2005-10-16",
-            "2006-03-29", "2006-05-29", "2006-07-06", "2006-07-07", "2006-08-15", "2006-11-04",
-            "2006-11-18", "2006-12-01", "2006-12-16", "2007-01-18", "2007-02-03", "2007-02-21",
-            "2007-03-02", "2007-03-15", "2007-03-16", "2007-03-17", "2007-05-18", "2007-05-22",
-            "2007-09-29", "2008-06-21", "2008-07-22", "2008-10-16", "2008-11-25", "2008-12-31",
-            "2009-01-16", "2009-02-01", "2009-03-02", "2009-04-05", "2009-04-13", "2009-05-01",
-            "2009-06-29", "2009-07-09", "2009-07-11", "2009-08-10", "2009-10-17", "2009-12-14",
-            "2009-12-26", "2009-12-30", "2009-12-31", "2010-01-05", "2010-01-20", "2010-01-24",
-            "2010-02-10", "2010-03-06", "2010-04-08", "2010-04-09", "2010-05-10", "2010-05-26",
-            "2010-06-08", "2010-07-22", "2010-07-25", "2010-08-25", "2010-08-25", "2010-11-20",
-            "2010-12-15", "2011-01-20", "2011-01-23", "2011-02-01", "2011-02-22", "2011-03-07",
-            "2011-06-02", "2011-06-10", "2011-06-28", "2011-07-18", "2011-07-27", "2012-01-01",
-            "2012-01-09", "2012-03-12", "2012-05-23", "2013-05-01", "2013-05-03", "2013-05-03",
-            "2013-11-27", "2014-01-12", "2014-01-17", "2014-02-10", "2014-12-20", "2015-03-14",
-            "2015-04-23", "2015-08-01"};
 
     /**
      * Convert Date object to Calendar object
@@ -215,7 +188,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         return fragment.substring(index + 1).trim();
     }
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -263,7 +235,10 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                         }
                         return chain.proceed(request);
                     }
-                }).build();
+                })
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .writeTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(10, TimeUnit.SECONDS).build();
 
         // Initiate image views
         imageView = (ImageView) findViewById(R.id.image);
@@ -274,7 +249,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         dateText = (TextView) findViewById(R.id.date);
         description = (DocumentView) findViewById(R.id.description);
         fab = (FloatingActionButton) findViewById(R.id.fab);
-        fabLayout = (FloatingActionButtonLayout) findViewById(R.id.fab_layout);
         mainView = (RelativeLayout) findViewById(R.id.main_view);
         dateNav = (RelativeLayout) findViewById(R.id.date_nav);
         progressBar = (ProgressBar) findViewById(R.id.progress);
@@ -318,7 +292,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                     currentDate = dateToCalendar(EXPANDED_FORMAT.parse(date));
                 }
                 catch (ParseException e) {
-                    e.printStackTrace();
+                    
                 }
 
                 DatePickerDialog dpd = DatePickerDialog.newInstance(MainActivity.this,
@@ -454,6 +428,14 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         return true;
     }
 
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        Glide.clear(imageView);
+        progressBar.setVisibility(View.VISIBLE);
+        getImageData(date);
+    }
+
     // Handle menu item selection
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -539,7 +521,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             return EXPANDED_FORMAT.format(calendar.getTime());
         }
         catch (ParseException e) {
-            e.printStackTrace();
+            
         }
         return null;
     }
@@ -561,7 +543,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             return EXPANDED_FORMAT.format(calendar.getTime());
         }
         catch (ParseException e) {
-            e.printStackTrace();
+            
         }
         return null;
     }
@@ -610,7 +592,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             return NUMERICAL_FORMAT.format(EXPANDED_FORMAT.parse(date));
         }
         catch (ParseException e) {
-            e.printStackTrace();
+            
         }
 
         return "";
@@ -637,7 +619,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             return BASE_URL + shortDate + ".html";
         }
         catch (ParseException e) {
-            e.printStackTrace();
+            
         }
 
         return "";
@@ -833,9 +815,10 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                         public boolean onException(Exception e, String model,
                                                    Target<GlideDrawable> target, boolean
                                                            isFirstResource) {
+                            
                             MainActivity.this.runOnUiThread(new Runnable() {
                                 public void run() {
-                                    Toast.makeText(MainActivity.this, R.string.error_general, Toast
+                                    Toast.makeText(MainActivity.this, R.string.error_network, Toast
                                             .LENGTH_SHORT).show();
                                 }
                             });
@@ -911,14 +894,22 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         if (mediaType.equals(IMAGE_TYPE)) {
             Glide.with(MainActivity.this).load(sdUrl) // Load from URL
                     .diskCacheStrategy(DiskCacheStrategy.SOURCE) // Or .RESULT
-                    .skipMemoryCache(true) // Use disk cache only
+                    // .skipMemoryCache(true) // Use disk cache only
                     .listener(new RequestListener<String, GlideDrawable>() {
                         @Override
                         public boolean onException(Exception e, String model,
                                                    Target<GlideDrawable> target, boolean
                                                            isFirstResource) {
-                            Toast.makeText(MainActivity.this, R.string.error_general, Toast
-                                    .LENGTH_SHORT).show();
+                            
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(MainActivity.this, R.string.error_network, Toast
+                                            .LENGTH_SHORT).show();
+                                    progressBar.setVisibility(View.GONE);
+                                }
+                            });
+
                             return false;
                         }
 
@@ -927,7 +918,12 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                                                        Target<GlideDrawable> target, boolean
                                                                isFromMemoryCache, boolean
                                                                isFirstResource) {
-                            progressBar.setVisibility(View.GONE);
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    progressBar.setVisibility(View.GONE);
+                                }
+                            });
                             return false;
                         }
 
@@ -951,6 +947,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 ".gov/planetary/apod?api_key=" + API_KEY + "&date=" + apiDate;
 
         Glide.clear(imageView);
+        titleText.setText("Loading...");
         tooEarly = false;
 
         // Reservoir for HTML scraping
@@ -1009,6 +1006,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
      * @throws IOException Handled directly in catch statement
      */
     private void doJsonRequest(String url) {
+
+        Log.i("DO", "REQUEST");
         // Build request
         Request request = new Request.Builder().cacheControl(new CacheControl.Builder()
                 .onlyIfCached().build()).url(url).build();
@@ -1020,6 +1019,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                     @Override
                     public void run() {
                         Toast.makeText(MainActivity.this,R.string.error_server,Toast.LENGTH_SHORT).show();
+                        progressBar.setVisibility(View.GONE);
                     }
                 });
             }
@@ -1034,14 +1034,28 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                     public void run() {
                         JSONObject object;
                         // Parse JSON object
+
                         try {
-                            object = new JSONObject(res);
-                            onJsonResponse(object);
+                            Date d = EXPANDED_FORMAT.parse(date);
+                            int year = d.getYear();
+
+                            if (year > 1997) {
+                                object = new JSONObject(res);
+                                onJsonResponse(object);
+                            }
+                            else {
+                                parseHtml();
+                            }
+                        }
+                        catch (ParseException pe) {
+
                         }
                         // Error handling
                         catch (JSONException e) {
                             int code = response.code();
                             int messageId;
+
+                            progressBar.setVisibility(View.GONE);
 
                             switch (code) {
                                 // Server error
@@ -1074,7 +1088,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                                     resetText();
                             }
 
-                            progressBar.setVisibility(View.GONE);
 
                             if (messageId != -1) {
                                 Toast.makeText(MainActivity.this, messageId, Toast.LENGTH_SHORT)
@@ -1204,7 +1217,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             final String YT_BASE_URL = "https://www.youtube.com/watch?v=";
             final String VM_BASE_URL = "https://vimeo.com/";
 
-            Document doc = null;
+            Document doc;
             contentUrl = "";
             hdImageUrl = "";
             htmlTitle = "";
@@ -1358,10 +1371,12 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                             public boolean onException(Exception e, String model,
                                                        Target<GlideDrawable> target, boolean
                                                                isFirstResource) {
+
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        Toast.makeText(MainActivity.this,R.string.error_general, Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(MainActivity.this, R.string.error_network, Toast.LENGTH_SHORT).show();
+                                        progressBar.setVisibility(View.GONE);
                                     }
                                 });
                                 return false;
