@@ -84,27 +84,27 @@ import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
 
-    // Write permission ID
-    final static int WALLPAPER_PERMISSION = 100;
-    final static int SHARE_PERMISSION = 101;
-    final static int SAVE_PERMISSION = 102;
+    // Permission codes
+    private static final int SAVE_PERMISSION = 100;
+    private static final int SHARE_PERMISSION = 101;
+    private static final int WALLPAPER_PERMISSION = 102;
 
     // NASA API key
-    final private String API_KEY = "***REMOVED***";
-    final private String DATE_PICKER_TAG = "date_picker";
-    final private String DEFAULT_IMAGE_DIRECTORY = Environment.getExternalStorageDirectory()
+    private final String API_KEY = "***REMOVED***";
+    private final String DATE_PICKER_TAG = "date_picker";
+    private final String DEFAULT_IMAGE_DIRECTORY = Environment.getExternalStorageDirectory()
             .getPath() +
             File.separator + "APOD";
-    final private String IMAGE_EXT = ".jpg";
+    private final String IMAGE_EXT = ".jpg";
 
     // First available APOD date
-    final private Calendar MIN_DATE = new GregorianCalendar(1995, 5, 20);
+    private final Calendar MIN_DATE = new GregorianCalendar(1995, 5, 20);
     // Date formats
-    final private SimpleDateFormat EXPANDED_FORMAT = new SimpleDateFormat("MMMM d, y");
-    final private SimpleDateFormat NUMERICAL_FORMAT = new SimpleDateFormat("y-MM-dd");
-    final private SimpleDateFormat SHORT_FORMAT = new SimpleDateFormat("yyMMdd");
+    private final SimpleDateFormat EXPANDED_FORMAT = new SimpleDateFormat("MMMM d, y");
+    private final SimpleDateFormat NUMERICAL_FORMAT = new SimpleDateFormat("y-MM-dd");
+    private final SimpleDateFormat SHORT_FORMAT = new SimpleDateFormat("yyMMdd");
     // Anchor height
-    final private float SLIDING_ANCHOR_POINT = 0.42f;
+    private final float SLIDING_ANCHOR_POINT = 0.42f;
     private OkHttpClient client;
     // Member variables
     private boolean tooEarly;
@@ -126,29 +126,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     private SlidingUpPanelLayout slidingPanel;
     private TextView dateText;
 
-    /**
-     * Convert Date object to Calendar object
-     *
-     * @param date Date object
-     * @return Calendar object
-     */
-    private static Calendar dateToCalendar(Date date) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-        return cal;
-    }
-
-    /**
-     * Get title of featured content from HTML source code
-     *
-     * @param fragment Portion of source code pertaining to <title> tag
-     * @return title of the featured content
-     */
-    private String getHtmlTitle(String fragment) {
-        int index = fragment.indexOf("-");
-        return fragment.substring(index + 1).trim();
-    }
-
+    // OnCreate
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -244,7 +222,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         dateText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /* Date Picker Library #2 (Does not allow for disabled dates, only enabled dates) */
                 Calendar today = Calendar.getInstance();
                 Calendar currentDate = Calendar.getInstance();
                 try {
@@ -322,7 +299,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 if (imageAvailable()) {
                     int MyVersion = Build.VERSION.SDK_INT;
                     if (MyVersion >= Build.VERSION_CODES.M) {
-                        if (!checkIfAlreadyhavePermission()) {
+                        if (!checkPermission()) {
                             ActivityCompat.requestPermissions(MainActivity.this,
                                     new String[]{ Manifest.permission.WRITE_EXTERNAL_STORAGE,
                                             Manifest.permission.READ_EXTERNAL_STORAGE }, WALLPAPER_PERMISSION);
@@ -375,16 +352,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         });
     } // End onCreate method
 
-    private boolean checkIfAlreadyhavePermission() {
-        // int result = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     // Inflate options menu
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -402,6 +369,19 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         }
 
         return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        // Sliding up panel listener
+        slidingPanel = (SlidingUpPanelLayout) findViewById(R.id.sliding_panel_layout);
+
+        if (slidingPanel != null && (slidingPanel.getPanelState() == SlidingUpPanelLayout
+                .PanelState.EXPANDED)) {
+            slidingPanel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+        } else {
+            super.onBackPressed();
+        }
     }
 
     @Override
@@ -435,6 +415,83 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    /**
+     * Display permission granted toast
+     *
+     * @param requestCode  permission request code
+     * @param permissions  array of permissions asked
+     * @param grantResults results if permissions were granted or revoked
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case SAVE_PERMISSION:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    saveImage();
+                    return;
+                } else {
+                    Toast.makeText(MainActivity.this, R.string.toast_storage, Toast.LENGTH_SHORT)
+                            .show();
+                }
+                break;
+            case SHARE_PERMISSION:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    shareImage();
+                    return;
+                } else {
+                    Toast.makeText(MainActivity.this, R.string.toast_storage, Toast.LENGTH_SHORT)
+                            .show();
+                }
+                break;
+            case WALLPAPER_PERMISSION:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    setAsWallpaper();
+                    return;
+                } else {
+                    Toast.makeText(MainActivity.this, R.string.toast_storage, Toast.LENGTH_SHORT)
+                            .show();
+                }
+                break;
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
+
+
+
+    /**
+     * Convert Date object to Calendar object
+     *
+     * @param date Date object
+     * @return Calendar object
+     */
+    private static Calendar dateToCalendar(Date date) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        return cal;
+    }
+
+    /**
+     * Get title of featured content from HTML source code
+     *
+     * @param fragment Portion of source code pertaining to <title> tag
+     * @return title of the featured content
+     */
+    private String getHtmlTitle(String fragment) {
+        int index = fragment.indexOf("-");
+        return fragment.substring(index + 1).trim();
+    }
+
+    private boolean checkPermission() {
+        // int result = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -629,7 +686,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         int MyVersion = Build.VERSION.SDK_INT;
 
         if (MyVersion >= Build.VERSION_CODES.M) {
-            if (!checkIfAlreadyhavePermission()) {
+            if (!checkPermission()) {
                 ActivityCompat.requestPermissions(MainActivity.this,
                         new String[]{ Manifest.permission.WRITE_EXTERNAL_STORAGE,
                                 Manifest.permission.READ_EXTERNAL_STORAGE }, SHARE_PERMISSION);
@@ -668,7 +725,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         if (imageAvailable()) {
             int MyVersion = Build.VERSION.SDK_INT;
             if (MyVersion >= Build.VERSION_CODES.M) {
-                if (!checkIfAlreadyhavePermission()) {
+                if (!checkPermission()) {
                     ActivityCompat.requestPermissions(MainActivity.this,
                             new String[]{ Manifest.permission.WRITE_EXTERNAL_STORAGE,
                                     Manifest.permission.READ_EXTERNAL_STORAGE }, SAVE_PERMISSION);
@@ -743,64 +800,9 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 });
     }
 
-    /**
-     * Display permission granted toast
-     *
-     * @param requestCode  permission request code
-     * @param permissions  array of permissions asked
-     * @param grantResults results if permissions were granted or revoked
-     */
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[]
-            grantResults) {
-        switch (requestCode) {
-            case WALLPAPER_PERMISSION:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    setAsWallpaper();
-                    return;
-                } else {
-                    Toast.makeText(MainActivity.this, R.string.toast_storage, Toast.LENGTH_SHORT)
-                            .show();
-                }
-                break;
-            case SHARE_PERMISSION:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    shareImage();
-                    return;
-                } else {
-                    Toast.makeText(MainActivity.this, R.string.toast_storage, Toast.LENGTH_SHORT)
-                            .show();
-                }
-                break;
-            case SAVE_PERMISSION:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    saveImage();
-                    return;
-                } else {
-                    Toast.makeText(MainActivity.this, R.string.toast_storage, Toast.LENGTH_SHORT)
-                            .show();
-                }
-                break;
-            default:
-                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        }
-    }
-
     private void setAsWallpaper() {
         saveImage();
         launchFullImageView(imgUrl, expandedToNumericalDate(date), true);
-    }
-    @Override
-    public void onBackPressed() {
-        // Sliding up panel listener
-        slidingPanel = (SlidingUpPanelLayout) findViewById(R.id.sliding_panel_layout);
-
-        if (slidingPanel != null && (slidingPanel.getPanelState() == SlidingUpPanelLayout
-                .PanelState.EXPANDED)) {
-            slidingPanel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-        } else {
-            super.onBackPressed();
-        }
     }
 
     /**

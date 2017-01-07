@@ -23,9 +23,10 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import java.io.File;
 
 public class ImageActivity extends Activity {
-    final private String DEFAULT_IMAGE_DIRECTORY = Environment.getExternalStorageDirectory().getPath() +
-            File.separator + "APOD";
-    final private String IMAGE_EXT = ".jpg";
+    private final float MAX_ZOOM = 3.5f;
+    private final String DEFAULT_IMAGE_DIRECTORY = Environment.getExternalStorageDirectory().getPath() +
+      File.separator + "APOD";
+    private final String IMAGE_EXT = ".jpg";
 
     private SharedPreferences sharedPref;
 
@@ -42,8 +43,8 @@ public class ImageActivity extends Activity {
 
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         final TouchImageView imageView = (TouchImageView) findViewById(R.id.zoom_image);
-        // Set zoom to 3.5x
-        imageView.setMaxZoom(3.5f);
+        // Set max zoom
+        imageView.setMaxZoom(MAX_ZOOM);
 
         // Load image with Glide as bitmap
         Glide.with(ImageActivity.this).load(url).asBitmap().diskCacheStrategy(DiskCacheStrategy
