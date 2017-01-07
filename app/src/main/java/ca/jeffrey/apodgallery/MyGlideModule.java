@@ -1,7 +1,6 @@
 package ca.jeffrey.apodgallery;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.GlideBuilder;
@@ -27,8 +26,6 @@ public class MyGlideModule extends OkHttpGlideModule {
     @Override
     public void registerComponents(Context context, Glide glide) {
         final OkHttpClient.Builder builder = new OkHttpClient.Builder();
-
-        Log.i("USED", "USED");
         // set your timeout here
         builder.readTimeout(10, TimeUnit.SECONDS);
         builder.writeTimeout(10, TimeUnit.SECONDS);

@@ -163,20 +163,20 @@
                 ext:documentView_textFormat="plain"
                 ext:documentView_textSize="18sp"
                 sothree:umanoScrollableView="@id/description"/>
-        </LinearLayout>
+    </LinearLayout>
 
-    </com.sothree.slidinguppanel.SlidingUpPanelLayout>
+</com.sothree.slidinguppanel.SlidingUpPanelLayout>
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|right"
-        android:layout_marginBottom="16dp"
-        android:layout_marginRight="16dp"
-        android:clickable="true"
-        android:src="@drawable/image_area"
-        android:tint="@android:color/white"
-        app:rippleColor="@color/colorPressed"/>
+<android.support.design.widget.FloatingActionButton
+    android:id="@+id/fab"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="bottom|right"
+    android:layout_marginBottom="16dp"
+    android:layout_marginRight="16dp"
+    android:clickable="true"
+    android:src="@drawable/image_area"
+    android:tint="@android:color/white"
+    app:rippleColor="@color/colorPressed"/>
 
 </com.sothree.slidinguppanel.FloatingActionButtonLayout>

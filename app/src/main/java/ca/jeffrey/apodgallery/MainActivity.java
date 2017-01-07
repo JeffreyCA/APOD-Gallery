@@ -126,18 +126,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     private SlidingUpPanelLayout slidingPanel;
     private TextView dateText;
 
-    /**
-     * Convert Date object to Calendar object
-     *
-     * @param date Date object
-     * @return Calendar object
-     */
-    private static Calendar dateToCalendar(Date date) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-        return cal;
-    }
-
     // OnCreate
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -239,7 +227,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 try {
                     currentDate = dateToCalendar(EXPANDED_FORMAT.parse(date));
                 } catch (ParseException e) {
-
+                    e.printStackTrace();
                 }
 
                 DatePickerDialog dpd = DatePickerDialog.newInstance(MainActivity.this,
@@ -309,8 +297,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         fab.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if (imageAvailable()) {
-                    int MyVersion = Build.VERSION.SDK_INT;
-                    if (MyVersion >= Build.VERSION_CODES.M) {
+                    int androidVersion = Build.VERSION.SDK_INT;
+                    if (androidVersion >= Build.VERSION_CODES.M) {
                         if (!checkPermission()) {
                             ActivityCompat.requestPermissions(MainActivity.this,
                                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -399,6 +387,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
+
+        // Log.i("DOC", "OffsetY" + description.getDocumentLayoutParams().getOffsetY());
         Glide.clear(imageView);
         progressBar.setVisibility(View.VISIBLE);
         getImageData(date);
@@ -473,24 +463,30 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     }
 
     /**
-     * Get title of featured content from HTML source code
-     *
-     * @param fragment Portion of source code pertaining to <title> tag
-     * @return title of the featured content
+     * Check required permissions are granted
+     * @return true, if permissions were granted, otherwise false
      */
-    private String getHtmlTitle(String fragment) {
-        int index = fragment.indexOf("-");
-        return fragment.substring(index + 1).trim();
-    }
-
     private boolean checkPermission() {
-        // int result = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             return true;
         } else {
             return false;
         }
+    }
+
+    // Date Methods
+
+    /**
+     * Convert Date object to Calendar object
+     *
+     * @param date Date object
+     * @return Calendar object
+     */
+    private static Calendar dateToCalendar(Date date) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        return cal;
     }
 
     /**
@@ -550,7 +546,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
             return EXPANDED_FORMAT.format(calendar.getTime());
         } catch (ParseException e) {
-
+            e.printStackTrace();
         }
         return null;
     }
@@ -570,7 +566,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
             return EXPANDED_FORMAT.format(calendar.getTime());
         } catch (ParseException e) {
-
+            e.printStackTrace();
         }
         return null;
     }
@@ -616,17 +612,10 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         try {
             return NUMERICAL_FORMAT.format(EXPANDED_FORMAT.parse(date));
         } catch (ParseException e) {
-
+            e.printStackTrace();
         }
 
         return "";
-    }
-
-    /**
-     * Display toast when image is not available
-     */
-    private void displayImageNotAvailableToast() {
-        Toast.makeText(MainActivity.this, R.string.toast_no_image, Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -642,87 +631,42 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             shortDate = SHORT_FORMAT.format(EXPANDED_FORMAT.parse(date));
             return BASE_URL + shortDate + ".html";
         } catch (ParseException e) {
-
+            e.printStackTrace();
         }
 
         return "";
     }
 
-    private void shareText(String title) {
-        Intent share = new Intent(Intent.ACTION_SEND);
-        share.setType("text/plain");
-        share.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        share.putExtra(Intent.EXTRA_SUBJECT, title);
-        share.putExtra(Intent.EXTRA_TEXT, getFullUrl());
-
-        startActivity(Intent.createChooser(share, getString(R.string.title_intent_share_link)));
-    }
-
-    private void shareImage() {
-        final String IMAGE_DIRECTORY = sharedPref.getString(SettingsActivity.TAG_PREF_LOCATION, DEFAULT_IMAGE_DIRECTORY);
-        Intent share = new Intent(Intent.ACTION_SEND);
-
-        share.setType("image/jpeg");
-        share.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
-        saveImage();
-        String path = IMAGE_DIRECTORY + expandedToNumericalDate(date) + IMAGE_EXT;
-        File image = new File(path);
-        Uri uri;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            share.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            uri = FileProvider.getUriForFile(this, this.getApplicationContext().getPackageName()
-                    + ".provider", image);
-        } else {
-            uri = Uri.fromFile(image);
-        }
-
-        share.putExtra(Intent.EXTRA_STREAM, uri);
-        startActivity(Intent.createChooser(share, getString(R.string.title_intent_share)));
-    }
-
-    private void shareImagePermission() {
-        int MyVersion = Build.VERSION.SDK_INT;
-
-        if (MyVersion >= Build.VERSION_CODES.M) {
-            if (!checkPermission()) {
-                ActivityCompat.requestPermissions(MainActivity.this,
-                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                                Manifest.permission.READ_EXTERNAL_STORAGE}, SHARE_PERMISSION);
-            } else {
-                shareImage();
-            }
-        } else {
-            shareImage();
-        }
+    /**
+     * Get title of featured content from HTML source code
+     *
+     * @param fragment Portion of source code pertaining to <title> tag
+     * @return title of the featured content
+     */
+    private String getHtmlTitle(String fragment) {
+        int index = fragment.indexOf("-");
+        return fragment.substring(index + 1).trim();
     }
 
     /**
-     * Share image or media content
+     * Display toast when image is not available
      */
-    private void share() {
-        String title = titleText.getText().toString();
-
-        // Share link if non-image content
-        if (tooEarly) {
-            displayImageNotAvailableToast();
-        } else if (!imageAvailable()) {
-            shareText(title);
-        }
-        // Otherwise share image
-        else {
-            shareImagePermission();
-        }
+    private void displayImageNotAvailableToast() {
+        Toast.makeText(MainActivity.this, R.string.toast_no_image, Toast.LENGTH_SHORT).show();
     }
 
+    /**
+     * Determine if ImageView is empty
+     * @return true, if ImageView is not empty, otherwise false
+     */
     public boolean imageAvailable() {
         return imageView.getDrawable() != null;
     }
 
     private void saveImageMenu() {
         if (imageAvailable()) {
-            int MyVersion = Build.VERSION.SDK_INT;
-            if (MyVersion >= Build.VERSION_CODES.M) {
+            int androidVersion = Build.VERSION.SDK_INT;
+            if (androidVersion >= Build.VERSION_CODES.M) {
                 if (!checkPermission()) {
                     ActivityCompat.requestPermissions(MainActivity.this,
                             new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -804,6 +748,75 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     }
 
     /**
+     * Share image or media content
+     */
+    private void share() {
+        String title = titleText.getText().toString();
+
+        // Share link if non-image content
+        if (tooEarly) {
+            displayImageNotAvailableToast();
+        } else if (!imageAvailable()) {
+            shareText(title);
+        }
+        // Otherwise share image
+        else {
+            shareImagePermission();
+        }
+    }
+    
+    private void shareText(String title) {
+        Intent share = new Intent(Intent.ACTION_SEND);
+        share.setType("text/plain");
+        share.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        share.putExtra(Intent.EXTRA_SUBJECT, title);
+        share.putExtra(Intent.EXTRA_TEXT, getFullUrl());
+
+        startActivity(Intent.createChooser(share, getString(R.string.title_intent_share_link)));
+    }
+
+    private void shareImage() {
+        final String IMAGE_DIRECTORY = sharedPref.getString(SettingsActivity.TAG_PREF_LOCATION, DEFAULT_IMAGE_DIRECTORY);
+        Intent share = new Intent(Intent.ACTION_SEND);
+
+        share.setType("image/jpeg");
+        share.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+        saveImage();
+        String path = IMAGE_DIRECTORY + expandedToNumericalDate(date) + IMAGE_EXT;
+        File image = new File(path);
+        Uri uri;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            share.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            uri = FileProvider.getUriForFile(this, this.getApplicationContext().getPackageName()
+                    + ".provider", image);
+        } else {
+            uri = Uri.fromFile(image);
+        }
+
+        share.putExtra(Intent.EXTRA_STREAM, uri);
+        startActivity(Intent.createChooser(share, getString(R.string.title_intent_share)));
+    }
+
+    private void shareImagePermission() {
+        int androidVersion = Build.VERSION.SDK_INT;
+
+        if (androidVersion >= Build.VERSION_CODES.M) {
+            if (!checkPermission()) {
+                ActivityCompat.requestPermissions(MainActivity.this,
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                Manifest.permission.READ_EXTERNAL_STORAGE}, SHARE_PERMISSION);
+            } else {
+                shareImage();
+            }
+        } else {
+            shareImage();
+        }
+    }
+
+    // HTTP Request Methods
+
+    /**
      * Handle content loading from Reservoir cache
      *
      * @param isImage     true, if the content URL is an image, otherwise false
@@ -838,6 +851,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
                             MainActivity.this.runOnUiThread(new Runnable() {
                                 public void run() {
+                                    resetText();
                                     Toast.makeText(MainActivity.this, R.string.error_network, Toast
                                             .LENGTH_SHORT).show();
                                 }
@@ -922,6 +936,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
+                                    resetText();
                                     Toast.makeText(MainActivity.this, R.string.error_network, Toast
                                             .LENGTH_SHORT).show();
                                     progressBar.setVisibility(View.GONE);
@@ -1365,6 +1380,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
+                                        resetText();
                                         Toast.makeText(MainActivity.this, R.string.error_network, Toast.LENGTH_SHORT).show();
                                         progressBar.setVisibility(View.GONE);
                                     }
