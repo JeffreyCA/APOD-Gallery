@@ -36,6 +36,7 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
         <meta-data
             android:name="ca.jeffrey.apodgallery.image.MyGlideModule"
             android:value="GlideModule" />

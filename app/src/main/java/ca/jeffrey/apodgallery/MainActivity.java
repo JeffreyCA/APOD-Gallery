@@ -1,6 +1,7 @@
 package ca.jeffrey.apodgallery;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -25,6 +26,7 @@ import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -47,6 +49,9 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.security.ProviderInstaller;
 import com.google.firebase.crash.FirebaseCrash;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
@@ -464,6 +469,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
     /**
      * Check required permissions are granted
+     *
      * @return true, if permissions were granted, otherwise false
      */
     private boolean checkPermission() {
@@ -624,7 +630,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
      * @return browser-accessible URL
      */
     private String getFullUrl() {
-        final String BASE_URL = "http://apod.nasa.gov/apod/ap";
+        final String BASE_URL = "https://apod.nasa.gov/apod/ap";
         String shortDate;
 
         try {
@@ -657,6 +663,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
     /**
      * Determine if ImageView is empty
+     *
      * @return true, if ImageView is not empty, otherwise false
      */
     public boolean imageAvailable() {
@@ -764,7 +771,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             shareImagePermission();
         }
     }
-    
+
     private void shareText(String title) {
         Intent share = new Intent(Intent.ACTION_SEND);
         share.setType("text/plain");
@@ -829,7 +836,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             htmlTitle, String explanation) {
         titleText.setText(htmlTitle);
         description.setText(explanation, true);
-        sdUrl = contentUrl;
+        sdUrl = contentUrl.replaceAll("http://", "https://");
 
         if (isImage) {
             // Check preferences if user wants HD images saved
@@ -875,6 +882,18 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         }
     }
 
+    private void updateAndroidSecurityProvider(Activity callingActivity) {
+        try {
+            ProviderInstaller.installIfNeeded(this);
+        } catch (GooglePlayServicesRepairableException e) {
+            // Thrown when Google Play Services is not installed, up-to-date, or enabled
+            // Show dialog to allow users to install, update, or otherwise enable Google Play services.
+            // GooglePlayServicesUtil.getErrorDialog(e.getConnectionStatusCode(), callingActivity, 0);
+        } catch (GooglePlayServicesNotAvailableException e) {
+            Log.e("SecurityException", "Google Play Services not available.");
+        }
+    }
+
     /**
      * Get & parse image data and display image to screen
      *
@@ -882,7 +901,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
      */
     private void onJsonResponse(JSONObject response) throws JSONException {
         final String IMAGE_TYPE = "image";
-
         boolean prefHd;
         boolean prefCopyright;
         String copyright;
@@ -895,7 +913,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
         explanation = response.getString("explanation");
         mediaType = response.getString("media_type");
-        sdUrl = response.getString("url");
+        sdUrl = response.getString("url").replaceAll("http://", "https://");
         title = response.getString("title");
         hdUrl = "";
         prefHd = sharedPref.getString("image_quality", "").equals("1");
@@ -903,7 +921,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
         // Check if HD image URL is included in response
         if (response.has("hdurl")) {
-            hdUrl = response.getString("hdurl");
+            hdUrl = response.getString("hdurl").replaceAll("http://", "https://");
         }
 
         // Add copyright credits to end of description if setting allows it
@@ -932,7 +950,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                         public boolean onException(Exception e, String model,
                                                    Target<GlideDrawable> target, boolean
                                                            isFirstResource) {
-
+                            e.printStackTrace();
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -1052,7 +1070,9 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
                         try {
                             Date d = EXPANDED_FORMAT.parse(date);
-                            int year = d.getYear();
+                            Calendar cal = Calendar.getInstance();
+                            cal.setTime(d);
+                            int year = cal.get(Calendar.YEAR);
 
                             if (year > 1997) {
                                 object = new JSONObject(res);
@@ -1066,6 +1086,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
                         // Error handling
                         catch (JSONException e) {
+                            e.printStackTrace();
+
                             int code = response.code();
                             int messageId;
 
@@ -1229,7 +1251,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             final String YT_BASE_URL = "https://www.youtube.com/watch?v=";
             final String VM_BASE_URL = "https://vimeo.com/";
 
-            Document doc;
+            Document doc = null;
             contentUrl = "";
             hdImageUrl = "";
             htmlTitle = "";
@@ -1239,6 +1261,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             try {
                 doc = Jsoup.connect(url[0]).get();
             } catch (IOException e) {
+                e.printStackTrace();
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -1357,7 +1380,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             titleText.setText(htmlTitle);
             description.setText(explanation, true);
 
-            sdUrl = contentUrl;
+            sdUrl = contentUrl.replaceAll("http://", "https://");
 
             if (isImage) {
                 // Check preferences if user wants HD images saved
