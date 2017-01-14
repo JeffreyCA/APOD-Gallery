@@ -2,10 +2,12 @@ package ca.jeffrey.apodgallery;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -51,6 +53,7 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.security.ProviderInstaller;
 import com.google.firebase.crash.FirebaseCrash;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
@@ -89,7 +92,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class MainActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
+public class MainActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener, ProviderInstaller.ProviderInstallListener {
 
     // Permission codes
     private static final int SAVE_PERMISSION = 100;
@@ -112,6 +115,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     private final SimpleDateFormat SHORT_FORMAT = new SimpleDateFormat("yyMMdd");
     // Anchor height
     private final float SLIDING_ANCHOR_POINT = 0.42f;
+    private final int ERROR_DIALOG_REQUEST_CODE = 1;
     private OkHttpClient client;
     // Member variables
     private boolean tooEarly;
@@ -133,6 +137,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     private SharedPreferences sharedPref;
     private SlidingUpPanelLayout slidingPanel;
     private TextView dateText;
+
+    ProgressDialog dialog;
 
     // OnCreate
     @Override
@@ -207,9 +213,115 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         today = date = EXPANDED_FORMAT.format(new Date());
         dateText.setText(date);
 
-        // Set image
-        getImageData(date);
+        switch (checkAppStart()) {
+            case NORMAL:
+                getImageData(date);
+                initializeListeners();
+                break;
+            case FIRST_TIME_VERSION:
+                displayChangesDialog();
+                break;
+            case FIRST_TIME:
+                if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    initializeListeners();
+                }
+                else {
+                    dialog = ProgressDialog.show(this, "Updating Ciphers", "Loading. Please wait...", true);
+                    ProviderInstaller.installIfNeededAsync(this, this);
+                }
+                break;
+            default:
+                break;
+        }
 
+        // Set image
+
+    } // End onCreate method
+
+
+    @Override
+    public void onProviderInstalled() {
+        dialog.dismiss();
+        getImageData(date);
+        initializeListeners();
+    }
+
+    @Override
+    public void onProviderInstallFailed(int errorCode, Intent intent) {
+        dialog.dismiss();
+
+        if (GooglePlayServicesUtil.isUserRecoverableError(errorCode)) {
+            // Recoverable error. Show a dialog prompting the user to
+            // install/update/enable Google Play services.
+            GooglePlayServicesUtil.showErrorDialogFragment(
+                    errorCode,
+                    this,
+                    ERROR_DIALOG_REQUEST_CODE,
+                    new DialogInterface.OnCancelListener() {
+                        @Override
+                        public void onCancel(DialogInterface dialog) {
+                            // The user chose not to take the recovery action
+                            new AlertDialog.Builder(MainActivity.this)
+                                    .setTitle("Warning")
+                                    .setMessage("It is strongly recommended to update your Google " +
+                                            "Play Services before proceeding. Otherwise, your device" +
+                                            " may be unable to establish a secure connection to NASA's servers.")
+                                    .setNegativeButton("Ignore", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            displayGoogleServicesDialog();
+                                        }
+                                    })
+                                    .setPositiveButton("Retry", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            // Whatever...
+                                        }
+                                    }).show();
+                        }
+                    });
+        } else {
+            displayGoogleServicesDialog();
+        }
+    }
+
+    private void displayChangesDialog() {
+        AlertDialog.Builder builder         = new AlertDialog.Builder(this);
+
+        builder.setTitle("What's new in v2.0")
+                .setMessage(R.string.changes)
+                .setPositiveButton("Dismiss", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        getImageData(date);
+                        initializeListeners();
+                    }
+                });
+
+        builder.create().show();
+    }
+
+    private void displayGoogleServicesDialog() {
+        new AlertDialog.Builder(MainActivity.this)
+                .setTitle("Warning")
+                .setMessage("It is strongly recommended to update your Google " +
+                        "Play Services before proceeding. Otherwise, your device" +
+                        " may be unable to establish a secure connection to NASA's servers.")
+                .setNegativeButton("Ignore", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Whatever...
+                    }
+                })
+                .setPositiveButton("Retry", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Whatever...
+                    }
+                }).show();
+    }
+    private void initializeListeners() {
         // No "tomorrow" image available if default day is "today"
         tomorrow.setVisibility(View.INVISIBLE);
         tomorrow.setOnClickListener(new View.OnClickListener() {
@@ -355,7 +467,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 return true;
             }
         });
-    } // End onCreate method
+    }
 
     // Inflate options menu
     @Override
@@ -422,6 +534,79 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    // Check app launch state
+    /**
+     * Distinguishes different kinds of app starts: <li>
+     * <ul>
+     * First start ever ({@link #FIRST_TIME})
+     * </ul>
+     * <ul>
+     * First start in this version ({@link #FIRST_TIME_VERSION})
+     * </ul>
+     * <ul>
+     * Normal app start ({@link #NORMAL})
+     * </ul>
+     *
+     * @author schnatterer
+     *
+     */
+    public enum AppStart {
+        FIRST_TIME, FIRST_TIME_VERSION, NORMAL;
+    }
+
+    /**
+     * The app version code (not the version name!) that was used on the last
+     * start of the app.
+     */
+    private static final String LAST_APP_VERSION = "last_app_version";
+
+    /**
+     * Finds out started for the first time (ever or in the current version).<br/>
+     * <br/>
+     * Note: This method is <b>not idempotent</b> only the first call will
+     * determine the proper result. Any subsequent calls will only return
+     * {@link AppStart#NORMAL} until the app is started again. So you might want
+     * to consider caching the result!
+     *
+     * @return the type of app start
+     */
+    public AppStart checkAppStart() {
+        PackageInfo pInfo;
+        SharedPreferences sharedPreferences = PreferenceManager
+                .getDefaultSharedPreferences(this);
+        AppStart appStart = AppStart.NORMAL;
+        try {
+            pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+            int lastVersionCode = sharedPreferences
+                    .getInt(LAST_APP_VERSION, -1);
+            int currentVersionCode = pInfo.versionCode;
+            appStart = checkAppStart(currentVersionCode, lastVersionCode);
+            // Update version in preferences
+            sharedPreferences.edit()
+                    .putInt(LAST_APP_VERSION, currentVersionCode).commit();
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.w("Logger",
+                    "Unable to determine current app version from pacakge manager. Defenisvely assuming normal app start.");
+        }
+        return appStart;
+    }
+
+    public AppStart checkAppStart(int currentVersionCode, int lastVersionCode) {
+        if (lastVersionCode == -1) {
+            return AppStart.FIRST_TIME;
+        } else if (lastVersionCode < currentVersionCode) {
+            return AppStart.FIRST_TIME_VERSION;
+        } else if (lastVersionCode > currentVersionCode) {
+            Log.w("Logger", "Current version code (" + currentVersionCode
+                    + ") is less then the one recognized on last startup ("
+                    + lastVersionCode
+                    + "). Defenisvely assuming normal app start.");
+            return AppStart.NORMAL;
+        } else {
+            return AppStart.NORMAL;
         }
     }
 

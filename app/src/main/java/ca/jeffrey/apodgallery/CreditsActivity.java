@@ -41,6 +41,7 @@ public class CreditsActivity extends Activity {
             }
         });
     }
+
     public static class CreditsFragment extends PreferenceFragment {
         @Override
         public void onCreate(Bundle savedInstanceState) {

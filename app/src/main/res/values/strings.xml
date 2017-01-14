@@ -3,6 +3,7 @@
     <string name="action_yes">YES</string>
     <string name="api_key">***REMOVED***</string>
     <string name="app_name">APOD Gallery</string>
+    <string name="changes">- Test change.</string>
     <string name="desc_image">Featured image</string>
     <string name="desc_left_chevron">Navigate to previous date</string>
     <string name="desc_right_chevron">Navigate to next date</string>

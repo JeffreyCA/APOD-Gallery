@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="?attr/actionBarSize"
     android:background="?attr/colorPrimaryDark"
+    app:titleTextColor="@color/colorWhite"
     android:minHeight="?attr/actionBarSize"
     app:navigationIcon="?attr/homeAsUpIndicator"
     app:popupTheme="@style/ThemeOverlay.AppCompat.Light"

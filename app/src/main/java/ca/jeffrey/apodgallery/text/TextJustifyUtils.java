@@ -28,7 +28,7 @@ public class TextJustifyUtils {
         String smb = "";
         Object[] wrappedObj;
 
-        // Pull widget properties
+        // Pull widget_provider properties
         paint.setColor(textView.getCurrentTextColor());
         paint.setTypeface(textView.getTypeface());
         paint.setTextSize(textView.getTextSize());

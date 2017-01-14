@@ -118,7 +118,7 @@ public class TextViewEx extends TextView {
             activeCanvas = canvas;
         }
 
-        // Pull widget properties
+        // Pull widget_provider properties
         paint.setColor(getCurrentTextColor());
         paint.setTypeface(getTypeface());
         paint.setTextSize(getTextSize());
