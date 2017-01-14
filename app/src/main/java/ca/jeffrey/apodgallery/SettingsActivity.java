@@ -31,7 +31,6 @@ public class SettingsActivity extends Activity implements SharedPreferences
     final static String TAG_PREF_QUALITY = "pref_image_quality";
     final static String TAG_PREF_VERSION = "pref_version";
 
-
     private Activity thisActivity;
     private static EditTextPreference saveDirectory;
     private SharedPreferences prefs;

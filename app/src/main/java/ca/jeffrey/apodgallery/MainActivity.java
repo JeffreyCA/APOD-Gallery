@@ -214,23 +214,29 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         dateText.setText(date);
 
         switch (checkAppStart()) {
-            case NORMAL:
-                getImageData(date);
-                initializeListeners();
-                break;
-            case FIRST_TIME_VERSION:
-                displayChangesDialog();
-                break;
+            // case NORMAL:
+            //     dialog = ProgressDialog.show(this, "Updating Ciphers", "Loading. Please wait...", true);
+            //     ProviderInstaller.installIfNeededAsync(this, this);
+            //     break;
+            // case FIRST_TIME_VERSION:
+            //     displayChangesDialog();
+            //     break;
             case FIRST_TIME:
+                displayChangesDialog();
                 if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     initializeListeners();
-                }
-                else {
+                } else {
                     dialog = ProgressDialog.show(this, "Updating Ciphers", "Loading. Please wait...", true);
                     ProviderInstaller.installIfNeededAsync(this, this);
                 }
                 break;
             default:
+                if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    initializeListeners();
+                } else {
+                    dialog = ProgressDialog.show(this, "Updating Ciphers", "Loading. Please wait...", true);
+                    ProviderInstaller.installIfNeededAsync(this, this);
+                }
                 break;
         }
 
@@ -260,24 +266,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                     new DialogInterface.OnCancelListener() {
                         @Override
                         public void onCancel(DialogInterface dialog) {
-                            // The user chose not to take the recovery action
-                            new AlertDialog.Builder(MainActivity.this)
-                                    .setTitle("Warning")
-                                    .setMessage("It is strongly recommended to update your Google " +
-                                            "Play Services before proceeding. Otherwise, your device" +
-                                            " may be unable to establish a secure connection to NASA's servers.")
-                                    .setNegativeButton("Ignore", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            displayGoogleServicesDialog();
-                                        }
-                                    })
-                                    .setPositiveButton("Retry", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            // Whatever...
-                                        }
-                                    }).show();
+                            displayGoogleServicesDialog();
                         }
                     });
         } else {
@@ -286,7 +275,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     }
 
     private void displayChangesDialog() {
-        AlertDialog.Builder builder         = new AlertDialog.Builder(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         builder.setTitle("What's new in v2.0")
                 .setMessage(R.string.changes)
@@ -311,7 +300,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 .setNegativeButton("Ignore", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        // Whatever...
+                        onProviderInstalled();
                     }
                 })
                 .setPositiveButton("Retry", new DialogInterface.OnClickListener() {
@@ -321,6 +310,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                     }
                 }).show();
     }
+
     private void initializeListeners() {
         // No "tomorrow" image available if default day is "today"
         tomorrow.setVisibility(View.INVISIBLE);
@@ -538,6 +528,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     }
 
     // Check app launch state
+
     /**
      * Distinguishes different kinds of app starts: <li>
      * <ul>
@@ -551,7 +542,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
      * </ul>
      *
      * @author schnatterer
-     *
      */
     public enum AppStart {
         FIRST_TIME, FIRST_TIME_VERSION, NORMAL;
