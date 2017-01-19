@@ -225,6 +225,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 displayChangesDialog();
                 if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     initializeListeners();
+					getImageData(date);
                 } else {
                     dialog = ProgressDialog.show(this, "Updating Ciphers", "Loading. Please wait...", true);
                     ProviderInstaller.installIfNeededAsync(this, this);
@@ -233,6 +234,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             default:
                 if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     initializeListeners();
+					getImageData(date);
                 } else {
                     dialog = ProgressDialog.show(this, "Updating Ciphers", "Loading. Please wait...", true);
                     ProviderInstaller.installIfNeededAsync(this, this);
@@ -244,12 +246,11 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
     } // End onCreate method
 
-
     @Override
     public void onProviderInstalled() {
         dialog.dismiss();
+		initializeListeners();
         getImageData(date);
-        initializeListeners();
     }
 
     @Override
@@ -283,8 +284,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
+						initializeListeners();
                         getImageData(date);
-                        initializeListeners();
                     }
                 });
 
