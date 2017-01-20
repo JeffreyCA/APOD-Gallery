@@ -4,11 +4,22 @@
     android:layout_height="match_parent"
     android:padding="@dimen/widget_margin">
 
-    <LinearLayout
+    <StackView
+        android:id="@+id/stack_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal"
-        android:background="@drawable/stars">
-    </LinearLayout>
+        android:gravity="center"
+        android:loopViews="true" />
+
+    <TextView
+        android:id="@+id/empty_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:background="@drawable/stars"
+        android:textColor="#ffffff"
+        android:textStyle="bold"
+        android:text="Placeholder"
+        android:textSize="20sp" />
 
 </FrameLayout>

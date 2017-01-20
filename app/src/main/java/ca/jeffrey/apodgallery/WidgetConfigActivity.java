@@ -1,13 +1,8 @@
 package ca.jeffrey.apodgallery;
 
 import android.app.Activity;
-import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
 import android.widget.RemoteViews;
 
 /**
@@ -33,8 +28,9 @@ public class WidgetConfigActivity extends Activity {
         final AppWidgetManager widgetManager = AppWidgetManager.getInstance(context);
         final RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.layout_widget);
         // initListViews();
-        Button b2 = (Button) findViewById(R.id.button2);
+        // Button b2 = (Button) findViewById(R.id.button2);
 
+        /*
         b2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -49,5 +45,6 @@ public class WidgetConfigActivity extends Activity {
                 finish();
             }
         });
+        */
     }
 }
