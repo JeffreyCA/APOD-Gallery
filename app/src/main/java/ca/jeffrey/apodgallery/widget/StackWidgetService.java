@@ -3,11 +3,18 @@ package ca.jeffrey.apodgallery.widget;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import ca.jeffrey.apodgallery.R;
@@ -30,11 +37,20 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
                 AppWidgetManager.INVALID_APPWIDGET_ID);
     }
     public void onCreate() {
+        Log.i("ONCREATE", "created");
+        Calendar cal = GregorianCalendar.getInstance();
+        Date date = cal.getTime();
+        SimpleDateFormat shortDateFormat = new SimpleDateFormat("MMM dd yyyy");
+
         // In onCreate() you setup any connections / cursors to your data source. Heavy lifting,
         // for example downloading or creating content etc, should be deferred to onDataSetChanged()
         // or getViewAt(). Taking more than 20 seconds in this call will result in an ANR.
         for (int i = 0; i < mCount; i++) {
-            mWidgetItems.add(new WidgetItem(i + "!"));
+            String day = shortDateFormat.format(date);
+            Log.i("DATE", day);
+            mWidgetItems.add(new WidgetItem(day));
+            cal.add(Calendar.DAY_OF_YEAR, -1);
+            date = cal.getTime();
         }
         // We sleep for 3 seconds here to show how the empty view appears in the interim.
         // The empty view is set in the StackWidgetProvider and should be a sibling of the
@@ -58,15 +74,17 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         // We construct a remote views item based on our widget item xml file, and set the
         // text based on the position.
         RemoteViews rv = new RemoteViews(mContext.getPackageName(), R.layout.layout_item);
-        // rv.setTextViewText(R.id.widget_text, mWidgetItems.get(position).text);
-        rv.setTextViewText(R.id.widget_text, "Text");
+        rv.setTextViewText(R.id.widget_text, mWidgetItems.get(position).text);
+        Bitmap a = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.stars);
+        rv.setImageViewBitmap(R.id.stackWidgetItemPicture, a);
+
         // Next, we set a fill-intent which will be used to fill-in the pending intent template
         // which is set on the collection view in StackWidgetProvider.
         Bundle extras = new Bundle();
         extras.putInt(WidgetProvider.EXTRA_ITEM, position);
         Intent fillInIntent = new Intent();
         fillInIntent.putExtras(extras);
-        rv.setOnClickFillInIntent(R.id.widget_text, fillInIntent);
+        rv.setOnClickFillInIntent(R.id.stackWidgetItem, fillInIntent);
         // You can do heaving lifting in here, synchronously. For example, if you need to
         // process an image, fetch something from the network, etc., it is ok to do it here,
         // synchronously. A loading view will show up in lieu of the actual contents in the

@@ -1,9 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/widget_text"
-    android:layout_width="120dp"
-    android:layout_height="120dp"
-    android:gravity="center"
-    android:textColor="#ffffff"
-    android:textStyle="bold"
-    android:textSize="18dp" />
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/stackWidgetItem"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:background="@drawable/stars"
+    android:padding="4dp">
+
+    <ImageView android:id="@+id/stackWidgetItemPicture"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:layout_centerHorizontal="true"/>
+
+    <TextView android:id="@+id/widget_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_below="@+id/stackWidgetItemPicture"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="5dp">
+    </TextView>
+</RelativeLayout>

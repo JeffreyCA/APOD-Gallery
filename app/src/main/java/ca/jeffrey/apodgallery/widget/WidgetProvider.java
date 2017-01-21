@@ -22,6 +22,7 @@ public class WidgetProvider extends AppWidgetProvider {
     public void onDeleted(Context context, int[] appWidgetIds) {
         super.onDeleted(context, appWidgetIds);
     }
+
     @Override
     public void onDisabled(Context context) {
         super.onDisabled(context);
