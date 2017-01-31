@@ -55,6 +55,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
     }
     public void onCreate() {
+        // TODO When instantiating ConfigActivity, check that Storage permissions are enabled.
         Log.i("ONCREATE", "created");
         Calendar cal = GregorianCalendar.getInstance();
         Date date = cal.getTime();
@@ -64,13 +65,18 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         File file=new File(Environment.getExternalStorageDirectory().getPath() + "/APOD/");
         File[] list = file.listFiles();
 
-        mCount = list.length;
+        if (list == null) {
+            mCount = 0;
+        }
+        else {
+            mCount = list.length;
 
-        for (File f: list){
-            String name = f.getName();
-            if (name.endsWith(".jpg")) {
-                name = name.replaceAll(".jpg", "");
-                mWidgetItems.add(new WidgetItem(name));
+            for (File f : list) {
+                String name = f.getName();
+                if (name.endsWith(".jpg")) {
+                    name = name.replaceAll(".jpg", "");
+                    mWidgetItems.add(new WidgetItem(name));
+                }
             }
         }
 
