@@ -7,7 +7,7 @@
     android:padding="4dp">
 
     <ImageView
-        android:id="@+id/stackWidgetItemPicture"
+        android:id="@+id/widget_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
@@ -20,6 +20,7 @@
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="20dp"
         android:layout_centerHorizontal="true"
+        android:gravity="center"
         android:background="#9a000000"
         android:textColor="#FFFFFF"
         android:textSize="18sp"/>

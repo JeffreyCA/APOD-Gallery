@@ -122,7 +122,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         try {
             File f = new File(IMAGE_DIRECTORY + mWidgetItems.get(position).getDate() + EXT);
             Bitmap b = BitmapFactory.decodeStream(new FileInputStream(f));
-            rv.setImageViewBitmap(R.id.stackWidgetItemPicture, b);
+            rv.setImageViewBitmap(R.id.widget_image, b);
         }
         catch (FileNotFoundException e) {
             e.printStackTrace();
