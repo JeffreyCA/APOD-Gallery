@@ -109,7 +109,6 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     }
 
     public RemoteViews getViewAt(int position) {
-
         // position will always range from 0 to getCount() - 1.
         // We construct a remote views item based on our widget item xml file, and set the
         // text based on the position.
@@ -132,6 +131,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         // which is set on the collection view in StackWidgetProvider.
         Bundle extras = new Bundle();
         extras.putInt(WidgetProvider.EXTRA_ITEM, position);
+        extras.putString(WidgetProvider.EXTRA_DATE, mWidgetItems.get(position).getDate());
         Intent fillInIntent = new Intent();
         fillInIntent.putExtras(extras);
         rv.setOnClickFillInIntent(R.id.stackWidgetItem, fillInIntent);

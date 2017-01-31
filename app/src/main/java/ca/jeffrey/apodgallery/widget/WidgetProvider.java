@@ -17,6 +17,7 @@ public class WidgetProvider extends AppWidgetProvider {
 
     public static final String TOAST_ACTION = "ca.jeffrey.apodgallery.widget.TOAST_ACTION";
     public static final String EXTRA_ITEM = "ca.jeffrey.apodgallery.widget.EXTRA_ITEM";
+    public static final String EXTRA_DATE = "ca.jeffrey.apodgallery.widget.DATE";
 
     @Override
     public void onDeleted(Context context, int[] appWidgetIds) {
@@ -38,7 +39,9 @@ public class WidgetProvider extends AppWidgetProvider {
             int appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
                     AppWidgetManager.INVALID_APPWIDGET_ID);
             int viewIndex = intent.getIntExtra(EXTRA_ITEM, 0);
-            Toast.makeText(context, "Touched view " + viewIndex, Toast.LENGTH_SHORT).show();
+            String str_date = intent.getStringExtra(EXTRA_DATE);
+            Log.i("DATE", str_date);
+            Toast.makeText(context, "Touched view " + viewIndex + ", date " + str_date, Toast.LENGTH_SHORT).show();
         }
         super.onReceive(context, intent);
     }
