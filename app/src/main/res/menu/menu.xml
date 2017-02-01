@@ -35,4 +35,4 @@
         android:title="@string/menu_settings"
         app:showAsAction="never"
         android:visible="true" />
-   </menu>
+</menu>

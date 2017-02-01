@@ -6,7 +6,8 @@
     android:previewImage="@drawable/stars"
     android:initialLayout="@layout/layout_widget"
     android:resizeMode="horizontal|vertical"
-    android:widgetCategory="home_screen">
+    android:widgetCategory="home_screen"
+    android:configure="ca.jeffrey.apodgallery.WidgetConfigActivity">
 </appwidget-provider>
 
 <!--     android:configure="ca.jeffrey.apodgallery.WidgetConfigActivity" -->
