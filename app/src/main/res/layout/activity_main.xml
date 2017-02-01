@@ -55,7 +55,7 @@
                     android:id="@+id/date_nav"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:background="@color/colorGray"
+                    android:background="@color/colorBlue"
                     android:orientation="horizontal">
 
                     <ImageView
