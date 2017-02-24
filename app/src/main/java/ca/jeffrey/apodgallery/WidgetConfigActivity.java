@@ -17,7 +17,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
 /**
  * Created by jeffrey on 2017-01-07.
@@ -60,7 +59,7 @@ public class WidgetConfigActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(WidgetConfigActivity.this, R.string.error_cache, Toast.LENGTH_SHORT).show();
+                // Toast.makeText(WidgetConfigActivity.this, R.string.error_cache, Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent();
                 intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
                 Uri uri = Uri.fromParts("package", getPackageName(), null);
@@ -108,6 +107,8 @@ public class WidgetConfigActivity extends AppCompatActivity {
         });
         */
     }
+
+
     // Inflate options menu
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -134,5 +135,19 @@ public class WidgetConfigActivity extends AppCompatActivity {
         menuItem.setEnabled(false);
 
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_widget_save:
+                Intent resultValue = new Intent();
+                resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId);
+                setResult(RESULT_OK, resultValue);
+                finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }

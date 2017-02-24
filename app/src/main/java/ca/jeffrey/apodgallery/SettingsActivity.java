@@ -26,12 +26,11 @@ import java.io.IOException;
 public class SettingsActivity extends Activity implements SharedPreferences
         .OnSharedPreferenceChangeListener {
     final static String TAG_PREF_CACHE = "pref_clear_cache";
-    final static String TAG_PREF_CREDIT = "pref_display_credit";
     final static String TAG_PREF_LOCATION = "pref_save_location";
     final static String TAG_PREF_QUALITY = "pref_image_quality";
     final static String TAG_PREF_VERSION = "pref_version";
 
-    private Activity thisActivity;
+    // private Activity thisActivity;
     private static EditTextPreference saveDirectory;
     private SharedPreferences prefs;
 
@@ -39,7 +38,7 @@ public class SettingsActivity extends Activity implements SharedPreferences
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        thisActivity = this;
+        // thisActivity = this;
 
         PreferenceManager.getDefaultSharedPreferences(this)
                 .registerOnSharedPreferenceChangeListener(this);

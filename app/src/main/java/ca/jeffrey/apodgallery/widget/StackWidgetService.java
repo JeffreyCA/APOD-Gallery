@@ -7,7 +7,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Environment;
-import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
@@ -30,7 +29,10 @@ public class StackWidgetService extends RemoteViewsService {
     }
 }
 class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
-    private int mCount = 10;
+
+    final static String TAG_MAX_IMAGES = "pref_max_images";
+    final static int DEFAULT_COUNT = 5;
+    private int mCount;
     private List<WidgetItem> mWidgetItems = new ArrayList<>();
     private Context mContext;
     private int mAppWidgetId;
@@ -39,38 +41,40 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         mContext = context;
         mAppWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
                 AppWidgetManager.INVALID_APPWIDGET_ID);
+        mCount = intent.getIntExtra(TAG_MAX_IMAGES, DEFAULT_COUNT);
+
+        int filesAvailable = countFiles();
+        if (filesAvailable < mCount) {
+            mCount = filesAvailable;
+        }
     }
 
     public int countFiles() {
-        // Replace with preferences value
-        File file=new File(Environment.getExternalStorageDirectory().getPath() + "APOD");
+        File file=new File(Environment.getExternalStorageDirectory().getPath() + "/APOD");
         File[] list = file.listFiles();
 
         mCount = list.length;
+        int count = 0;
+
         for (File f: list){
             String name = f.getName();
-            if (name.endsWith(".jpg"));
+            if (name.endsWith(".jpg"))
+                count++;
         }
-        return 0;
+        return count;
 
     }
+
     public void onCreate() {
-        // TODO When instantiating ConfigActivity, check that Storage permissions are enabled.
-        Log.i("ONCREATE", "created");
         Calendar cal = GregorianCalendar.getInstance();
         Date date = cal.getTime();
         SimpleDateFormat shortDateFormat = new SimpleDateFormat("MMM dd yyyy");
-        Log.i("PATH", Environment.getExternalStorageDirectory().getPath());
         // Replace with preferences value
         File file=new File(Environment.getExternalStorageDirectory().getPath() + "/APOD/");
         File[] list = file.listFiles();
 
-        if (list == null) {
-            mCount = 0;
-        }
-        else {
-            mCount = list.length;
-
+        mCount = Math.min(countFiles(), mCount);
+        if (list != null) {
             for (File f : list) {
                 String name = f.getName();
                 if (name.endsWith(".jpg")) {
@@ -115,7 +119,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         RemoteViews rv = new RemoteViews(mContext.getPackageName(), R.layout.layout_item);
         rv.setTextViewText(R.id.widget_text, mWidgetItems.get(position).getFormattedDate());
 
-        final String IMAGE_DIRECTORY = "/sdcard/APOD/";
+        final String IMAGE_DIRECTORY = Environment.getExternalStorageDirectory().getPath() + "/APOD/";
         final String EXT = ".jpg";
 
         try {

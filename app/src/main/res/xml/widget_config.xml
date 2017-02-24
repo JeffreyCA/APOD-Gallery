@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <PreferenceCategory
+        android:key="storage_permission"
+        android:title="Customization">
+        <ca.jeffrey.apodgallery.NumberPickerPreference
+            android:key="pref_max_images"
+            android:title="Maximum Images Allowed"
+            android:summary="5"
+            app:defaultValue="5"/>
+    </PreferenceCategory>
+</PreferenceScreen>

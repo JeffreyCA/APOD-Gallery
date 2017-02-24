@@ -40,7 +40,6 @@ public class WidgetProvider extends AppWidgetProvider {
                     AppWidgetManager.INVALID_APPWIDGET_ID);
             int viewIndex = intent.getIntExtra(EXTRA_ITEM, 0);
             String str_date = intent.getStringExtra(EXTRA_DATE);
-            Log.i("DATE", str_date);
             Toast.makeText(context, "Touched view " + viewIndex + ", date " + str_date, Toast.LENGTH_SHORT).show();
         }
         super.onReceive(context, intent);
