@@ -26,16 +26,21 @@
     <string name="pref_about">About</string>
     <string name="pref_cache">Clear app cache</string>
     <string name="pref_developer">Developer</string>
+    <string name="pref_enable_daily_wallpaper">Daily wallpaper changer</string>
     <string name="pref_general">General</string>
     <string name="pref_image_credits">Display image credits</string>
     <string name="pref_image_quality">Image save quality</string>
+    <string name="pref_reset_task">Restart daily wallpaper task</string>
     <string name="pref_save_location">Image save location</string>
     <string name="pref_storage">Storage</string>
+    <string name="pref_summary_wallpaper">Automatically updates your launcher wallpaper to the latest APOD image everyday, skipping days with non-image content.</string>
     <string name="pref_summary_cache">Saved images will not be deleted</string>
     <string name="pref_summary_credits">Third-party resources used in making this app</string>
     <string name="pref_summary_image_credits">Show photo credits below image description if available</string>
     <string name="pref_summary_image_quality">Images can be saved at higher qualities on the device\nAPOD only loads standard-definition images to screen</string>
+    <string name="pref_summary_reset_task">Re-initiate the daily wallpaper changer task</string>
     <string name="pref_version">App Version</string>
+    <string name="pref_wallpaper">Daily Wallpaper</string>
     <string name="title_credits">\n\nCredits:\u0020</string>
     <string name="title_activity_credits">Acknowledgements</string>
     <string name="title_activity_settings">Settings</string>
@@ -51,5 +56,7 @@
     <string name="toast_storage">Please enable storage permissions to complete this action</string>
     <string name="toast_view_external">Tap to view in external application</string>
     <string name="toast_view_image">Tap image to view in fullscreen</string>
+    <string name="toast_start_task">Wallpaper changer enabled</string>
+    <string name="toast_stop_task">Wallpaper changer disabled</string>
     <string name="title_activity_alt_config">AltConfigActivity</string>
 </resources>

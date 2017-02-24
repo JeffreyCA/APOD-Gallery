@@ -19,6 +19,21 @@
     </PreferenceCategory>
 
     <PreferenceCategory
+        android:key="category_wallpaper"
+        android:title="@string/pref_wallpaper">
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="pref_daily_wallpaper"
+            android:summary="@string/pref_summary_wallpaper"
+            android:title="@string/pref_enable_daily_wallpaper"/>
+
+        <Preference
+            android:key="pref_reset_wallpaper_task"
+            android:summary="@string/pref_summary_reset_task"
+            android:title="@string/pref_reset_task"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory
         android:key="category_storage"
         android:title="@string/pref_storage">
         <EditTextPreference

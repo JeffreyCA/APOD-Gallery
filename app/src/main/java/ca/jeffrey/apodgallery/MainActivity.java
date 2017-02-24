@@ -54,6 +54,7 @@ import com.bumptech.glide.request.target.Target;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.security.ProviderInstaller;
 import com.google.firebase.crash.FirebaseCrash;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
@@ -93,6 +94,8 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener, ProviderInstaller.ProviderInstallListener {
+
+    private GcmNetworkManager gcmNetworkManager;
 
     // Permission codes
     private static final int SAVE_PERMISSION = 100;
@@ -160,6 +163,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             myToolbar.showOverflowMenu();
         }
 
+        gcmNetworkManager = GcmNetworkManager.getInstance(this);
+
         // Initialize preferences
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
@@ -212,6 +217,10 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         // Set date view
         today = date = EXPANDED_FORMAT.format(new Date());
         dateText.setText(date);
+
+        // JobManager.create(this).addJobCreator(new DemoJobCreator());
+        // DemoSyncJob job = new DemoSyncJob(this);
+        // job.scheduleJob();
 
         switch (checkAppStart()) {
             // case NORMAL:
@@ -577,7 +586,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             appStart = checkAppStart(currentVersionCode, lastVersionCode);
             // Update version in preferences
             sharedPreferences.edit()
-                    .putInt(LAST_APP_VERSION, currentVersionCode).commit();
+                    .putInt(LAST_APP_VERSION, currentVersionCode).apply();
         } catch (PackageManager.NameNotFoundException e) {
             Log.w("Logger",
                     "Unable to determine current app version from pacakge manager. Defenisvely assuming normal app start.");

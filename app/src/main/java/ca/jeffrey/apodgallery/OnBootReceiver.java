@@ -1,0 +1,54 @@
+package ca.jeffrey.apodgallery;
+
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+
+import com.google.android.gms.gcm.GcmNetworkManager;
+import com.google.android.gms.gcm.OneoffTask;
+import com.google.android.gms.gcm.PeriodicTask;
+import com.google.android.gms.gcm.Task;
+
+public class OnBootReceiver extends BroadcastReceiver {
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
+            // clearAllTasks(context);
+            // setDailyTask(context);
+            setPeriodicTask(context);
+        }
+    }
+
+    private void setPeriodicTask(Context context) {
+        GcmNetworkManager gcmNetworkManager = GcmNetworkManager.getInstance(context);
+        PeriodicTask task = new PeriodicTask.Builder()
+                .setTag(MyTaskService.TAG_TASK_MINUTELY)
+                .setService(MyTaskService.class)
+                .setPeriod(1 * 60) // MINUTES * 60 SECONDS
+                .setFlex(30)
+                .setPersisted(true)
+                .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)  // not needed, default
+                .setUpdateCurrent(true) // not needed, you know this is 1st time
+                .build();
+        gcmNetworkManager.schedule(task);
+    }
+
+    private void setDailyTask(Context context) {
+        GcmNetworkManager gcmNetworkManager = GcmNetworkManager.getInstance(context);
+        Task task = new OneoffTask.Builder()
+                .setService(MyTaskService.class)
+                .setExecutionWindow(15, 30)
+                .setTag(MyTaskService.TAG_TASK_ONEOFF)
+                .setUpdateCurrent(false)
+                .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
+                .setRequiresCharging(false)
+                .build();
+        gcmNetworkManager.schedule(task);
+    }
+
+    private void clearAllTasks(Context context) {
+        GcmNetworkManager
+                .getInstance(context)
+                .cancelAllTasks(MyTaskService.class);
+    }
+}

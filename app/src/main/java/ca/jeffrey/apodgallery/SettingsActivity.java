@@ -11,6 +11,7 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
+import android.preference.SwitchPreference;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +20,9 @@ import android.widget.Toast;
 
 import com.anupcowkur.reservoir.Reservoir;
 import com.bumptech.glide.Glide;
+import com.google.android.gms.gcm.GcmNetworkManager;
+import com.google.android.gms.gcm.PeriodicTask;
+import com.google.android.gms.gcm.Task;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,10 +33,15 @@ public class SettingsActivity extends Activity implements SharedPreferences
     final static String TAG_PREF_LOCATION = "pref_save_location";
     final static String TAG_PREF_QUALITY = "pref_image_quality";
     final static String TAG_PREF_VERSION = "pref_version";
+    final static String TAG_PREF_WALLPAPER = "pref_daily_wallpaper";
+    final static String TAG_PREF_RESET_TASK = "pref_reset_wallpaper_task";
 
     // private Activity thisActivity;
     private static EditTextPreference saveDirectory;
+    // private static Preference resetTask;
     private SharedPreferences prefs;
+
+    private Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,8 +81,7 @@ public class SettingsActivity extends Activity implements SharedPreferences
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             root = (LinearLayout) findViewById(android.R.id.list).getParent().getParent();
-        }
-        else {
+        } else {
             root = (LinearLayout) findViewById(android.R.id.list).getParent();
         }
 
@@ -98,8 +106,7 @@ public class SettingsActivity extends Activity implements SharedPreferences
                 String directory = saveDirectory.getText();
                 if (directory.length() == 0) {
                     directory = "/sdcard/APOD/";
-                }
-                else if (directory.charAt(directory.length() - 1) != '/') {
+                } else if (directory.charAt(directory.length() - 1) != '/') {
                     directory += '/';
                 }
                 saveDirectory.setText(directory);
@@ -111,6 +118,7 @@ public class SettingsActivity extends Activity implements SharedPreferences
         }
         editor.apply();
     }
+
 
     /**
      * Clear app cache
@@ -130,6 +138,7 @@ public class SettingsActivity extends Activity implements SharedPreferences
 
     /**
      * Delete file from device
+     *
      * @param file File to be deleted
      * @return true, if deletion is successful, otherwise false
      */
@@ -141,8 +150,7 @@ public class SettingsActivity extends Activity implements SharedPreferences
                 for (int i = 0; i < children.length; i++) {
                     deletedAll = deleteFile(new File(file, children[i])) && deletedAll;
                 }
-            }
-            else {
+            } else {
                 deletedAll = file.delete();
             }
         }
@@ -160,6 +168,7 @@ public class SettingsActivity extends Activity implements SharedPreferences
             PreferenceScreen appVersion = (PreferenceScreen) findPreference(TAG_PREF_VERSION);
             appVersion.setSummary(BuildConfig.VERSION_NAME);
 
+            SwitchPreference wallpaperToggle = (SwitchPreference) findPreference(TAG_PREF_WALLPAPER);
             Preference clearCache = findPreference(TAG_PREF_CACHE);
             clearCache.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 public boolean onPreferenceClick(Preference preference) {
@@ -168,8 +177,7 @@ public class SettingsActivity extends Activity implements SharedPreferences
                     task.execute();
                     try {
                         Reservoir.clear();
-                    }
-                    catch (IOException e) {
+                    } catch (IOException e) {
                         e.printStackTrace();
                     }
                     instance.clearApplicationCache();
@@ -177,10 +185,69 @@ public class SettingsActivity extends Activity implements SharedPreferences
                 }
             });
 
+            final Preference resetTask = findPreference(TAG_PREF_RESET_TASK);
+
             // Set save location summary to its contents
             saveDirectory = (EditTextPreference) findPreference(TAG_PREF_LOCATION);
+
+            boolean switched = wallpaperToggle.isChecked();
+
+            if (!switched) {
+                resetTask.setEnabled(false);
+            }
+
+            resetTask.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    resetTask();
+                    return true;
+                }
+            });
+
+            wallpaperToggle.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference,
+                                                  Object newValue) {
+                    boolean switched = (boolean) newValue;
+
+                    if (switched) {
+                        resetTask.setEnabled(true);
+                        resetTask();
+                    } else {
+                        resetTask.setEnabled(false);
+                        cancelAllTasks();
+                    }
+
+                    return true;
+                }
+
+            });
             saveDirectory.setSummary(saveDirectory.getText());
         }
+
+        private void resetTask() {
+            GcmNetworkManager gcmNetworkManager = GcmNetworkManager.getInstance(getActivity());
+            gcmNetworkManager.cancelAllTasks(MyTaskService.class);
+
+            PeriodicTask task = new PeriodicTask.Builder()
+                    .setTag(MyTaskService.TAG_TASK_MINUTELY)
+                    .setService(MyTaskService.class)
+                    .setPeriod(1 * 60) // MINUTES * 60 SECONDS
+                    .setFlex(30)
+                    .setPersisted(true)
+                    .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)  // not needed, default
+                    .setUpdateCurrent(true) // not needed, you know this is 1st time
+                    .build();
+            gcmNetworkManager.schedule(task);
+            Toast.makeText(getActivity(), R.string.toast_start_task, Toast.LENGTH_SHORT).show();
+        }
+
+        private void cancelAllTasks() {
+            GcmNetworkManager gcmNetworkManager = GcmNetworkManager.getInstance(getActivity());
+            gcmNetworkManager.cancelAllTasks(MyTaskService.class);
+            Toast.makeText(getActivity(), R.string.toast_stop_task, Toast.LENGTH_SHORT).show();
+        }
+
 
         /**
          * Clear image cache
