@@ -20,8 +20,10 @@ public class OnBootReceiver extends BroadcastReceiver {
     }
 
     private void setPeriodicTask(Context context) {
-        final int PERIOD = 3600 * 8;
-        final int FLEX = 3600 * 2;
+        // final int PERIOD = 3600 * 8;
+        // final int FLEX = 3600 * 2;
+        final int PERIOD = 120;
+        final int FLEX = 10;
         // final int HOURS_UNTIL_MIDNIGHT_EST = 0;
         GcmNetworkManager gcmNetworkManager = GcmNetworkManager.getInstance(context);
 
