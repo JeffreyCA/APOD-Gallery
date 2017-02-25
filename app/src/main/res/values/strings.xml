@@ -40,7 +40,7 @@
     <string name="pref_summary_image_quality">Images can be saved at higher qualities on the device\nAPOD only loads standard-definition images to screen</string>
     <string name="pref_summary_reset_task">Re-initiate the daily wallpaper changer task</string>
     <string name="pref_version">App Version</string>
-    <string name="pref_wallpaper">Daily Wallpaper</string>
+    <string name="pref_wallpaper">Wallpaper</string>
     <string name="title_credits">\n\nCredits:\u0020</string>
     <string name="title_activity_credits">Acknowledgements</string>
     <string name="title_activity_settings">Settings</string>
@@ -57,6 +57,8 @@
     <string name="toast_view_external">Tap to view in external application</string>
     <string name="toast_view_image">Tap image to view in fullscreen</string>
     <string name="toast_start_task">Wallpaper changer enabled</string>
+    <string name="toast_reset_task">Wallpaper changer restarted</string>
+
     <string name="toast_stop_task">Wallpaper changer disabled</string>
     <string name="title_activity_alt_config">AltConfigActivity</string>
 </resources>

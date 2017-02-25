@@ -20,12 +20,16 @@ public class OnBootReceiver extends BroadcastReceiver {
     }
 
     private void setPeriodicTask(Context context) {
+        final int PERIOD = 3600 * 8;
+        final int FLEX = 3600 * 2;
+        // final int HOURS_UNTIL_MIDNIGHT_EST = 0;
         GcmNetworkManager gcmNetworkManager = GcmNetworkManager.getInstance(context);
+
         PeriodicTask task = new PeriodicTask.Builder()
-                .setTag(MyTaskService.TAG_TASK_MINUTELY)
+                .setTag(MyTaskService.TAG_TASK_DAILY)
                 .setService(MyTaskService.class)
-                .setPeriod(1 * 60) // MINUTES * 60 SECONDS
-                .setFlex(30)
+                .setPeriod(PERIOD)
+                .setFlex(FLEX)
                 .setPersisted(true)
                 .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)  // not needed, default
                 .setUpdateCurrent(true) // not needed, you know this is 1st time

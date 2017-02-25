@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     private static final int WALLPAPER_PERMISSION = 102;
 
     // NASA API key
-    private final String API_KEY = "***REMOVED***";
+    public static final String API_KEY = "***REMOVED***";
     private final String DATE_PICKER_TAG = "date_picker";
     private final String DEFAULT_IMAGE_DIRECTORY = Environment.getExternalStorageDirectory()
             .getPath() +
@@ -494,7 +494,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         slidingPanel = (SlidingUpPanelLayout) findViewById(R.id.sliding_panel_layout);
 
         if (slidingPanel != null && (slidingPanel.getPanelState() == SlidingUpPanelLayout
-                .PanelState.EXPANDED)) {
+                .PanelState.EXPANDED || slidingPanel.getPanelState() == SlidingUpPanelLayout
+                .PanelState.ANCHORED)) {
             slidingPanel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
         } else {
             super.onBackPressed();

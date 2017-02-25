@@ -41,8 +41,6 @@ public class SettingsActivity extends Activity implements SharedPreferences
     // private static Preference resetTask;
     private SharedPreferences prefs;
 
-    private Context context;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -199,7 +197,7 @@ public class SettingsActivity extends Activity implements SharedPreferences
             resetTask.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    resetTask();
+                    startTask(true);
                     return true;
                 }
             });
@@ -212,7 +210,7 @@ public class SettingsActivity extends Activity implements SharedPreferences
 
                     if (switched) {
                         resetTask.setEnabled(true);
-                        resetTask();
+                        startTask(false);
                     } else {
                         resetTask.setEnabled(false);
                         cancelAllTasks();
@@ -225,21 +223,31 @@ public class SettingsActivity extends Activity implements SharedPreferences
             saveDirectory.setSummary(saveDirectory.getText());
         }
 
-        private void resetTask() {
+        private void startTask(boolean reset) {
             GcmNetworkManager gcmNetworkManager = GcmNetworkManager.getInstance(getActivity());
             gcmNetworkManager.cancelAllTasks(MyTaskService.class);
 
+            final int PERIOD = 3600 * 8;
+            final int FLEX = 3600 * 2;
+            // final int HOURS_UNTIL_MIDNIGHT_EST = 0;
+
             PeriodicTask task = new PeriodicTask.Builder()
-                    .setTag(MyTaskService.TAG_TASK_MINUTELY)
+                    .setTag(MyTaskService.TAG_TASK_DAILY)
                     .setService(MyTaskService.class)
-                    .setPeriod(1 * 60) // MINUTES * 60 SECONDS
-                    .setFlex(30)
+                    .setPeriod(PERIOD)
+                    .setFlex(FLEX)
                     .setPersisted(true)
                     .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)  // not needed, default
                     .setUpdateCurrent(true) // not needed, you know this is 1st time
                     .build();
             gcmNetworkManager.schedule(task);
-            Toast.makeText(getActivity(), R.string.toast_start_task, Toast.LENGTH_SHORT).show();
+
+            if (reset) {
+                Toast.makeText(getActivity(), R.string.toast_reset_task, Toast.LENGTH_SHORT).show();
+            }
+            else {
+                Toast.makeText(getActivity(), R.string.toast_start_task, Toast.LENGTH_SHORT).show();
+            }
         }
 
         private void cancelAllTasks() {
