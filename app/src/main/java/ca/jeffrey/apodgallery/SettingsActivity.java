@@ -227,8 +227,8 @@ public class SettingsActivity extends Activity implements SharedPreferences
             GcmNetworkManager gcmNetworkManager = GcmNetworkManager.getInstance(getActivity());
             gcmNetworkManager.cancelAllTasks(MyTaskService.class);
 
-            final int PERIOD = 15;
-            final int FLEX = 10;
+            final int PERIOD = 3600 * 8;
+            final int FLEX = 3600 * 2;
             // final int HOURS_UNTIL_MIDNIGHT_EST = 0;
 
             PeriodicTask task = new PeriodicTask.Builder()
