@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.google.android.gms.gcm.GcmNetworkManager;
-import com.google.android.gms.gcm.OneoffTask;
 import com.google.android.gms.gcm.PeriodicTask;
 import com.google.android.gms.gcm.Task;
 
@@ -13,17 +12,14 @@ public class OnBootReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
-            // clearAllTasks(context);
-            // setDailyTask(context);
+            clearAllTasks(context);
             setPeriodicTask(context);
         }
     }
 
     private void setPeriodicTask(Context context) {
-        // final int PERIOD = 3600 * 8;
-        // final int FLEX = 3600 * 2;
-        final int PERIOD = 120;
-        final int FLEX = 10;
+        final int PERIOD = 3600 * 8;
+        final int FLEX = 3600 * 2;
         // final int HOURS_UNTIL_MIDNIGHT_EST = 0;
         GcmNetworkManager gcmNetworkManager = GcmNetworkManager.getInstance(context);
 
@@ -35,19 +31,6 @@ public class OnBootReceiver extends BroadcastReceiver {
                 .setPersisted(true)
                 .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)  // not needed, default
                 .setUpdateCurrent(true) // not needed, you know this is 1st time
-                .build();
-        gcmNetworkManager.schedule(task);
-    }
-
-    private void setDailyTask(Context context) {
-        GcmNetworkManager gcmNetworkManager = GcmNetworkManager.getInstance(context);
-        Task task = new OneoffTask.Builder()
-                .setService(MyTaskService.class)
-                .setExecutionWindow(15, 30)
-                .setTag(MyTaskService.TAG_TASK_ONEOFF)
-                .setUpdateCurrent(false)
-                .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
-                .setRequiresCharging(false)
                 .build();
         gcmNetworkManager.schedule(task);
     }
