@@ -186,10 +186,10 @@ public class MyTaskService extends GcmTaskService {
             final WallpaperManager manager = WallpaperManager.getInstance(this);
             final int w = manager.getDesiredMinimumWidth();
             final int h = manager.getDesiredMinimumHeight();
+            
             Log.i("DesiredMinimumWidth: ", String.valueOf(w));
             Log.i("DesiredMinimumHeight: ", String.valueOf(h));
             Log.i("URL: ", sdUrl);
-            sdUrl = "https://apod.nasa.gov/apod/image/1702/ssc2017-trappist1_1024.jpg";
 
             Bitmap original = Glide.with(this).load(sdUrl).asBitmap().into(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL).get();
             Bitmap desired = Glide.with(this).load(sdUrl).asBitmap().into(w, h).get();
