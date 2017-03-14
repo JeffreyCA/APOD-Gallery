@@ -227,9 +227,8 @@ public class SettingsActivity extends Activity implements SharedPreferences
             GcmNetworkManager gcmNetworkManager = GcmNetworkManager.getInstance(getActivity());
             gcmNetworkManager.cancelAllTasks(MyTaskService.class);
 
-            final int PERIOD = 1;
-            final int FLEX = 1;
-            // final int HOURS_UNTIL_MIDNIGHT_EST = 0;
+            final int PERIOD = 3600 * 8;
+            final int FLEX = 3600 * 2;
 
             PeriodicTask task = new PeriodicTask.Builder()
                     .setTag(MyTaskService.TAG_TASK_DAILY)
@@ -255,7 +254,6 @@ public class SettingsActivity extends Activity implements SharedPreferences
             gcmNetworkManager.cancelAllTasks(MyTaskService.class);
             Toast.makeText(getActivity(), R.string.toast_stop_task, Toast.LENGTH_SHORT).show();
         }
-
 
         /**
          * Clear image cache
