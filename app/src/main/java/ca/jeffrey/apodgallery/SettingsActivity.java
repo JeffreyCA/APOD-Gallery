@@ -21,6 +21,7 @@ import android.widget.Toast;
 import com.anupcowkur.reservoir.Reservoir;
 import com.bumptech.glide.Glide;
 import com.google.android.gms.gcm.GcmNetworkManager;
+import com.google.android.gms.gcm.OneoffTask;
 import com.google.android.gms.gcm.PeriodicTask;
 import com.google.android.gms.gcm.Task;
 
@@ -240,6 +241,15 @@ public class SettingsActivity extends Activity implements SharedPreferences
                     .setUpdateCurrent(true) // not needed, you know this is 1st time
                     .build();
             gcmNetworkManager.schedule(task);
+
+            OneoffTask immediateTask = new OneoffTask.Builder()
+                    .setService(MyTaskService.class)
+                    .setTag(MyTaskService.TAG_TASK_ONEOFF)
+                    .setExecutionWindow(0, 5)
+                    .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
+                    .build();
+
+            gcmNetworkManager.schedule(immediateTask);
 
             if (reset) {
                 Toast.makeText(getActivity(), R.string.toast_reset_task, Toast.LENGTH_SHORT).show();

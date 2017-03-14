@@ -233,12 +233,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             }
 
             dateText.setText(date);
-            // Show/hide right navigation chevron
-            if (tomorrow.getVisibility() == View.VISIBLE && date.equals(today)) {
-                tomorrow.setVisibility(View.INVISIBLE);
-            } else if (tomorrow.getVisibility() == View.INVISIBLE && !date.equals(today)) {
-                tomorrow.setVisibility(View.VISIBLE);
-            }
+            updateDateNavButtons();
 
             if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 getImageData(date);
@@ -538,11 +533,23 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         getImageData(date);
     }
 
+    private void updateDateNavButtons(){
+        // Show/hide right navigation chevron
+        if (tomorrow.getVisibility() == View.VISIBLE && date.equals(today)) {
+            tomorrow.setVisibility(View.INVISIBLE);
+        } else if (tomorrow.getVisibility() == View.INVISIBLE && !date.equals(today)) {
+            tomorrow.setVisibility(View.VISIBLE);
+        }
+    }
+
     // Handle menu item selection
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_refresh:
+                today = EXPANDED_FORMAT.format(new Date());
+                updateDateNavButtons();
+
                 Glide.clear(imageView);
                 progressBar.setVisibility(View.VISIBLE);
                 getImageData(date);

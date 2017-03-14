@@ -48,11 +48,15 @@ public class MyTaskService extends GcmTaskService {
 
         Log.i("Today", today);
 
+        boolean nonImage;
+        String lastRan;
+        boolean todayRetreived;
+
         switch (taskParams.getTag()) {
             case TAG_TASK_DAILY:
-                boolean nonImage = sharedPreferences.getBoolean("non_image", false);
-                String lastRan = sharedPreferences.getString("last_ran", "");
-                boolean todayRetreived = sharedPreferences.getBoolean("today_retrieved", false);
+                 nonImage = sharedPreferences.getBoolean("non_image", false);
+                 lastRan = sharedPreferences.getString("last_ran", "");
+                 todayRetreived = sharedPreferences.getBoolean("today_retrieved", false);
 
                 // Already up-to-date or no image available
                 if (lastRan.equals(today) && (todayRetreived || nonImage)) {
@@ -63,12 +67,17 @@ public class MyTaskService extends GcmTaskService {
 
                 return GcmNetworkManager.RESULT_SUCCESS;
             case TAG_TASK_ONEOFF:
-                String url = "http://androidwalls.net/wp-content/uploads/2017/01/San%20Francisco%20Golden%20Gate%20Bridge%20Fog%20Lights%20Android%20Wallpaper.jpg";
-                try {
-                    Log.i("ONE_OFF", "Reached");
-                } catch (Exception e) {
-                    e.printStackTrace();
+                nonImage = sharedPreferences.getBoolean("non_image", false);
+                lastRan = sharedPreferences.getString("last_ran", "");
+                todayRetreived = sharedPreferences.getBoolean("today_retrieved", false);
+
+                // Already up-to-date or no image available
+                if (lastRan.equals(today) && (todayRetreived || nonImage)) {
+                    return GcmNetworkManager.RESULT_SUCCESS;
                 }
+
+                getImageData();
+
                 return GcmNetworkManager.RESULT_SUCCESS;
             default:
                 return GcmNetworkManager.RESULT_FAILURE;
