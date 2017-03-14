@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="changes">
-        &#8211; Fix major bug where images would not load on devices running 4.4 or lower\n\n
-        &#8211; Support landscape orientation for all devices\n\n
-        &#8211; Improve justified description rendering in landscape mode\n\n
-        &#8211; NEW: Launcher widget has been added! Check it out!\n\n
-        &#8211; NEW: It\'s finally here! You can now set APOD Gallery to change your homescreen wallpaper daily! Configure in Settings menu.\n
+        <b>v2.0</b>\n\n
+        • Fix major bug where images would not load on devices running 4.4 or lower\n\n
+        • Support landscape orientation for all devices\n\n
+        • Improve justified description rendering in landscape mode\n\n
+        • NEW: Launcher widget has been added! Check it out!\n\n
+        • NEW: It\'s finally here! You can now set APOD Gallery to change your homescreen wallpaper daily! Configure in Settings menu.\n
+
+        • Fix major bug where images would not load on devices running 4.4 or lower\n\n
+        • Support landscape orientation for all devices\n\n
+        • Improve justified description rendering in landscape mode\n\n
+        • NEW: Launcher widget has been added! Check it out!\n\n
+
     </string>
 </resources>

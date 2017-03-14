@@ -2,6 +2,7 @@ package ca.jeffrey.apodgallery;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -12,6 +13,7 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.preference.SwitchPreference;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -257,6 +259,21 @@ public class SettingsActivity extends Activity implements SharedPreferences
             else {
                 Toast.makeText(getActivity(), R.string.toast_start_task, Toast.LENGTH_SHORT).show();
             }
+        }
+
+        private void displayChangesDialog() {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+            builder.setTitle("What's New")
+                    .setMessage(R.string.changes)
+                    .setPositiveButton("Dismiss", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+
+            builder.create().show();
         }
 
         private void cancelAllTasks() {

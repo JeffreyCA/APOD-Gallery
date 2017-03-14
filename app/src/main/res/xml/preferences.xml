@@ -60,6 +60,12 @@
         </PreferenceScreen>
 
         <PreferenceScreen
+            android:key="changelog"
+            android:summary="@string/pref_changelog"
+            android:title="@string/title_changelog">
+        </PreferenceScreen>
+
+        <PreferenceScreen
             android:key="developer"
             android:summary="@string/name_developer"
             android:title="@string/pref_developer">
