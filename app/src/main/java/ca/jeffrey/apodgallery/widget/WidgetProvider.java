@@ -45,7 +45,9 @@ public class WidgetProvider extends AppWidgetProvider {
             String str_date = intent.getStringExtra(EXTRA_DATE);
 
             Intent mainIntent = new Intent(context, MainActivity.class);
-            mainIntent.putExtra("widget", str_date);
+            if (str_date != null) {
+                mainIntent.putExtra("widget", str_date);
+            }
 
             context.startActivity(mainIntent);
 

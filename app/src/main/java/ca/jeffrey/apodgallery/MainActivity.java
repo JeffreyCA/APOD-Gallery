@@ -308,7 +308,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     private void displayChangesDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-        builder.setTitle("What's New")
+        builder.setTitle("What's new in " + BuildConfig.VERSION_NAME)
                 .setMessage(R.string.changes)
                 .setPositiveButton("Dismiss", new DialogInterface.OnClickListener() {
                     @Override

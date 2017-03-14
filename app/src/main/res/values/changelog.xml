@@ -1,17 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="changes">
-        <b>v2.0</b>\n\n
-        • Fix major bug where images would not load on devices running 4.4 or lower\n\n
-        • Support landscape orientation for all devices\n\n
-        • Improve justified description rendering in landscape mode\n\n
-        • NEW: Launcher widget has been added! Check it out!\n\n
-        • NEW: It\'s finally here! You can now set APOD Gallery to change your homescreen wallpaper daily! Configure in Settings menu.\n
+        <b>Major additions</b>\n\n
 
-        • Fix major bug where images would not load on devices running 4.4 or lower\n\n
-        • Support landscape orientation for all devices\n\n
-        • Improve justified description rendering in landscape mode\n\n
-        • NEW: Launcher widget has been added! Check it out!\n\n
+        <b><i>Daily wallpaper changer</i></b>\n
+        It\'s finally here! This was the most requested feature, I appreciate your patience.
+        If you encounter any unexpected, please email me.\n\n
 
+        <b><i>Launcher widget</i></b>\n
+        • A launcher widget for APOD Gallery has been implemented.\n
+        • Swipe through all of the images you\'ve saved from <b>APOD Gallery</b> (stored in /sdcard/APOD/).\n
+        • Tap on a particular image in the widget to open the app to the corresponding date.\n\n
+
+        <b>Other additions</b>\n\n
+        • Add new changelog dialog (this thing)\n
+        • Landscape support for all devices\n\n
+
+        <b>Fixes</b>\n\n
+        • Fix HTTPS issue on older devices and reinstate support for pre-Lollipop devices\n
+        • Display proper images titles for dates before 1998\n
+        • Adjust toolbar text colours on older devices\n
+        • Update libraries\n
+        • Improve timeout handling\n
+        • Improve permission management for devices on Marshmallow and above\n
+        • Improve rendering of image description\n\n
+
+        I take each reviews and suggestion into consideration. If you haven\'t, I encourage you to leave a review in the Play Store.
+    </string>
+
+    <string name="wallpaper_summary">
+        • Can be enabled/disabled in settings menu\n
+        • Checks if a new image is available every day and set the current day\'s featured image as your phone\'s wallpaper\n
+        • Automatically runs on boot, if enabled\n
+        • Wallpaper will not be changed if the current day\'s featured content is not picture (video, website, etc.)\n
+        • Warning: This may use up your mobile data connection. Images are usually less than 1 megabyte.\n
+        • Warning: Task killers and memory management apps may conflict with the wallpaper changer task. I suggest whitelisting <b>APOD Gallery</b> if you want to enable this feature.\n
+        • Currently, only standard definition images can be set as wallpaper\n\n
     </string>
 </resources>

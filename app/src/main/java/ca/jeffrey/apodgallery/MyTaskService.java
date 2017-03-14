@@ -16,6 +16,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.gcm.GcmTaskService;
 import com.google.android.gms.gcm.TaskParams;
+import com.google.firebase.crash.FirebaseCrash;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -46,20 +47,18 @@ public class MyTaskService extends GcmTaskService {
 
         today = new SimpleDateFormat("y-MM-dd").format(new Date());
 
-        Log.i("Today", today);
-
         boolean nonImage;
         String lastRan;
-        boolean todayRetreived;
+        boolean todayRetrieved;
 
         switch (taskParams.getTag()) {
             case TAG_TASK_DAILY:
                  nonImage = sharedPreferences.getBoolean("non_image", false);
                  lastRan = sharedPreferences.getString("last_ran", "");
-                 todayRetreived = sharedPreferences.getBoolean("today_retrieved", false);
+                todayRetrieved = sharedPreferences.getBoolean("today_retrieved", false);
 
                 // Already up-to-date or no image available
-                if (lastRan.equals(today) && (todayRetreived || nonImage)) {
+                if (lastRan.equals(today) && (todayRetrieved || nonImage)) {
                     return GcmNetworkManager.RESULT_SUCCESS;
                 }
 
@@ -69,10 +68,10 @@ public class MyTaskService extends GcmTaskService {
             case TAG_TASK_ONEOFF:
                 nonImage = sharedPreferences.getBoolean("non_image", false);
                 lastRan = sharedPreferences.getString("last_ran", "");
-                todayRetreived = sharedPreferences.getBoolean("today_retrieved", false);
+                todayRetrieved = sharedPreferences.getBoolean("today_retrieved", false);
 
                 // Already up-to-date or no image available
-                if (lastRan.equals(today) && (todayRetreived || nonImage)) {
+                if (lastRan.equals(today) && (todayRetrieved || nonImage)) {
                     return GcmNetworkManager.RESULT_SUCCESS;
                 }
 
@@ -98,7 +97,7 @@ public class MyTaskService extends GcmTaskService {
         doJsonRequest(url);
     }
 
-    private void doJsonRequest(String url) {
+    private void doJsonRequest(final String url) {
         OkHttpClient client;
         // Initialize OkHttp client and cache
         client = new OkHttpClient.Builder()
@@ -112,6 +111,8 @@ public class MyTaskService extends GcmTaskService {
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(final Call call, IOException e) {
+                FirebaseCrash.log(url);
+                FirebaseCrash.report(new Exception("Daily Wallpaper - onFailure"));
             }
 
             @Override
@@ -122,6 +123,9 @@ public class MyTaskService extends GcmTaskService {
                     JSONObject object = new JSONObject(res);
                     onJsonResponse(object);
                 } catch (JSONException je) {
+                    FirebaseCrash.log(url);
+                    FirebaseCrash.report(new Exception("Daily Wallpaper - JSONException"));
+
                     SharedPreferences sharedPreferences = PreferenceManager
                             .getDefaultSharedPreferences(MyTaskService.this);
 
@@ -131,9 +135,9 @@ public class MyTaskService extends GcmTaskService {
                 }
                 // Error handling
                 catch (Exception e) {
-                    e.printStackTrace();
+                    FirebaseCrash.log(url);
+                    FirebaseCrash.report(new Exception("Daily Wallpaper - OtherException"));
                 }
-
             }
         });
     }
