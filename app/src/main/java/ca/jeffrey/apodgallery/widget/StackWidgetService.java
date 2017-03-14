@@ -144,7 +144,6 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         // synchronously. A loading view will show up in lieu of the actual contents in the
         // interim.
         try {
-            System.out.println("Loading view " + position);
             Thread.sleep(500);
         } catch (InterruptedException e) {
             e.printStackTrace();

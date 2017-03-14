@@ -16,7 +16,7 @@ public class WidgetItem {
 
     public String getFormattedDate() {
         SimpleDateFormat fileNameFormat = new SimpleDateFormat("y-MM-dd");
-        SimpleDateFormat shortDateFormat = new SimpleDateFormat("MMM dd yyyy");
+        SimpleDateFormat shortDateFormat = new SimpleDateFormat("MMM dd, yyyy");
         String formattedDate = "";
 
         try {

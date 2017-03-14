@@ -11,6 +11,7 @@ import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
+import ca.jeffrey.apodgallery.MainActivity;
 import ca.jeffrey.apodgallery.R;
 
 public class WidgetProvider extends AppWidgetProvider {
@@ -32,16 +33,25 @@ public class WidgetProvider extends AppWidgetProvider {
     public void onEnabled(Context context) {
         super.onEnabled(context);
     }
+
     @Override
     public void onReceive(Context context, Intent intent) {
         AppWidgetManager mgr = AppWidgetManager.getInstance(context);
+
         if (intent.getAction().equals(TOAST_ACTION)) {
             int appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
                     AppWidgetManager.INVALID_APPWIDGET_ID);
             int viewIndex = intent.getIntExtra(EXTRA_ITEM, 0);
             String str_date = intent.getStringExtra(EXTRA_DATE);
+
+            Intent mainIntent = new Intent(context, MainActivity.class);
+            mainIntent.putExtra("widget", str_date);
+
+            context.startActivity(mainIntent);
+
             Toast.makeText(context, "Touched view " + viewIndex + ", date " + str_date, Toast.LENGTH_SHORT).show();
         }
+
         super.onReceive(context, intent);
     }
     @Override

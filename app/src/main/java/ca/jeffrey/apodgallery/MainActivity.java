@@ -218,39 +218,65 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         today = date = EXPANDED_FORMAT.format(new Date());
         dateText.setText(date);
 
-        // JobManager.create(this).addJobCreator(new DemoJobCreator());
-        // DemoSyncJob job = new DemoSyncJob(this);
-        // job.scheduleJob();
+        Bundle extras = getIntent().getExtras();
 
-        switch (checkAppStart()) {
-            // case NORMAL:
-            //     dialog = ProgressDialog.show(this, "Updating Ciphers", "Loading. Please wait...", true);
-            //     ProviderInstaller.installIfNeededAsync(this, this);
-            //     break;
-            // case FIRST_TIME_VERSION:
-            //     displayChangesDialog();
-            //     break;
-            case FIRST_TIME:
-                displayChangesDialog();
-                if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    initializeListeners();
-					getImageData(date);
-                } else {
-                    dialog = ProgressDialog.show(this, "Updating Ciphers", "Loading. Please wait...", true);
-                    ProviderInstaller.installIfNeededAsync(this, this);
-                }
-                break;
-            default:
-                if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    initializeListeners();
-					getImageData(date);
-                } else {
-                    dialog = ProgressDialog.show(this, "Updating Ciphers", "Loading. Please wait...", true);
-                    ProviderInstaller.installIfNeededAsync(this, this);
-                }
-                break;
+        if (getIntent().hasExtra("widget")) {
+            initializeListeners();
+
+            String dateString = extras.getString("widget");
+
+            try {
+                date = EXPANDED_FORMAT.format(NUMERICAL_FORMAT.parse(dateString));
+                // date = expandedDate;
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+            dateText.setText(date);
+            // Show/hide right navigation chevron
+            if (tomorrow.getVisibility() == View.VISIBLE && date.equals(today)) {
+                tomorrow.setVisibility(View.INVISIBLE);
+            } else if (tomorrow.getVisibility() == View.INVISIBLE && !date.equals(today)) {
+                tomorrow.setVisibility(View.VISIBLE);
+            }
+
+            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                getImageData(date);
+            } else {
+                dialog = ProgressDialog.show(this, "Updating Ciphers", "Loading. Please wait...", true);
+                ProviderInstaller.installIfNeededAsync(this, this);
+            }
         }
-
+        else {
+            switch (checkAppStart()) {
+                // case NORMAL:
+                //     dialog = ProgressDialog.show(this, "Updating Ciphers", "Loading. Please wait...", true);
+                //     ProviderInstaller.installIfNeededAsync(this, this);
+                //     break;
+                // case FIRST_TIME_VERSION:
+                //     displayChangesDialog();
+                //     break;
+                case FIRST_TIME:
+                    displayChangesDialog();
+                    if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        initializeListeners();
+                        getImageData(date);
+                    } else {
+                        dialog = ProgressDialog.show(this, "Updating Ciphers", "Loading. Please wait...", true);
+                        ProviderInstaller.installIfNeededAsync(this, this);
+                    }
+                    break;
+                default:
+                    if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        initializeListeners();
+                        getImageData(date);
+                    } else {
+                        dialog = ProgressDialog.show(this, "Updating Ciphers", "Loading. Please wait...", true);
+                        ProviderInstaller.installIfNeededAsync(this, this);
+                    }
+                    break;
+            }
+        }
         // Set image
 
     } // End onCreate method
@@ -1179,8 +1205,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         // Parse date
         String apiDate = expandedToNumericalDate(date);
 
-        String url = "https://api.nasa" +
-                ".gov/planetary/apod?api_key=" + API_KEY + "&date=" + apiDate;
+        String url = "https://api.nasa.gov/planetary/apod?api_key=" + API_KEY + "&date=" + apiDate;
 
         Glide.clear(imageView);
         titleText.setText("Loading...");
