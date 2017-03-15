@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 import android.widget.RemoteViews;
-import android.widget.Toast;
 
 import ca.jeffrey.apodgallery.MainActivity;
 import ca.jeffrey.apodgallery.R;
@@ -51,7 +50,7 @@ public class WidgetProvider extends AppWidgetProvider {
 
             context.startActivity(mainIntent);
 
-            Toast.makeText(context, "Touched view " + viewIndex + ", date " + str_date, Toast.LENGTH_SHORT).show();
+            // Toast.makeText(context, "Touched view " + viewIndex + ", date " + str_date, Toast.LENGTH_SHORT).show();
         }
 
         super.onReceive(context, intent);
