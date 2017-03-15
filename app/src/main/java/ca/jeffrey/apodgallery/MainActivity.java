@@ -253,15 +253,23 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             }
         } else {
             switch (checkAppStart()) {
-                // case NORMAL:
-                //     dialog = ProgressDialog.show(this, "Updating Ciphers", "Loading. Please wait...", true);
-                //     ProviderInstaller.installIfNeededAsync(this, this);
-                //     break;
-                // case FIRST_TIME_VERSION:
-                //     displayChangesDialog();
-                //     break;
+                case NORMAL:
+                    initializeListeners();
+                    getImageData(date);
+                    break;
+                case FIRST_TIME_VERSION:
+                    displayMinorChangesDialog();
+
+                    if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        initializeListeners();
+                        getImageData(date);
+                    } else {
+                        dialog = ProgressDialog.show(this, "Updating Ciphers", "Loading. Please wait...", true);
+                        ProviderInstaller.installIfNeededAsync(this, this);
+                    }
+                    break;
                 case FIRST_TIME:
-                    displayChangesDialog();
+                    displayMajorChangesDialog();
 
                     if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         initializeListeners();
@@ -331,15 +339,40 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         }
     }
 
-    private void displayChangesDialog() {
+    private void displayMinorChangesDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         builder.setTitle("What's new in " + BuildConfig.VERSION_NAME)
-                .setMessage(R.string.changes)
+                .setMessage(R.string.change_2_0_1)
                 .setNegativeButton("Review App", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         openGooglePlay();
+                        displayWallpaperFeaturesDialog();
+                    }
+                })
+                .setPositiveButton("Dismiss", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        displayWallpaperFeaturesDialog();
+                    }
+                });
+
+        builder.setCancelable(false);
+        builder.create().show();
+    }
+
+    private void displayMajorChangesDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setTitle("What's new in " + BuildConfig.VERSION_NAME)
+                .setMessage(R.string.change_2_0_0)
+                .setNegativeButton("Review App", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        openGooglePlay();
+                        displayWallpaperFeaturesDialog();
                     }
                 })
                 .setPositiveButton("Dismiss", new DialogInterface.OnClickListener() {

@@ -228,7 +228,7 @@ public class SettingsActivity extends Activity implements SharedPreferences
             viewChanges.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    displayChangesDialog();
+                    displayMinorChangesDialog();
                     return true;
                 }
             });
@@ -269,11 +269,11 @@ public class SettingsActivity extends Activity implements SharedPreferences
             }
         }
 
-        private void displayChangesDialog() {
+        private void displayMinorChangesDialog() {
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
             builder.setTitle("What's new in " + BuildConfig.VERSION_NAME)
-                    .setMessage(R.string.changes)
+                    .setMessage(R.string.change_2_0_1)
                     .setPositiveButton("Dismiss", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
