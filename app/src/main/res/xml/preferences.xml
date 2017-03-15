@@ -60,13 +60,13 @@
         </PreferenceScreen>
 
         <PreferenceScreen
-            android:key="changelog"
+            android:key="pref_changelog"
             android:summary="@string/pref_changelog"
             android:title="@string/title_changelog">
         </PreferenceScreen>
 
         <PreferenceScreen
-            android:key="developer"
+            android:key="pref_developer"
             android:summary="@string/name_developer"
             android:title="@string/pref_developer">
             <intent android:action="android.intent.action.VIEW"

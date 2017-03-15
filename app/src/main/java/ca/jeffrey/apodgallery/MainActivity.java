@@ -314,11 +314,42 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
+                        displayWallpaperFeaturesDialog();
 						initializeListeners();
                         getImageData(date);
                     }
                 });
 
+        builder.setCancelable(false);
+        builder.create().show();
+    }
+
+    private void displayWallpaperFeaturesDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setTitle("Wallpaper Changer")
+                .setMessage(R.string.wallpaper_summary)
+                .setNegativeButton("Settings", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int i) {
+                        dialog.dismiss();
+                        initializeListeners();
+                        getImageData(date);
+
+                        Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                        startActivity(intent);
+                    }
+                })
+                .setPositiveButton("Not Now", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        initializeListeners();
+                        getImageData(date);
+                    }
+                });
+
+        builder.setCancelable(false);
         builder.create().show();
     }
 

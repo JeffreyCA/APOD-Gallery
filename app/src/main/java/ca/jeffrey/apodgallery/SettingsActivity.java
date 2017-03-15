@@ -33,6 +33,7 @@ import java.io.IOException;
 public class SettingsActivity extends Activity implements SharedPreferences
         .OnSharedPreferenceChangeListener {
     final static String TAG_PREF_CACHE = "pref_clear_cache";
+    final static String TAG_PREF_CHANGELOG = "pref_changelog";
     final static String TAG_PREF_LOCATION = "pref_save_location";
     final static String TAG_PREF_QUALITY = "pref_image_quality";
     final static String TAG_PREF_VERSION = "pref_version";
@@ -187,6 +188,7 @@ public class SettingsActivity extends Activity implements SharedPreferences
             });
 
             final Preference resetTask = findPreference(TAG_PREF_RESET_TASK);
+            final Preference viewChanges = findPreference(TAG_PREF_CHANGELOG);
 
             // Set save location summary to its contents
             saveDirectory = (EditTextPreference) findPreference(TAG_PREF_LOCATION);
@@ -224,6 +226,14 @@ public class SettingsActivity extends Activity implements SharedPreferences
 
             });
             saveDirectory.setSummary(saveDirectory.getText());
+
+            viewChanges.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    displayChangesDialog();
+                    return true;
+                }
+            });
         }
 
         private void startTask(boolean reset) {
@@ -264,7 +274,7 @@ public class SettingsActivity extends Activity implements SharedPreferences
         private void displayChangesDialog() {
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
-            builder.setTitle("What's New")
+            builder.setTitle("What's new in " + BuildConfig.VERSION_NAME)
                     .setMessage(R.string.changes)
                     .setPositiveButton("Dismiss", new DialogInterface.OnClickListener() {
                         @Override
