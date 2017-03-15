@@ -8,90 +8,65 @@
             android:key="credit_sliding_panel"
             android:summary="TR4Android (original by umano)"
             android:title="AndroidSlidingUpPanel">
-            <intent
-                android:action="android.intent.action.VIEW"
-                android:data="https://github.com/TR4Android/AndroidSlidingUpPanel"/>
         </PreferenceScreen>
 
         <PreferenceScreen
             android:key="credit_autofit_text"
             android:summary="grantland"
             android:title="AutoFitTextView">
-            <intent
-                android:action="android.intent.action.VIEW"
-                android:data="https://github.com/grantland/android-autofittextview"/>
         </PreferenceScreen>
 
         <PreferenceScreen
             android:key="credit_glide"
             android:summary="bumptech"
             android:title="Glide">
-            <intent
-                android:action="android.intent.action.VIEW"
-                android:data="https://github.com/bumptech/glide"/>
         </PreferenceScreen>
 
         <PreferenceScreen
             android:key="credit_okhttp_integration"
             android:summary="bumptech"
             android:title="Glide-OkHttp3 integration library">
-            <intent
-                android:action="android.intent.action.VIEW"
-                android:data="https://github.com/bumptech/glide/wiki/Integration-Libraries"/>
         </PreferenceScreen>
 
         <PreferenceScreen
             android:key="credit_jsoup"
             android:summary="Jonathan Hedley"
             android:title="jsoup: Java HTML Parser">
-            <intent
-                android:action="android.intent.action.VIEW"
-                android:data="https://jsoup.org"/>
         </PreferenceScreen>
 
         <PreferenceScreen
             android:key="credit_date_picker"
             android:summary="wdullaer"
             android:title="MaterialDateTimePicker">
-            <intent
-                android:action="android.intent.action.VIEW"
-                android:data="https://github.com/wdullaer/MaterialDateTimePicker"/>
         </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="credit_number_picker"
+            android:summary="Alobar"
+            android:title="NumberPickerPreference"></PreferenceScreen>
 
         <PreferenceScreen
             android:key="credit_okhttp"
             android:summary="Square"
             android:title="OkHttp3">
-            <intent
-                android:action="android.intent.action.VIEW"
-                android:data="http://square.github.io/okhttp"/>
         </PreferenceScreen>
 
         <PreferenceScreen
             android:key="credit_reservoir"
             android:summary="anupcowkur"
             android:title="Reservoir">
-            <intent
-                android:action="android.intent.action.VIEW"
-                android:data="https://github.com/anupcowkur/Reservoir"/>
         </PreferenceScreen>
 
         <PreferenceScreen
             android:key="credit_text_justify"
             android:summary="Nikhil Lohia"
             android:title="TextJustify-Android">
-            <intent
-                android:action="android.intent.action.VIEW"
-                android:data="https://github.com/nikoo28/justify-textview-android"/>
         </PreferenceScreen>
 
         <PreferenceScreen
             android:key="credit_touch_imageview"
             android:summary="Mike Ortiz"
             android:title="TouchImageView">
-            <intent
-                android:action="android.intent.action.VIEW"
-                android:data="https://github.com/MikeOrtiz/TouchImageView"/>
         </PreferenceScreen>
     </PreferenceCategory>
 
@@ -100,30 +75,26 @@
         android:title="StackOverflow code snippets">
 
         <PreferenceScreen
+            android:key="credit_appstart"
+            android:summary="schnatterer"
+            android:title="AppStart"></PreferenceScreen>
+
+        <PreferenceScreen
             android:key="credit_resize_textview"
             android:summary="M-WaJeEh"
             android:title="AutoResizeTextView">
-            <intent
-                android:action="android.intent.action.VIEW"
-                android:data="http://stackoverflow.com/a/17782522"/>
         </PreferenceScreen>
 
         <PreferenceScreen
             android:key="credit_imageview_fling"
             android:summary="Alex Orlov"
             android:title="ImageView fling gesture">
-            <intent
-                android:action="android.intent.action.VIEW"
-                android:data="http://stackoverflow.com/a/4098447"/>
         </PreferenceScreen>
 
         <PreferenceScreen
             android:key="credit_betterimageview"
             android:summary="Mark Martinsson"
             android:title="Better ImageView">
-            <intent
-                android:action="android.intent.action.VIEW"
-                android:data="http://stackoverflow.com/a/17424313"/>
         </PreferenceScreen>
     </PreferenceCategory>
 
@@ -135,9 +106,6 @@
             android:key="credit_icon"
             android:summary="Final design by JeffreyCA, icon elements made by Freepik"
             android:title="App icon">
-            <intent
-                android:action="android.intent.action.VIEW"
-                android:data="http://www.flaticon.com/packs/space-6"/>
         </PreferenceScreen>
 
     </PreferenceCategory>

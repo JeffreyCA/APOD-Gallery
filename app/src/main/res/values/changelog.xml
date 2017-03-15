@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="changes">
-        <b>Major additions</b>\n\n
-
         <b><i>Daily wallpaper changer</i></b>\n\n
-        It\'s finally here! This was the most requested feature, I appreciate your patience.
-        If you encounter any unexpected, please email me.\n\n
+        Daily wallpapers were the most requested feature, now they\'re finally here! The next screen will tell you more about the feature. It is disabled by default.
+        If you encounter any unexpected behaviour, please email me.\n\n
 
         <b><i>Launcher widget</i></b>\n\n
-        • A launcher widget for APOD Gallery has been implemented.\n
+        • A launcher widget for <b>APOD Gallery</b> has been implemented.\n
         • Swipe through all of the images you\'ve saved from <b>APOD Gallery</b>.\n
         • Tap on a particular image in the widget to open the app to the corresponding date.\n\n
 
@@ -25,14 +23,13 @@
         • Improve permission management for devices on Marshmallow and above\n
         • Improve rendering of image description\n\n
 
-        I take each reviews and suggestion into consideration. If you haven\'t, I encourage you to leave a review in the Play Store.
+        I take each reviews and suggestion into consideration. If you haven\'t yet, I encourage you to leave a review in the Play Store.
     </string>
 
     <string name="wallpaper_summary">The service checks if a new image is available every day and set the current day\'s featured image as your phone\'s wallpaper.\n\n
-        If enabled, it will automatically run on boot.
-        The wallpaper is not changed if the current day\'s featured content is not a picture.\n\n
+        It will automatically run on boot. The wallpaper is not changed if the current day\'s featured content is not a picture.\n\n
 
         <b>Warning</b>: This may use your mobile data connection. Images are usually less than 1 megabyte.\n
-        <b>Warning</b>: Task killers and memory management apps may conflict with the wallpaper changer task. I suggest whitelisting APOD Gallery if you want to enable this feature.\n
+        <b>Warning</b>: Task killers and memory management apps may conflict with the wallpaper changer task. I suggest whitelisting <b>APOD Gallery</b> if you want to enable this feature.\n
     </string>
 </resources>

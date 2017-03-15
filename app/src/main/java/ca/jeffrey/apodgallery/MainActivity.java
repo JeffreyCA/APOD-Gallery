@@ -1,8 +1,8 @@
 package ca.jeffrey.apodgallery;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -51,8 +51,6 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
-import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.security.ProviderInstaller;
@@ -95,15 +93,17 @@ import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener, ProviderInstaller.ProviderInstallListener {
 
-    private GcmNetworkManager gcmNetworkManager;
-
+    // NASA API key
+    public static final String API_KEY = "***REMOVED***";
     // Permission codes
     private static final int SAVE_PERMISSION = 100;
     private static final int SHARE_PERMISSION = 101;
     private static final int WALLPAPER_PERMISSION = 102;
-
-    // NASA API key
-    public static final String API_KEY = "***REMOVED***";
+    /**
+     * The app version code (not the version name!) that was used on the last
+     * start of the app.
+     */
+    private static final String LAST_APP_VERSION = "last_app_version";
     private final String DATE_PICKER_TAG = "date_picker";
     private final String DEFAULT_IMAGE_DIRECTORY = Environment.getExternalStorageDirectory()
             .getPath() +
@@ -119,6 +119,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     // Anchor height
     private final float SLIDING_ANCHOR_POINT = 0.42f;
     private final int ERROR_DIALOG_REQUEST_CODE = 1;
+    ProgressDialog dialog;
+    private GcmNetworkManager gcmNetworkManager;
     private OkHttpClient client;
     // Member variables
     private boolean tooEarly;
@@ -126,7 +128,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     private String today;
     private String imgUrl;
     private String sdUrl;
-
     private AutoResizeTextView titleText;
     private ScrollView descriptionScroll;
     private TextViewEx description;
@@ -141,7 +142,17 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     private SlidingUpPanelLayout slidingPanel;
     private TextView dateText;
 
-    ProgressDialog dialog;
+    /**
+     * Convert Date object to Calendar object
+     *
+     * @param date Date object
+     * @return Calendar object
+     */
+    private static Calendar dateToCalendar(Date date) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        return cal;
+    }
 
     // OnCreate
     @Override
@@ -227,7 +238,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
             try {
                 date = EXPANDED_FORMAT.format(NUMERICAL_FORMAT.parse(dateString));
-                // date = expandedDate;
             } catch (ParseException e) {
                 e.printStackTrace();
             }
@@ -241,8 +251,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 dialog = ProgressDialog.show(this, "Updating Ciphers", "Loading. Please wait...", true);
                 ProviderInstaller.installIfNeededAsync(this, this);
             }
-        }
-        else {
+        } else {
             switch (checkAppStart()) {
                 // case NORMAL:
                 //     dialog = ProgressDialog.show(this, "Updating Ciphers", "Loading. Please wait...", true);
@@ -253,6 +262,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 //     break;
                 case FIRST_TIME:
                     displayChangesDialog();
+
                     if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         initializeListeners();
                         getImageData(date);
@@ -279,7 +289,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     @Override
     public void onProviderInstalled() {
         dialog.dismiss();
-		initializeListeners();
+        initializeListeners();
         getImageData(date);
     }
 
@@ -305,18 +315,38 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         }
     }
 
+    private void openGooglePlay() {
+        Uri uri = Uri.parse("market://details?id=" + getPackageName());
+        Intent goToMarket = new Intent(Intent.ACTION_VIEW, uri);
+        // To count with Play market backstack, After pressing back button,
+        // to taken back to our application, we need to add following flags to intent.
+        goToMarket.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY |
+                Intent.FLAG_ACTIVITY_NEW_DOCUMENT |
+                Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+        try {
+            startActivity(goToMarket);
+        } catch (ActivityNotFoundException e) {
+            startActivity(new Intent(Intent.ACTION_VIEW,
+                    Uri.parse("http://play.google.com/store/apps/details?id=" + getPackageName())));
+        }
+    }
+
     private void displayChangesDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         builder.setTitle("What's new in " + BuildConfig.VERSION_NAME)
                 .setMessage(R.string.changes)
+                .setNegativeButton("Review App", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        openGooglePlay();
+                    }
+                })
                 .setPositiveButton("Dismiss", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
                         displayWallpaperFeaturesDialog();
-						initializeListeners();
-                        getImageData(date);
                     }
                 });
 
@@ -564,7 +594,9 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         getImageData(date);
     }
 
-    private void updateDateNavButtons(){
+    // Check app launch state
+
+    private void updateDateNavButtons() {
         // Show/hide right navigation chevron
         if (tomorrow.getVisibility() == View.VISIBLE && date.equals(today)) {
             tomorrow.setVisibility(View.INVISIBLE);
@@ -602,32 +634,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         }
     }
 
-    // Check app launch state
-
-    /**
-     * Distinguishes different kinds of app starts: <li>
-     * <ul>
-     * First start ever ({@link #FIRST_TIME})
-     * </ul>
-     * <ul>
-     * First start in this version ({@link #FIRST_TIME_VERSION})
-     * </ul>
-     * <ul>
-     * Normal app start ({@link #NORMAL})
-     * </ul>
-     *
-     * @author schnatterer
-     */
-    public enum AppStart {
-        FIRST_TIME, FIRST_TIME_VERSION, NORMAL;
-    }
-
-    /**
-     * The app version code (not the version name!) that was used on the last
-     * start of the app.
-     */
-    private static final String LAST_APP_VERSION = "last_app_version";
-
     /**
      * Finds out started for the first time (ever or in the current version).<br/>
      * <br/>
@@ -654,7 +660,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                     .putInt(LAST_APP_VERSION, currentVersionCode).apply();
         } catch (PackageManager.NameNotFoundException e) {
             Log.w("Logger",
-                    "Unable to determine current app version from pacakge manager. Defenisvely assuming normal app start.");
+                    "Unable to determine current app version from pacakge manager. Defensively assuming normal app start.");
         }
         return appStart;
     }
@@ -723,27 +729,11 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
      * @return true, if permissions were granted, otherwise false
      */
     private boolean checkPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            return true;
-        } else {
-            return false;
-        }
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
     }
 
     // Date Methods
-
-    /**
-     * Convert Date object to Calendar object
-     *
-     * @param date Date object
-     * @return Calendar object
-     */
-    private static Calendar dateToCalendar(Date date) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-        return cal;
-    }
 
     /**
      * Set next day text
@@ -1071,8 +1061,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         }
     }
 
-    // HTTP Request Methods
-
     /**
      * Handle content loading from Reservoir cache
      *
@@ -1132,17 +1120,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         }
     }
 
-    private void updateAndroidSecurityProvider(Activity callingActivity) {
-        try {
-            ProviderInstaller.installIfNeeded(this);
-        } catch (GooglePlayServicesRepairableException e) {
-            // Thrown when Google Play Services is not installed, up-to-date, or enabled
-            // Show dialog to allow users to install, update, or otherwise enable Google Play services.
-            // GooglePlayServicesUtil.getErrorDialog(e.getConnectionStatusCode(), callingActivity, 0);
-        } catch (GooglePlayServicesNotAvailableException e) {
-            Log.e("SecurityException", "Google Play Services not available.");
-        }
-    }
+    // HTTP Request Methods
 
     /**
      * Get & parse image data and display image to screen
@@ -1330,12 +1308,11 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                                 parseHtml();
                             }
                         } catch (ParseException pe) {
-
                         }
 
                         // Error handling
                         catch (JSONException e) {
-                            e.printStackTrace();
+                            FirebaseCrash.report(e);
 
                             int code = response.code();
                             int messageId;
@@ -1480,6 +1457,24 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         });
 
         builder.create().show();
+    }
+
+    /**
+     * Distinguishes different kinds of app starts: <li>
+     * <ul>
+     * First start ever ({@link #FIRST_TIME})
+     * </ul>
+     * <ul>
+     * First start in this version ({@link #FIRST_TIME_VERSION})
+     * </ul>
+     * <ul>
+     * Normal app start ({@link #NORMAL})
+     * </ul>
+     *
+     * @author schnatterer
+     */
+    public enum AppStart {
+        FIRST_TIME, FIRST_TIME_VERSION, NORMAL
     }
 
     // AsyncTask

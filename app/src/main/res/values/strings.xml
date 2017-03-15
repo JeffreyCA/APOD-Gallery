@@ -35,7 +35,7 @@
     <string name="pref_reset_task">Restart daily wallpaper task</string>
     <string name="pref_save_location">Image save location</string>
     <string name="pref_storage">Storage</string>
-    <string name="pref_summary_wallpaper">Automatically updates your launcher wallpaper to the latest APOD image everyday, skipping days with non-image content.</string>
+    <string name="pref_summary_wallpaper">A daily service that automatically updates your launcher wallpaper to the latest APOD image, skipping days with non-image content. Retrieves data when Internet connection is available.</string>
     <string name="pref_summary_cache">Saved images will not be deleted</string>
     <string name="pref_summary_credits">Third-party resources used in making this app</string>
     <string name="pref_summary_image_credits">Show photo credits below image description if available</string>
