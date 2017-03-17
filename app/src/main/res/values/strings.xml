@@ -43,7 +43,7 @@
     <string name="pref_summary_reset_task">Re-initiate the daily wallpaper changer task</string>
     <string name="pref_version">App Version</string>
     <string name="pref_wallpaper">Wallpaper</string>
-    <string name="title_credits">\n\nCredits:\u0020</string>
+    <string name="title_credits">Credits:\u0020</string>
     <string name="title_activity_credits">Acknowledgements</string>
     <string name="title_activity_settings">Settings</string>
     <string name="title_changelog">Changelog</string>

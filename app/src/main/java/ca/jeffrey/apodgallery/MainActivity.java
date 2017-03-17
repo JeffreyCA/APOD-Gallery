@@ -1186,9 +1186,13 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         }
 
         // Add copyright credits to end of description if setting allows it
+        // Add extra line breaks as workaround for text getting cut off
         if (prefCopyright && response.has("copyright")) {
             copyright = response.getString("copyright");
-            explanation += getString(R.string.title_credits) + copyright;
+            explanation += "\n\n" + getString(R.string.title_credits) + copyright + "\n\n";
+        }
+        else if (!response.has("copyright")) {
+            explanation += "\n\n";
         }
 
         // Set image url depending on user preference and image availability
