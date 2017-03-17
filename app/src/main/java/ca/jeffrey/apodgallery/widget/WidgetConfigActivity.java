@@ -1,4 +1,4 @@
-package ca.jeffrey.apodgallery;
+package ca.jeffrey.apodgallery.widget;
 
 import android.Manifest;
 import android.appwidget.AppWidgetManager;
@@ -22,7 +22,9 @@ import android.view.MenuItem;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-public class AltConfigActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
+import ca.jeffrey.apodgallery.R;
+
+public class WidgetConfigActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     final static String TAG_MAX_IMAGES = "pref_max_images";
 
@@ -130,7 +132,7 @@ public class AltConfigActivity extends AppCompatActivity implements SharedPrefer
 
         if (drawable != null) {
             drawable.mutate();
-            drawable.setColorFilter(ContextCompat.getColor(AltConfigActivity.this,
+            drawable.setColorFilter(ContextCompat.getColor(WidgetConfigActivity.this,
                     R.color.colorWhite), PorterDuff.Mode.SRC_ATOP);
         }
         return super.onPrepareOptionsMenu(menu);
@@ -143,7 +145,7 @@ public class AltConfigActivity extends AppCompatActivity implements SharedPrefer
                 int androidVersion = Build.VERSION.SDK_INT;
                 if (androidVersion >= Build.VERSION_CODES.M) {
                     if (!checkPermission()) {
-                        ActivityCompat.requestPermissions(AltConfigActivity.this,
+                        ActivityCompat.requestPermissions(WidgetConfigActivity.this,
                                 new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, READ_PERMISSION);
                     } else {
                         finishIntent();
@@ -186,7 +188,7 @@ public class AltConfigActivity extends AppCompatActivity implements SharedPrefer
                     finishIntent();
                     return;
                 } else {
-                    Toast.makeText(AltConfigActivity.this, R.string.toast_storage, Toast.LENGTH_SHORT)
+                    Toast.makeText(WidgetConfigActivity.this, R.string.toast_storage, Toast.LENGTH_SHORT)
                             .show();
                 }
                 break;

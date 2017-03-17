@@ -4,7 +4,7 @@
     <PreferenceCategory
         android:key="storage_permission"
         android:title="Customization">
-        <ca.jeffrey.apodgallery.NumberPickerPreference
+        <ca.jeffrey.apodgallery.widget.NumberPickerPreference
             android:key="pref_max_images"
             android:title="Maximum Images Allowed"
             android:summary="5"

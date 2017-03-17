@@ -1,4 +1,4 @@
-package ca.jeffrey.apodgallery;
+package ca.jeffrey.apodgallery.wallpaper;
 
 import android.app.WallpaperManager;
 import android.content.Intent;
@@ -27,13 +27,14 @@ import java.util.Date;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import ca.jeffrey.apodgallery.MainActivity;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class MyTaskService extends GcmTaskService {
+public class WallpaperChangeService extends GcmTaskService {
     public static final String TAG_TASK_DAILY = "tag_task_daily";
     public static final String TAG_TASK_ONEOFF = "tag_oneoff";
     public static final String TAG_TASK_MINUTELY = "tag_minutely";
@@ -127,7 +128,7 @@ public class MyTaskService extends GcmTaskService {
                     FirebaseCrash.report(new Exception("Daily Wallpaper - JSONException"));
 
                     SharedPreferences sharedPreferences = PreferenceManager
-                            .getDefaultSharedPreferences(MyTaskService.this);
+                            .getDefaultSharedPreferences(WallpaperChangeService.this);
 
                     sharedPreferences.edit().putBoolean("non_image", false).apply();
                     sharedPreferences.edit().putString("last_ran", today).apply();
@@ -145,7 +146,7 @@ public class MyTaskService extends GcmTaskService {
     private void onJsonResponse(JSONObject response) throws JSONException, ExecutionException, InterruptedException, IOException {
         final String IMAGE_TYPE = "image";
         SharedPreferences sharedPreferences = PreferenceManager
-                .getDefaultSharedPreferences(MyTaskService.this);
+                .getDefaultSharedPreferences(WallpaperChangeService.this);
 
         String mediaType;
         String sdUrl;

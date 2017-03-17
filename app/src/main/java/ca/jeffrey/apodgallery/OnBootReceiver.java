@@ -11,6 +11,8 @@ import com.google.android.gms.gcm.OneoffTask;
 import com.google.android.gms.gcm.PeriodicTask;
 import com.google.android.gms.gcm.Task;
 
+import ca.jeffrey.apodgallery.wallpaper.WallpaperChangeService;
+
 public class OnBootReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -32,8 +34,8 @@ public class OnBootReceiver extends BroadcastReceiver {
         GcmNetworkManager gcmNetworkManager = GcmNetworkManager.getInstance(context);
 
         PeriodicTask task = new PeriodicTask.Builder()
-                .setTag(MyTaskService.TAG_TASK_DAILY)
-                .setService(MyTaskService.class)
+                .setTag(WallpaperChangeService.TAG_TASK_DAILY)
+                .setService(WallpaperChangeService.class)
                 .setPeriod(PERIOD)
                 .setFlex(FLEX)
                 .setPersisted(true)
@@ -43,8 +45,8 @@ public class OnBootReceiver extends BroadcastReceiver {
         gcmNetworkManager.schedule(task);
 
         OneoffTask immediateTask = new OneoffTask.Builder()
-                .setService(MyTaskService.class)
-                .setTag(MyTaskService.TAG_TASK_ONEOFF)
+                .setService(WallpaperChangeService.class)
+                .setTag(WallpaperChangeService.TAG_TASK_ONEOFF)
                 .setExecutionWindow(0, 5)
                 .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
                 .build();
@@ -55,6 +57,6 @@ public class OnBootReceiver extends BroadcastReceiver {
     private void clearAllTasks(Context context) {
         GcmNetworkManager
                 .getInstance(context)
-                .cancelAllTasks(MyTaskService.class);
+                .cancelAllTasks(WallpaperChangeService.class);
     }
 }

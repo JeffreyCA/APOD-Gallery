@@ -7,5 +7,5 @@
     android:initialLayout="@layout/layout_widget"
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen"
-    android:configure="ca.jeffrey.apodgallery.AltConfigActivity">
+    android:configure="ca.jeffrey.apodgallery.widget.WidgetConfigActivity">
 </appwidget-provider>

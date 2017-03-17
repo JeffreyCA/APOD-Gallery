@@ -21,7 +21,7 @@
             android:name="com.bumptech.glide.integration.okhttp.OkHttpGlideModule"
             tools:node="remove" />
         <service
-            android:name=".MyTaskService"
+            android:name=".wallpaper.WallpaperChangeService"
             android:enabled="true"
             android:exported="true"
             android:permission="com.google.android.gms.permission.BIND_NETWORK_TASK_SERVICE">
@@ -55,11 +55,6 @@
         </receiver>
 
         <!-- app widget configuration activity in manifest -->
-        <activity android:name=".WidgetConfigActivity">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
-            </intent-filter>
-        </activity>
 
         <provider
             android:name="android.support.v4.content.FileProvider"
@@ -91,7 +86,7 @@
             android:name=".CreditsActivity"
             android:label="@string/title_activity_credits" />
         <activity
-            android:name=".AltConfigActivity"
+            android:name=".widget.WidgetConfigActivity"
             android:label="@string/title_activity_alt_config"
             android:theme="@style/AppTheme" />
     </application>

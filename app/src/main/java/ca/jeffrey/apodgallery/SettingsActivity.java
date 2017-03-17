@@ -30,6 +30,8 @@ import com.google.android.gms.gcm.Task;
 import java.io.File;
 import java.io.IOException;
 
+import ca.jeffrey.apodgallery.wallpaper.WallpaperChangeService;
+
 public class SettingsActivity extends Activity implements SharedPreferences
         .OnSharedPreferenceChangeListener {
     final static String TAG_PREF_CACHE = "pref_clear_cache";
@@ -236,14 +238,14 @@ public class SettingsActivity extends Activity implements SharedPreferences
 
         private void startTask(boolean reset) {
             GcmNetworkManager gcmNetworkManager = GcmNetworkManager.getInstance(getActivity());
-            gcmNetworkManager.cancelAllTasks(MyTaskService.class);
+            gcmNetworkManager.cancelAllTasks(WallpaperChangeService.class);
 
             final int PERIOD = 3600 * 8;
             final int FLEX = 3600 * 2;
 
             PeriodicTask task = new PeriodicTask.Builder()
-                    .setTag(MyTaskService.TAG_TASK_DAILY)
-                    .setService(MyTaskService.class)
+                    .setTag(WallpaperChangeService.TAG_TASK_DAILY)
+                    .setService(WallpaperChangeService.class)
                     .setPeriod(PERIOD)
                     .setFlex(FLEX)
                     .setPersisted(true)
@@ -253,8 +255,8 @@ public class SettingsActivity extends Activity implements SharedPreferences
             gcmNetworkManager.schedule(task);
 
             OneoffTask immediateTask = new OneoffTask.Builder()
-                    .setService(MyTaskService.class)
-                    .setTag(MyTaskService.TAG_TASK_ONEOFF)
+                    .setService(WallpaperChangeService.class)
+                    .setTag(WallpaperChangeService.TAG_TASK_ONEOFF)
                     .setExecutionWindow(0, 5)
                     .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
                     .build();
@@ -286,7 +288,7 @@ public class SettingsActivity extends Activity implements SharedPreferences
 
         private void cancelAllTasks() {
             GcmNetworkManager gcmNetworkManager = GcmNetworkManager.getInstance(getActivity());
-            gcmNetworkManager.cancelAllTasks(MyTaskService.class);
+            gcmNetworkManager.cancelAllTasks(WallpaperChangeService.class);
             Toast.makeText(getActivity(), R.string.toast_stop_task, Toast.LENGTH_SHORT).show();
         }
 

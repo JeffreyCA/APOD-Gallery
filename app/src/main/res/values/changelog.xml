@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="change_2_0_1">
-        <b><i>Daily wallpaper changer</i></b>\n\n
-        Daily wallpapers were the most requested feature, now they\'re finally here! The next screen will tell you more about the feature. It is disabled by default.
-        If you encounter any unexpected behaviour, please email me.\n\n
+        <b>Fixes</b>\n\n
+        • Fix bug where description text sometimes would get cut off
     </string>
 
     <string name="change_2_0_0">
