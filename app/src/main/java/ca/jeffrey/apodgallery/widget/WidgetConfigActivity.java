@@ -83,7 +83,7 @@ public class WidgetConfigActivity extends AppCompatActivity implements SharedPre
 
         Toolbar bar = (Toolbar) LayoutInflater.from(this).inflate(R.layout.view_toolbar, root,
                 false);
-        bar.setTitle("Widget Configuration");
+
         root.addView(bar, 0); // insert at top
         bar.setNavigationIcon(null);
         bar.showOverflowMenu();

@@ -50,8 +50,10 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     }
 
     public int countFiles() {
-        File file=new File(Environment.getExternalStorageDirectory().getPath() + "/APOD");
-        File[] list = file.listFiles();
+        File directory =new File(Environment.getExternalStorageDirectory().getPath() + "/APOD");
+        directory.mkdirs();
+
+        File[] list = directory.listFiles();
 
         mCount = list.length;
         int count = 0;

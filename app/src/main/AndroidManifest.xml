@@ -87,7 +87,7 @@
             android:label="@string/title_activity_credits" />
         <activity
             android:name=".widget.WidgetConfigActivity"
-            android:label="@string/title_activity_alt_config"
+            android:label="@string/title_activity_widget_config"
             android:theme="@style/AppTheme" />
     </application>
 

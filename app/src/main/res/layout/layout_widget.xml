@@ -21,6 +21,6 @@
         android:background="@drawable/stars"
         android:textColor="#ffffff"
         android:textStyle="bold"
-        android:text="Placeholder"
+        android:text="@string/placeholder_widget"
         android:textSize="20sp" />
 </FrameLayout>
