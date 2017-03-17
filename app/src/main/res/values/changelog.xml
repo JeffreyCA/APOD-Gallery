@@ -2,7 +2,8 @@
 <resources>
     <string name="change_2_0_1">
         <b>Fixes</b>\n\n
-        • Fix bug where description text sometimes would get cut off
+        • <i>Widget</i> - Fix bug where description text sometimes would get cut off\n
+        • <i>Widget</i> - Correctly retrieves images from save directory
     </string>
 
     <string name="change_2_0_0">

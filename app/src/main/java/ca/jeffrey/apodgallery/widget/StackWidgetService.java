@@ -3,10 +3,12 @@ package ca.jeffrey.apodgallery.widget;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
@@ -21,6 +23,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 
 import ca.jeffrey.apodgallery.R;
+import ca.jeffrey.apodgallery.SettingsActivity;
 
 public class StackWidgetService extends RemoteViewsService {
     @Override
@@ -50,7 +53,14 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     }
 
     public int countFiles() {
-        File directory =new File(Environment.getExternalStorageDirectory().getPath() + "/APOD");
+        SharedPreferences sharedPreferences = PreferenceManager
+                .getDefaultSharedPreferences(mContext);
+
+        // Get save location from preferences
+        String directory_path = sharedPreferences.getString(SettingsActivity.TAG_PREF_LOCATION,
+                Environment.getExternalStorageDirectory().getPath() + "/APOD");
+
+        File directory = new File(directory_path);
         directory.mkdirs();
 
         File[] list = directory.listFiles();

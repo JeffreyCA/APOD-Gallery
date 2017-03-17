@@ -34,13 +34,13 @@ import ca.jeffrey.apodgallery.wallpaper.WallpaperChangeService;
 
 public class SettingsActivity extends Activity implements SharedPreferences
         .OnSharedPreferenceChangeListener {
-    final static String TAG_PREF_CACHE = "pref_clear_cache";
-    final static String TAG_PREF_CHANGELOG = "pref_changelog";
-    final static String TAG_PREF_LOCATION = "pref_save_location";
-    final static String TAG_PREF_QUALITY = "pref_image_quality";
-    final static String TAG_PREF_VERSION = "pref_version";
-    final static String TAG_PREF_WALLPAPER = "pref_daily_wallpaper";
-    final static String TAG_PREF_RESET_TASK = "pref_reset_wallpaper_task";
+    public final static String TAG_PREF_CACHE = "pref_clear_cache";
+    public final static String TAG_PREF_CHANGELOG = "pref_changelog";
+    public final static String TAG_PREF_LOCATION = "pref_save_location";
+    public final static String TAG_PREF_QUALITY = "pref_image_quality";
+    public final static String TAG_PREF_VERSION = "pref_version";
+    public final static String TAG_PREF_WALLPAPER = "pref_daily_wallpaper";
+    public final static String TAG_PREF_RESET_TASK = "pref_reset_wallpaper_task";
 
     // private Activity thisActivity;
     private static EditTextPreference saveDirectory;
