@@ -239,7 +239,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             try {
                 date = EXPANDED_FORMAT.format(NUMERICAL_FORMAT.parse(dateString));
             } catch (ParseException e) {
-                e.printStackTrace();
+                FirebaseCrash.report(e);
             }
 
             dateText.setText(date);
@@ -459,7 +459,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 try {
                     currentDate = dateToCalendar(EXPANDED_FORMAT.parse(date));
                 } catch (ParseException e) {
-                    e.printStackTrace();
+                    FirebaseCrash.report(e);
                 }
 
                 DatePickerDialog dpd = DatePickerDialog.newInstance(MainActivity.this,
@@ -825,7 +825,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
             return EXPANDED_FORMAT.format(calendar.getTime());
         } catch (ParseException e) {
-            e.printStackTrace();
+            FirebaseCrash.report(e);
         }
         return null;
     }
@@ -845,7 +845,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
             return EXPANDED_FORMAT.format(calendar.getTime());
         } catch (ParseException e) {
-            e.printStackTrace();
+            FirebaseCrash.report(e);
         }
         return null;
     }
@@ -891,7 +891,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         try {
             return NUMERICAL_FORMAT.format(EXPANDED_FORMAT.parse(date));
         } catch (ParseException e) {
-            e.printStackTrace();
+            FirebaseCrash.report(e);
         }
 
         return "";
@@ -910,7 +910,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             shortDate = SHORT_FORMAT.format(EXPANDED_FORMAT.parse(date));
             return BASE_URL + shortDate + ".html";
         } catch (ParseException e) {
-            e.printStackTrace();
+            FirebaseCrash.report(e);
         }
 
         return "";
@@ -1215,7 +1215,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                         public boolean onException(Exception e, String model,
                                                    Target<GlideDrawable> target, boolean
                                                            isFirstResource) {
-                            e.printStackTrace();
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -1542,7 +1541,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             try {
                 doc = Jsoup.connect(url[0]).get();
             } catch (IOException e) {
-                e.printStackTrace();
+                FirebaseCrash.report(e);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
