@@ -239,7 +239,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             try {
                 date = EXPANDED_FORMAT.format(NUMERICAL_FORMAT.parse(dateString));
             } catch (ParseException e) {
-                FirebaseCrash.report(e);
+
             }
 
             dateText.setText(date);
@@ -248,7 +248,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 getImageData(date);
             } else {
-                dialog = ProgressDialog.show(this, "Updating Ciphers", "Loading. Please wait...", true);
+                dialog = ProgressDialog.show(this, getString(R.string.dialog_ciphers_title),
+                        getString(R.string.dialog_ciphers_body), true);
                 ProviderInstaller.installIfNeededAsync(this, this);
             }
         } else {
@@ -264,7 +265,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                         initializeListeners();
                         getImageData(date);
                     } else {
-                        dialog = ProgressDialog.show(this, "Updating Ciphers", "Loading. Please wait...", true);
+                        dialog = ProgressDialog.show(this, getString(R.string.dialog_ciphers_title),
+                                getString(R.string.dialog_ciphers_body), true);
                         ProviderInstaller.installIfNeededAsync(this, this);
                     }
                     break;
@@ -275,7 +277,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                         initializeListeners();
                         getImageData(date);
                     } else {
-                        dialog = ProgressDialog.show(this, "Updating Ciphers", "Loading. Please wait...", true);
+                        dialog = ProgressDialog.show(this, getString(R.string.dialog_ciphers_title),
+                                getString(R.string.dialog_ciphers_body), true);
                         ProviderInstaller.installIfNeededAsync(this, this);
                     }
                     break;
@@ -284,7 +287,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                         initializeListeners();
                         getImageData(date);
                     } else {
-                        dialog = ProgressDialog.show(this, "Updating Ciphers", "Loading. Please wait...", true);
+                        dialog = ProgressDialog.show(this, getString(R.string.dialog_ciphers_title),
+                                getString(R.string.dialog_ciphers_body), true);
                         ProviderInstaller.installIfNeededAsync(this, this);
                     }
                     break;
@@ -342,16 +346,16 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     private void displayMinorChangesDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-        builder.setTitle("What's new in " + BuildConfig.VERSION_NAME)
+        builder.setTitle(getString(R.string.dialog_whats_new_title) + BuildConfig.VERSION_NAME)
                 .setMessage(R.string.change_2_0_1)
-                .setNegativeButton("Review App", new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.label_review, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         openGooglePlay();
                         displayWallpaperFeaturesDialog();
                     }
                 })
-                .setPositiveButton("Dismiss", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.label_dismiss, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
@@ -366,16 +370,16 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     private void displayMajorChangesDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-        builder.setTitle("What's new in " + BuildConfig.VERSION_NAME)
+        builder.setTitle(getString(R.string.dialog_whats_new_title) + BuildConfig.VERSION_NAME)
                 .setMessage(R.string.change_2_0_0)
-                .setNegativeButton("Review App", new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.label_review, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         openGooglePlay();
                         displayWallpaperFeaturesDialog();
                     }
                 })
-                .setPositiveButton("Dismiss", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.label_dismiss, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
@@ -390,9 +394,9 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     private void displayWallpaperFeaturesDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-        builder.setTitle("Wallpaper Changer")
+        builder.setTitle(R.string.dialog_wallpaper_title)
                 .setMessage(R.string.wallpaper_summary)
-                .setNegativeButton("Settings", new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.label_settings, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int i) {
                         dialog.dismiss();
@@ -403,7 +407,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                         startActivity(intent);
                     }
                 })
-                .setPositiveButton("Not Now", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.label_not_now, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
@@ -418,17 +422,15 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
     private void displayGoogleServicesDialog() {
         new AlertDialog.Builder(MainActivity.this)
-                .setTitle("Warning")
-                .setMessage("It is strongly recommended to update your Google " +
-                        "Play Services before proceeding. Otherwise, your device" +
-                        " may be unable to establish a secure connection to NASA's servers.")
-                .setNegativeButton("Ignore", new DialogInterface.OnClickListener() {
+                .setTitle(R.string.dialog_gservices_title)
+                .setMessage(R.string.dialog_gservices_body)
+                .setNegativeButton(R.string.label_ignore, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         onProviderInstalled();
                     }
                 })
-                .setPositiveButton("Retry", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.label_retry, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // Whatever...
@@ -1190,8 +1192,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         if (prefCopyright && response.has("copyright")) {
             copyright = response.getString("copyright");
             explanation += "\n\n" + getString(R.string.title_credits) + copyright + "\n\n";
-        }
-        else if (!response.has("copyright")) {
+        } else if (!response.has("copyright")) {
             explanation += "\n\n";
         }
 
@@ -1348,8 +1349,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
                         // Error handling
                         catch (JSONException e) {
-                            FirebaseCrash.report(e);
-
                             int code = response.code();
                             int messageId;
 
@@ -1541,7 +1540,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             try {
                 doc = Jsoup.connect(url[0]).get();
             } catch (IOException e) {
-                FirebaseCrash.report(e);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {

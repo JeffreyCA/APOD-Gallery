@@ -3,11 +3,20 @@
     <string name="action_yes">YES</string>
     <string name="api_key">***REMOVED***</string>
     <string name="app_name">APOD Gallery</string>
+
     <string name="desc_image">Featured image</string>
     <string name="desc_left_chevron">Navigate to previous date</string>
     <string name="desc_right_chevron">Navigate to next date</string>
+
     <string name="dialog_browser_desc">The featured content for %s is not an image. Do you want to view the content in an external application?</string>
     <string name="dialog_browser_title">Open external link?</string>
+    <string name="dialog_ciphers_title">Updating Ciphers</string>
+    <string name="dialog_ciphers_body">Loading, please wait&#8230;</string>
+    <string name="dialog_gservices_title">Warning</string>
+    <string name="dialog_gservices_body">It is strongly recommended to update your Google Play Services before proceeding. Otherwise, your device may be unable to establish a secure connection to NASA\'s servers.</string>
+    <string name="dialog_wallpaper_title">Wallpaper Changer</string>
+    <string name="dialog_whats_new_title">What\'s new in </string>
+
     <string name="default_storage_location">/sdcard/APOD/</string>
     <string name="error_auth">Authentication error.</string>
     <string name="error_cache">Cache error, please free up some storage space.</string>
@@ -17,6 +26,14 @@
     <string name="error_saving">Error saving file. Please check your image save directory.</string>
     <string name="error_server">Server error, unable to retrieve content. Please try again later.</string>
     <string name="error_today">Image is not available yet. Please check again later.</string>
+
+    <string name="label_dismiss">Dismiss</string>
+    <string name="label_ignore">Ignore</string>
+    <string name="label_not_now">Not now</string>
+    <string name="label_retry">Retry</string>
+    <string name="label_review">Review</string>
+    <string name="label_settings">Settings</string>
+
     <string name="menu_browser">Open in browser</string>
     <string name="menu_refresh">Refresh</string>
     <string name="menu_save">Save to device</string>
@@ -25,6 +42,7 @@
     <string name="name_developer">JeffreyCA</string>
     <string name="name_email">jeffreyca16@gmail.com</string>
     <string name="placeholder_widget">No images found</string>
+
     <string name="pref_about">About</string>
     <string name="pref_cache">Clear app cache</string>
     <string name="pref_changelog">See latest changes</string>
@@ -44,6 +62,7 @@
     <string name="pref_summary_reset_task">Re-initiate the daily wallpaper changer task</string>
     <string name="pref_version">App Version</string>
     <string name="pref_wallpaper">Wallpaper</string>
+
     <string name="title_credits">Credits:\u0020</string>
     <string name="title_activity_credits">Acknowledgements</string>
     <string name="title_activity_settings">Settings</string>
@@ -53,6 +72,7 @@
     <string name="title_intent_share_link">Share link</string>
     <string name="title_intent_wallpaper">Set as</string>
     <string name="title_text_image_unavailable">Image Unavailable</string>
+
     <string name="toast_clear_cache">Cleared app cache</string>
     <string name="toast_fab">Set image as wallpaper</string>
     <string name="toast_no_image">Image not available</string>

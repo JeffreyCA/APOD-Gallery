@@ -124,9 +124,6 @@ public class WallpaperChangeService extends GcmTaskService {
                     JSONObject object = new JSONObject(res);
                     onJsonResponse(object);
                 } catch (JSONException je) {
-                    FirebaseCrash.log(url);
-                    FirebaseCrash.report(new Exception("Daily Wallpaper - JSONException"));
-
                     SharedPreferences sharedPreferences = PreferenceManager
                             .getDefaultSharedPreferences(WallpaperChangeService.this);
 
