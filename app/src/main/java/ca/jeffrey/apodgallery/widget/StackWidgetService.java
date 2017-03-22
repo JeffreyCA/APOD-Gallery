@@ -112,7 +112,6 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
-            e.printStackTrace();
         }
     }
     public void onDestroy() {
@@ -140,7 +139,6 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
             rv.setImageViewBitmap(R.id.widget_image, b);
         }
         catch (FileNotFoundException e) {
-            e.printStackTrace();
         }
 
         // Next, we set a fill-intent which will be used to fill-in the pending intent template
@@ -158,7 +156,6 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         try {
             Thread.sleep(500);
         } catch (InterruptedException e) {
-            e.printStackTrace();
         }
         // Return the remote views object.
         return rv;

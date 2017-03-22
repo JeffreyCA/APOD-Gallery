@@ -180,7 +180,6 @@ public class SettingsActivity extends Activity implements SharedPreferences
                     try {
                         Reservoir.clear();
                     } catch (IOException e) {
-                        e.printStackTrace();
                     }
                     instance.clearApplicationCache();
                     return true;
@@ -274,9 +273,9 @@ public class SettingsActivity extends Activity implements SharedPreferences
         private void displayMinorChangesDialog() {
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
-            builder.setTitle("What's new in " + BuildConfig.VERSION_NAME)
+            builder.setTitle(getString(R.string.dialog_whats_new_title) + BuildConfig.VERSION_NAME)
                     .setMessage(R.string.change_2_0_1)
-                    .setPositiveButton("Dismiss", new DialogInterface.OnClickListener() {
+                    .setPositiveButton(R.string.label_dismiss, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.dismiss();

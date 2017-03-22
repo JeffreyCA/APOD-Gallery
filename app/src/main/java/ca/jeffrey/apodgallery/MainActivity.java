@@ -348,18 +348,10 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
         builder.setTitle(getString(R.string.dialog_whats_new_title) + BuildConfig.VERSION_NAME)
                 .setMessage(R.string.change_2_0_1)
-                .setNegativeButton(R.string.label_review, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        openGooglePlay();
-                        displayWallpaperFeaturesDialog();
-                    }
-                })
                 .setPositiveButton(R.string.label_dismiss, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
-                        displayWallpaperFeaturesDialog();
                     }
                 });
 
@@ -462,6 +454,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                     currentDate = dateToCalendar(EXPANDED_FORMAT.parse(date));
                 } catch (ParseException e) {
                     FirebaseCrash.report(e);
+                    FirebaseCrash.log(date);
                 }
 
                 DatePickerDialog dpd = DatePickerDialog.newInstance(MainActivity.this,
@@ -828,6 +821,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             return EXPANDED_FORMAT.format(calendar.getTime());
         } catch (ParseException e) {
             FirebaseCrash.report(e);
+            FirebaseCrash.log(date);
         }
         return null;
     }
@@ -1345,6 +1339,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                                 parseHtml();
                             }
                         } catch (ParseException pe) {
+                            FirebaseCrash.report(pe);
                         }
 
                         // Error handling

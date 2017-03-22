@@ -37,7 +37,6 @@ import okhttp3.Response;
 public class WallpaperChangeService extends GcmTaskService {
     public static final String TAG_TASK_DAILY = "tag_task_daily";
     public static final String TAG_TASK_ONEOFF = "tag_oneoff";
-    public static final String TAG_TASK_MINUTELY = "tag_minutely";
 
     String today;
 

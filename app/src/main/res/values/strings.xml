@@ -15,7 +15,7 @@
     <string name="dialog_gservices_title">Warning</string>
     <string name="dialog_gservices_body">It is strongly recommended to update your Google Play Services before proceeding. Otherwise, your device may be unable to establish a secure connection to NASA\'s servers.</string>
     <string name="dialog_wallpaper_title">Wallpaper Changer</string>
-    <string name="dialog_whats_new_title">What\'s new in </string>
+    <string name="dialog_whats_new_title">What\'s new in\u0020</string>
 
     <string name="default_storage_location">/sdcard/APOD/</string>
     <string name="error_auth">Authentication error.</string>
