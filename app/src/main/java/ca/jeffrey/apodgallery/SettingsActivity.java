@@ -274,7 +274,7 @@ public class SettingsActivity extends Activity implements SharedPreferences
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
             builder.setTitle(getString(R.string.dialog_whats_new_title) + BuildConfig.VERSION_NAME)
-                    .setMessage(R.string.change_2_0_1)
+                    .setMessage(R.string.change_2_0_2)
                     .setPositiveButton(R.string.label_dismiss, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {

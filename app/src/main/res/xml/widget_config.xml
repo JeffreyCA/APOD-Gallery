@@ -6,8 +6,8 @@
         android:title="Customization">
         <ca.jeffrey.apodgallery.widget.NumberPickerPreference
             android:key="pref_max_images"
+            android:summary="10"
             android:title="Maximum Images Allowed"
-            android:summary="5"
-            app:defaultValue="5"/>
+            app:defaultValue="10" />
     </PreferenceCategory>
 </PreferenceScreen>

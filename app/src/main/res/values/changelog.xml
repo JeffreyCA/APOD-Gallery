@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="change_2_0_2"><b>Attention widget users</b>\n
+        It is highly recommended that you remove and re-add the APOD Gallery widget as some new bug fixes have been implemented.\n\n
+        <b>Changes</b>\n
+        <i>Widget</i> - Max image limit capped at 20\n
+        <i>Widget</i> - Default limit set to 10\n
+        <i>Widget</i> - Every time you save a new image in APOD Gallery, all the app widgets will be automatically updated (max image limit will be respected)\n\n
+
+        <b>Fixes</b>\n
+        <i>Widget</i> - Fix crash due to lack of Storage permission\n\n
+
+        If you see a <b>"No images found"</b> message on the widget, either there are no images saved in your save folder, or you do not have Storage permissions enabled for <b>APOD Gallery</b>.\n
+    </string>
+
     <string name="change_2_0_1">
         <b>Fixes</b>\n
         • <i>General</i> - Fix bug where description text sometimes would get cut off\n

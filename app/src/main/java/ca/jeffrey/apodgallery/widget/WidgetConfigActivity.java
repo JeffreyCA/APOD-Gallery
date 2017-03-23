@@ -15,6 +15,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -27,11 +28,9 @@ import ca.jeffrey.apodgallery.R;
 public class WidgetConfigActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     final static String TAG_MAX_IMAGES = "pref_max_images";
-
-    private int widgetId;
-    private static NumberPickerPreference maxImages;
     private static final int READ_PERMISSION = 103;
-
+    private static NumberPickerPreference maxImages;
+    private int widgetId;
     private SharedPreferences prefs;
 
     @Override
@@ -98,23 +97,14 @@ public class WidgetConfigActivity extends AppCompatActivity implements SharedPre
             case TAG_MAX_IMAGES:
                 if (maxImages != null) {
                     maxImages.setSummary(String.valueOf(maxImages.getValue()));
-                    editor.putInt(String.valueOf(widgetId) + key, maxImages.getValue());
+                    // editor.putInt(String.valueOf(widgetId) + key, maxImages.getValue());
+                    editor.putInt(key, maxImages.getValue());
                 }
                 break;
             default:
                 break;
         }
         editor.apply();
-    }
-
-    public static class ConfigFragment extends PreferenceFragment {
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            // Load the preferences from an XML resource
-            addPreferencesFromResource(R.xml.widget_config);
-            maxImages = (NumberPickerPreference) findPreference(TAG_MAX_IMAGES);
-        }
     }
 
     // Inflate options menu
@@ -124,8 +114,9 @@ public class WidgetConfigActivity extends AppCompatActivity implements SharedPre
         inflater.inflate(R.menu.config_menu, menu);
         return true;
     }
+
     @Override
-    public boolean onPrepareOptionsMenu (Menu menu){
+    public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
         MenuItem menuItem = menu.findItem(R.id.action_widget_save);
         Drawable drawable = menuItem.getIcon();
@@ -151,7 +142,7 @@ public class WidgetConfigActivity extends AppCompatActivity implements SharedPre
                         finishIntent();
                     }
                 } else {
-                     finishIntent();
+                    finishIntent();
                 }
                 return true;
             default:
@@ -160,6 +151,13 @@ public class WidgetConfigActivity extends AppCompatActivity implements SharedPre
     }
 
     private void finishIntent() {
+        SharedPreferences.Editor editor = prefs.edit();
+
+        Log.i("maxImages", "" + maxImages.getValue());
+        if (maxImages != null) {
+            editor.putInt("pref_max_images", maxImages.getValue()).apply();
+        }
+
         Intent resultValue = new Intent();
         resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId);
         resultValue.putExtra(TAG_MAX_IMAGES, maxImages.getValue());
@@ -194,6 +192,19 @@ public class WidgetConfigActivity extends AppCompatActivity implements SharedPre
                 break;
             default:
                 super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
+
+    public static class ConfigFragment extends PreferenceFragment {
+        private int DEFAULT_MAX_IMAGES = 10;
+
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            // Load the preferences from an XML resource
+            addPreferencesFromResource(R.xml.widget_config);
+            maxImages = (NumberPickerPreference) findPreference(TAG_MAX_IMAGES);
+            maxImages.setValue(DEFAULT_MAX_IMAGES);
         }
     }
 

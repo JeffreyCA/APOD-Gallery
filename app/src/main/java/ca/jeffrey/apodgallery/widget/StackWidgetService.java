@@ -12,14 +12,11 @@ import android.preference.PreferenceManager;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
+import com.google.firebase.crash.FirebaseCrash;
+
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 import ca.jeffrey.apodgallery.R;
@@ -34,7 +31,7 @@ public class StackWidgetService extends RemoteViewsService {
 class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
     final static String TAG_MAX_IMAGES = "pref_max_images";
-    final static int DEFAULT_COUNT = 5;
+    final static int DEFAULT_COUNT = 10;
     private int mCount;
     private List<WidgetItem> mWidgetItems = new ArrayList<>();
     private Context mContext;
@@ -47,12 +44,15 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         mCount = intent.getIntExtra(TAG_MAX_IMAGES, DEFAULT_COUNT);
 
         int filesAvailable = countFiles();
-        if (filesAvailable < mCount) {
+
+        if (filesAvailable == -1) {
+            mCount = 0;
+        } else if (filesAvailable < mCount) {
             mCount = filesAvailable;
         }
     }
 
-    public int countFiles() {
+    private int countFiles() {
         SharedPreferences sharedPreferences = PreferenceManager
                 .getDefaultSharedPreferences(mContext);
 
@@ -65,7 +65,10 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
         File[] list = directory.listFiles();
 
-        mCount = list.length;
+        if (list == null) {
+            return -1;
+        }
+
         int count = 0;
 
         for (File f: list){
@@ -74,18 +77,21 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
                 count++;
         }
         return count;
-
     }
 
     public void onCreate() {
-        Calendar cal = GregorianCalendar.getInstance();
-        Date date = cal.getTime();
-        SimpleDateFormat shortDateFormat = new SimpleDateFormat("MMM dd yyyy");
+        SharedPreferences sharedPreferences = PreferenceManager
+                .getDefaultSharedPreferences(mContext);
+        // Get save location from preferences
+        String directory_path = sharedPreferences.getString(SettingsActivity.TAG_PREF_LOCATION,
+                Environment.getExternalStorageDirectory().getPath() + "/APOD");
+
         // Replace with preferences value
-        File file=new File(Environment.getExternalStorageDirectory().getPath() + "/APOD/");
+        File file = new File(directory_path);
         File[] list = file.listFiles();
 
-        mCount = Math.min(countFiles(), mCount);
+        mWidgetItems.clear();
+
         if (list != null) {
             for (File f : list) {
                 String name = f.getName();
@@ -95,23 +101,10 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
                 }
             }
         }
-
-        // In onCreate() you setup any connections / cursors to your data source. Heavy lifting,
-        // for example downloading or creating content etc, should be deferred to onDataSetChanged()
-        // or getViewAt(). Taking more than 20 seconds in this call will result in an ANR.
-        // for (int i = 0; i < mCount; i++) {
-        //     String day = shortDateFormat.format(date);
-        //     Log.i("DATE", day);
-        //     mWidgetItems.add(new WidgetItem(day));
-        //     cal.add(Calendar.DAY_OF_YEAR, -1);
-        //     date = cal.getTime();
-        // }
-        // We sleep for 3 seconds here to show how the empty view appears in the interim.
-        // The empty view is set in the StackWidgetProvider and should be a sibling of the
-        // collection view.
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
+            FirebaseCrash.report(e);
         }
     }
     public void onDestroy() {
@@ -128,24 +121,36 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         // We construct a remote views item based on our widget item xml file, and set the
         // text based on the position.
         RemoteViews rv = new RemoteViews(mContext.getPackageName(), R.layout.layout_item);
-        rv.setTextViewText(R.id.widget_text, mWidgetItems.get(position).getFormattedDate());
+        SharedPreferences sharedPreferences = PreferenceManager
+                .getDefaultSharedPreferences(mContext);
+        // Get save location from preferences
+        final String IMAGE_DIRECTORY = sharedPreferences.getString(SettingsActivity.TAG_PREF_LOCATION,
+                Environment.getExternalStorageDirectory().getPath() + "/APOD");
 
-        final String IMAGE_DIRECTORY = Environment.getExternalStorageDirectory().getPath() + "/APOD/";
         final String EXT = ".jpg";
 
-        try {
-            File f = new File(IMAGE_DIRECTORY + mWidgetItems.get(position).getDate() + EXT);
-            Bitmap b = BitmapFactory.decodeStream(new FileInputStream(f));
-            rv.setImageViewBitmap(R.id.widget_image, b);
-        }
-        catch (FileNotFoundException e) {
+        if (mWidgetItems.size() > position) {
+            WidgetItem item = mWidgetItems.get(position);
+            rv.setTextViewText(R.id.widget_text, item.getFormattedDate());
+            try {
+                File f = new File(IMAGE_DIRECTORY + mWidgetItems.get(position).getDate() + EXT);
+                Bitmap b = BitmapFactory.decodeStream(new FileInputStream(f));
+                rv.setImageViewBitmap(R.id.widget_image, b);
+            } catch (Exception e) {
+                FirebaseCrash.report(e);
+            }
         }
 
         // Next, we set a fill-intent which will be used to fill-in the pending intent template
         // which is set on the collection view in StackWidgetProvider.
         Bundle extras = new Bundle();
         extras.putInt(WidgetProvider.EXTRA_ITEM, position);
-        extras.putString(WidgetProvider.EXTRA_DATE, mWidgetItems.get(position).getDate());
+        if (mWidgetItems.size() > position) {
+            extras.putString(WidgetProvider.EXTRA_DATE, mWidgetItems.get(position).getDate());
+        } else {
+            extras.putString(WidgetProvider.EXTRA_DATE, "");
+        }
+
         Intent fillInIntent = new Intent();
         fillInIntent.putExtras(extras);
         rv.setOnClickFillInIntent(R.id.stackWidgetItem, fillInIntent);
@@ -156,6 +161,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         try {
             Thread.sleep(500);
         } catch (InterruptedException e) {
+            FirebaseCrash.report(e);
         }
         // Return the remote views object.
         return rv;
@@ -174,12 +180,21 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     public boolean hasStableIds() {
         return true;
     }
+
     public void onDataSetChanged() {
-        // This is triggered when you call AppWidgetManager notifyAppWidgetViewDataChanged
-        // on the collection view corresponding to this factory. You can do heaving lifting in
-        // here, synchronously. For example, if you need to process an image, fetch something
-        // from the network, etc., it is ok to do it here, synchronously. The widget will remain
-        // in its current state while work is being done here, so you don't need to worry about
-        // locking up the widget.
+        final String TAG_MAX_IMAGES = "pref_max_images";
+        SharedPreferences sharedPreferences = PreferenceManager
+                .getDefaultSharedPreferences(mContext);
+
+        mCount = sharedPreferences.getInt(TAG_MAX_IMAGES, DEFAULT_COUNT);
+
+        int filesAvailable = countFiles();
+
+        if (filesAvailable == -1) {
+            mCount = 0;
+        } else if (filesAvailable < mCount) {
+            mCount = filesAvailable;
+            onCreate();
+        }
     }
 }

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.preference.DialogPreference;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,8 +18,8 @@ import ca.jeffrey.apodgallery.R;
  */
 public class NumberPickerPreference extends DialogPreference {
 
-    // public static final int DEFAULT_VALUE = 1;
-    public static final int DEFAULT_MAX_VALUE = 10;
+    public static final int DEFAULT_VALUE = 10;
+    public static final int DEFAULT_MAX_VALUE = 20;
     public static final int DEFAULT_MIN_VALUE = 1;
     public static final boolean DEFAULT_WRAP_SELECTOR_WHEEL = false;
 
@@ -43,8 +42,7 @@ public class NumberPickerPreference extends DialogPreference {
         minValue = a.getInteger(R.styleable.NumberPickerPreference_minValue, DEFAULT_MIN_VALUE);
         maxValue = a.getInteger(R.styleable.NumberPickerPreference_maxValue, DEFAULT_MAX_VALUE);
         wrapSelectorWheel = a.getBoolean(R.styleable.NumberPickerPreference_wrapSelectorWheel, DEFAULT_WRAP_SELECTOR_WHEEL);
-        defValue = a.getInteger(R.styleable.NumberPickerPreference_defaultValue, DEFAULT_MIN_VALUE);
-        Log.i("def", "" + defValue);
+        defValue = a.getInteger(R.styleable.NumberPickerPreference_defaultValue, DEFAULT_VALUE);
         a.recycle();
     }
 
@@ -90,16 +88,15 @@ public class NumberPickerPreference extends DialogPreference {
 
     @Override
     protected void onSetInitialValue(boolean restorePersistedValue, Object defaultValue) {
-        setValue(defValue);
-        Log.i("INITIAL", ""+ getValue());
+        setValue(DEFAULT_VALUE);
+    }
+
+    public int getValue() {
+        return this.value;
     }
 
     public void setValue(int value) {
         this.value = value;
         persistInt(this.value);
-    }
-
-    public int getValue() {
-        return this.value;
     }
 }
