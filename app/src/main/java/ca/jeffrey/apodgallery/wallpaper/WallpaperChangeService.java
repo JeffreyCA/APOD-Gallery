@@ -7,7 +7,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.media.ThumbnailUtils;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -112,7 +111,7 @@ public class WallpaperChangeService extends GcmTaskService {
             @Override
             public void onFailure(final Call call, IOException e) {
                 FirebaseCrash.log(url);
-                FirebaseCrash.report(new Exception("Daily Wallpaper - onFailure"));
+                FirebaseCrash.report(e);
             }
 
             @Override
@@ -133,7 +132,7 @@ public class WallpaperChangeService extends GcmTaskService {
                 // Error handling
                 catch (Exception e) {
                     FirebaseCrash.log(url);
-                    FirebaseCrash.report(new Exception("Daily Wallpaper - OtherException"));
+                    FirebaseCrash.report(e);
                 }
             }
         });
@@ -146,11 +145,11 @@ public class WallpaperChangeService extends GcmTaskService {
 
         String mediaType;
         String sdUrl;
-        String hdUrl;
+        // String hdUrl;
 
         mediaType = response.getString("media_type");
         sdUrl = response.getString("url").replaceAll("http://", "https://");
-        hdUrl = response.getString("hdurl").replaceAll("http://", "https://");
+        // hdUrl = response.getString("hdurl").replaceAll("http://", "https://");
 
         if (mediaType.equals(IMAGE_TYPE)) {
             final WallpaperManager manager = WallpaperManager.getInstance(this);
@@ -164,8 +163,6 @@ public class WallpaperChangeService extends GcmTaskService {
             Log.i("DesiredMinimumWidth: ", String.valueOf(w));
             Log.i("DesiredMinimumHeight: ", String.valueOf(h));
             Log.i("URL: ", sdUrl);
-
-            // sdUrl = "https://apod.nasa.gov/apod/image/1702/ElNidoEcliptic500La.jpg";
 
             Bitmap original = Glide.with(this).load(sdUrl).asBitmap()
                     .skipMemoryCache(true)
@@ -250,11 +247,6 @@ public class WallpaperChangeService extends GcmTaskService {
         return sampleBitmap;
     }
 
-    private Bitmap toSquareBitmapThumbnail(Bitmap bitmap) {
-        int dimension = Math.min(bitmap.getWidth(), bitmap.getHeight());
-        return ThumbnailUtils.extractThumbnail(bitmap, dimension, dimension);
-    }
-
     private Bitmap toSquareBitmapCanvas(Bitmap srcBmp) {
         int dim = Math.max(srcBmp.getWidth(), srcBmp.getHeight());
         Bitmap dstBmp = Bitmap.createBitmap(dim, dim, Bitmap.Config.ARGB_8888);
@@ -264,28 +256,6 @@ public class WallpaperChangeService extends GcmTaskService {
         canvas.drawBitmap(srcBmp, (dim - srcBmp.getWidth()) / 2, (dim - srcBmp.getHeight()) / 2, null);
 
         return dstBmp;
-    }
-
-    private Bitmap toSquareBitmap(Bitmap bitmap) {
-        if (bitmap.getWidth() >= bitmap.getHeight()) {
-            return Bitmap.createBitmap(
-                    bitmap,
-                    bitmap.getWidth() / 2 - bitmap.getHeight() / 2,
-                    0,
-                    bitmap.getHeight(),
-                    bitmap.getHeight()
-            );
-
-        } else {
-
-            return Bitmap.createBitmap(
-                    bitmap,
-                    0,
-                    bitmap.getHeight() / 2 - bitmap.getWidth() / 2,
-                    bitmap.getWidth(),
-                    bitmap.getWidth()
-            );
-        }
     }
 
     private boolean isPano(Bitmap b) {
