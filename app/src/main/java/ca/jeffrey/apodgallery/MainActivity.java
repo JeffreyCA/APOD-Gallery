@@ -82,6 +82,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.net.ssl.SSLContext;
+
 import ca.jeffrey.apodgallery.text.AutoResizeTextView;
 import ca.jeffrey.apodgallery.text.TextViewEx;
 import ca.jeffrey.apodgallery.widget.WidgetProvider;
@@ -89,10 +91,12 @@ import okhttp3.Cache;
 import okhttp3.CacheControl;
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.ConnectionSpec;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.TlsVersion;
 
 public class MainActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener, ProviderInstaller.ProviderInstallListener {
 
@@ -102,6 +106,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     private static final int SAVE_PERMISSION = 100;
     private static final int SHARE_PERMISSION = 101;
     private static final int WALLPAPER_PERMISSION = 102;
+
     /**
      * The app version code (not the version name!) that was used on the last
      * start of the app.
@@ -191,24 +196,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         }
 
         // Initialize OkHttp client and cache
-        client = new OkHttpClient.Builder().cache(new Cache(getCacheDir(), 10 * 1024 * 1024)) // 10M
-                .addInterceptor(new Interceptor() {
-                    @Override
-                    public Response intercept(Chain chain) throws IOException {
-                        Request request = chain.request();
-                        if (isNetworkAvailable()) {
-                            request = request.newBuilder().header("Cache-Control", "public, " +
-                                    "max-age=" + 60).build();
-                        } else {
-                            request = request.newBuilder().header("Cache-Control", "public, " +
-                                    "only-if-cached, max-stale=" + 60 * 60 * 24 * 7).build();
-                        }
-                        return chain.proceed(request);
-                    }
-                })
-                .connectTimeout(10, TimeUnit.SECONDS)
-                .writeTimeout(10, TimeUnit.SECONDS)
-                .readTimeout(10, TimeUnit.SECONDS).build();
+        client = getNewHttpClient();
 
         // Initiate image views
         imageView = (ImageView) findViewById(R.id.image);
@@ -259,14 +247,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             refreshWidgets();
             switch (checkAppStart()) {
                 case NORMAL:
-                    if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        initializeListeners();
-                        getImageData(date);
-                    } else {
-                        dialog = ProgressDialog.show(this, getString(R.string.dialog_ciphers_title),
-                                getString(R.string.dialog_ciphers_body), true);
-                        ProviderInstaller.installIfNeededAsync(this, this);
-                    }
+                    initializeListeners();
+                    getImageData(date);
                     break;
                 case FIRST_TIME_VERSION:
                     displayMinorChangesDialog();
@@ -310,6 +292,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
     @Override
     public void onProviderInstalled() {
+        Log.i("Installed", "f");
         dialog.dismiss();
         initializeListeners();
         getImageData(date);
@@ -318,7 +301,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     @Override
     public void onProviderInstallFailed(int errorCode, Intent intent) {
         dialog.dismiss();
-
+        Log.i("Failed", "f");
         if (GooglePlayServicesUtil.isUserRecoverableError(errorCode)) {
             // Recoverable error. Show a dialog prompting the user to
             // install/update/enable Google Play services.
@@ -335,6 +318,59 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         } else {
             displayGoogleServicesDialog();
         }
+    }
+
+    public OkHttpClient.Builder enableTls12OnPreLollipop(OkHttpClient.Builder client) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN &&
+                Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            try {
+                SSLContext sc = SSLContext.getInstance("TLSv1.2");
+                sc.init(null, null, null);
+                client.sslSocketFactory(new Tls12SocketFactory(sc.getSocketFactory()));
+
+                ConnectionSpec cs = new ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS)
+                        .tlsVersions(TlsVersion.TLS_1_2)
+                        .build();
+
+                List<ConnectionSpec> specs = new ArrayList<>();
+                specs.add(cs);
+                specs.add(ConnectionSpec.COMPATIBLE_TLS);
+                specs.add(ConnectionSpec.CLEARTEXT);
+
+                client.connectionSpecs(specs);
+            } catch (Exception exc) {
+                Log.e("OkHttpTLSCompat", "Error while setting TLS 1.2", exc);
+            }
+        }
+
+        return client;
+    }
+
+    private OkHttpClient getNewHttpClient() {
+        OkHttpClient.Builder client = new OkHttpClient.Builder()
+                .followRedirects(true)
+                .followSslRedirects(true)
+                .retryOnConnectionFailure(true)
+                .cache(new Cache(getCacheDir(), 10 * 1024 * 1024)) // 10M
+                .addInterceptor(new Interceptor() {
+                    @Override
+                    public Response intercept(Chain chain) throws IOException {
+                        Request request = chain.request();
+                        if (isNetworkAvailable()) {
+                            request = request.newBuilder().header("Cache-Control", "public, " +
+                                    "max-age=" + 60).build();
+                        } else {
+                            request = request.newBuilder().header("Cache-Control", "public, " +
+                                    "only-if-cached, max-stale=" + 60 * 60 * 24 * 7).build();
+                        }
+                        return chain.proceed(request);
+                    }
+                })
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .writeTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(10, TimeUnit.SECONDS);
+
+        return enableTls12OnPreLollipop(client).build();
     }
 
     private void openGooglePlay() {
@@ -1324,6 +1360,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(final Call call, IOException e) {
+                e.printStackTrace();
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -1362,6 +1399,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
                         // Error handling
                         catch (JSONException e) {
+                            e.printStackTrace();
                             int code = response.code();
                             int messageId;
 

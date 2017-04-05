@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -31,49 +32,26 @@ public class WallpaperChangeService extends GcmTaskService {
     public static final String TAG_TASK_DAILY = "tag_task_daily";
     public static final String TAG_TASK_ONEOFF = "tag_oneoff";
 
-    String today;
+    private String today;
+    private DatabaseReference database;
 
-    @Override
-    public int onRunTask(TaskParams taskParams) {
-        SharedPreferences sharedPreferences = PreferenceManager
-                .getDefaultSharedPreferences(this);
+    private String getLatestImageDate() {
+        final String[] date = {today};
 
-        today = new SimpleDateFormat("y-MM-dd").format(new Date());
+        database.addListenerForSingleValueEvent(new ValueEventListener() {
 
-        boolean nonImage;
-        String lastRan;
-        boolean todayRetrieved;
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                date[0] = dataSnapshot.child("date").getValue().toString();
+            }
 
-        switch (taskParams.getTag()) {
-            case TAG_TASK_DAILY:
-                nonImage = sharedPreferences.getBoolean("non_image", false);
-                lastRan = sharedPreferences.getString("last_ran", "");
-                todayRetrieved = sharedPreferences.getBoolean("today_retrieved", false);
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                FirebaseCrash.log(databaseError.toString());
+            }
+        });
 
-                // Already up-to-date or no image available
-                if (lastRan.equals(today) && (todayRetrieved || nonImage)) {
-                    return GcmNetworkManager.RESULT_SUCCESS;
-                }
-
-                getImageData();
-
-                return GcmNetworkManager.RESULT_SUCCESS;
-            case TAG_TASK_ONEOFF:
-                nonImage = sharedPreferences.getBoolean("non_image", false);
-                lastRan = sharedPreferences.getString("last_ran", "");
-                todayRetrieved = sharedPreferences.getBoolean("today_retrieved", false);
-
-                // Already up-to-date or no image available
-                if (lastRan.equals(today) && (todayRetrieved || nonImage)) {
-                    return GcmNetworkManager.RESULT_SUCCESS;
-                }
-
-                getImageData();
-
-                return GcmNetworkManager.RESULT_SUCCESS;
-            default:
-                return GcmNetworkManager.RESULT_FAILURE;
-        }
+        return date[0];
     }
 
     @Override
@@ -82,30 +60,34 @@ public class WallpaperChangeService extends GcmTaskService {
     }
 
     private void getImageData() {
-        DatabaseReference mDatabase;
-        mDatabase = FirebaseDatabase.getInstance().getReference();
 
-        mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+        database.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                String sdurl = dataSnapshot.child("sdurl").getValue().toString();
-                String hdurl = dataSnapshot.child("hdurl").getValue().toString();
+                final String sdurl = dataSnapshot.child("sdurl").getValue().toString();
+                final String hdurl = dataSnapshot.child("hdurl").getValue().toString();
 
-                Log.i("hdurl", hdurl);
-                Log.i("sdurl", sdurl);
-                try {
-                    setImageData(sdurl, hdurl);
-                } catch (Exception e) {
-                    FirebaseCrash.report(e);
-                }
+                Runnable runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            setImageData(sdurl, hdurl);
+                            Log.i("APOD Wallpaper", "Set");
+                        } catch (Exception e) {
+                            FirebaseCrash.report(e);
+                        }
+                    }
+                };
+                AsyncTask.execute(runnable);
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.w("Database", "loadPost:onCancelled", databaseError.toException());
+                FirebaseCrash.log(databaseError.toString());
             }
         });
     }
+
 
     private void setImageData(String sdUrl, String hdUrl) throws IOException, ExecutionException, InterruptedException {
         SharedPreferences sharedPreferences = PreferenceManager
@@ -116,7 +98,6 @@ public class WallpaperChangeService extends GcmTaskService {
         final int h = manager.getDesiredMinimumHeight();
 
         sharedPreferences.edit().putString("last_ran", today).apply();
-        sharedPreferences.edit().putBoolean("non_image", false).apply();
         sharedPreferences.edit().putBoolean("today_retrieved", true).apply();
 
         Log.i("DesiredMinimumWidth: ", String.valueOf(w));
@@ -144,6 +125,7 @@ public class WallpaperChangeService extends GcmTaskService {
         original.recycle();
     }
 
+
     boolean isEvieLauncher() {
         final String EVIE_PACKAGE_NAME = "is.shortcut";
 
@@ -154,6 +136,10 @@ public class WallpaperChangeService extends GcmTaskService {
                 PackageManager.MATCH_DEFAULT_ONLY).activityInfo.packageName;
 
         return packageName.equals(EVIE_PACKAGE_NAME);
+    }
+
+    private boolean isPano(Bitmap b) {
+        return b.getWidth() > (3 * b.getHeight());
     }
 
     // Scale Bitmap to fit to max height, width, autofit, or autofill
@@ -213,7 +199,44 @@ public class WallpaperChangeService extends GcmTaskService {
         return dstBmp;
     }
 
-    private boolean isPano(Bitmap b) {
-        return b.getWidth() > (3 * b.getHeight());
+    @Override
+    public int onRunTask(TaskParams taskParams) {
+        SharedPreferences sharedPreferences = PreferenceManager
+                .getDefaultSharedPreferences(this);
+
+        today = new SimpleDateFormat("y-MM-dd").format(new Date());
+        database = FirebaseDatabase.getInstance().getReference();
+
+        String lastRan;
+        boolean todayRetrieved;
+
+        switch (taskParams.getTag()) {
+            case TAG_TASK_DAILY:
+                lastRan = sharedPreferences.getString("last_ran", "");
+                todayRetrieved = sharedPreferences.getBoolean("today_retrieved", false);
+
+                // Already up-to-date or no image available
+                if (lastRan.equals(getLatestImageDate()) && todayRetrieved) {
+                    return GcmNetworkManager.RESULT_SUCCESS;
+                }
+
+                getImageData();
+
+                return GcmNetworkManager.RESULT_SUCCESS;
+            case TAG_TASK_ONEOFF:
+                lastRan = sharedPreferences.getString("last_ran", "");
+                todayRetrieved = sharedPreferences.getBoolean("today_retrieved", false);
+
+                // Already up-to-date or no image available
+                if (lastRan.equals(getLatestImageDate()) && todayRetrieved) {
+                    return GcmNetworkManager.RESULT_SUCCESS;
+                }
+
+                getImageData();
+
+                return GcmNetworkManager.RESULT_SUCCESS;
+            default:
+                return GcmNetworkManager.RESULT_FAILURE;
+        }
     }
 }
