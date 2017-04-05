@@ -405,7 +405,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         builder.setTitle(getString(R.string.dialog_whats_new_title) + BuildConfig.VERSION_NAME)
-                .setMessage(R.string.change_2_0_2)
+                .setMessage(R.string.change_2_0_4)
                 .setNegativeButton(R.string.label_review, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -427,7 +427,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         builder.setTitle(getString(R.string.dialog_whats_new_title) + BuildConfig.VERSION_NAME)
-                .setMessage(R.string.change_2_0_2)
+                .setMessage(R.string.change_2_0_4)
                 .setPositiveButton(R.string.label_dismiss, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -672,8 +672,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         progressBar.setVisibility(View.VISIBLE);
         getImageData(date);
     }
-
-    // Check app launch state
 
     private void updateDateNavButtons() {
         // Show/hide right navigation chevron

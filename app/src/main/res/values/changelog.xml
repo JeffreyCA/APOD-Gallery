@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="change_2_0_4">
+        <b>Fixes</b>\n
+        - Fix SSL bug where older devices (pre-Lollipop) could not retrieve images from NASA\'s servers\n
+        - Improve how wallpapers are downloaded for the daily wallpaper changer\n
+    </string>
     <string name="change_2_0_2"><b>Attention widget users</b>\n
         It is highly recommended that you remove and re-add the APOD Gallery widget as some new bug fixes have been implemented.\n\n
         <b>Changes</b>\n

@@ -60,18 +60,17 @@ public class WallpaperChangeService extends GcmTaskService {
     }
 
     private void getImageData() {
-
         database.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                final String sdurl = dataSnapshot.child("sdurl").getValue().toString();
-                final String hdurl = dataSnapshot.child("hdurl").getValue().toString();
+                final String sdUrl = dataSnapshot.child("sdurl").getValue().toString();
+                final String hdUrl = dataSnapshot.child("hdurl").getValue().toString();
 
                 Runnable runnable = new Runnable() {
                     @Override
                     public void run() {
                         try {
-                            setImageData(sdurl, hdurl);
+                            setImageData(sdUrl, hdUrl);
                             Log.i("APOD Wallpaper", "Set");
                         } catch (Exception e) {
                             FirebaseCrash.report(e);
@@ -97,32 +96,34 @@ public class WallpaperChangeService extends GcmTaskService {
         final int w = manager.getDesiredMinimumWidth();
         final int h = manager.getDesiredMinimumHeight();
 
-        sharedPreferences.edit().putString("last_ran", today).apply();
-        sharedPreferences.edit().putBoolean("today_retrieved", true).apply();
+        if (!sdUrl.equals(sharedPreferences.getString("last_url", ""))) {
+            sharedPreferences.edit().putString("last_ran", today).apply();
+            sharedPreferences.edit().putString("last_url", sdUrl).apply();
 
-        Log.i("DesiredMinimumWidth: ", String.valueOf(w));
-        Log.i("DesiredMinimumHeight: ", String.valueOf(h));
-        Log.i("URL: ", sdUrl);
+            // Log.i("DesiredMinimumWidth: ", String.valueOf(w));
+            // Log.i("DesiredMinimumHeight: ", String.valueOf(h));
+            // Log.i("URL: ", sdUrl);
 
-        Bitmap original = Glide.with(this).load(sdUrl).asBitmap()
-                .skipMemoryCache(true)
-                .diskCacheStrategy(DiskCacheStrategy.RESULT)
-                .into(w, h).get();
+            Bitmap original = Glide.with(this).load(sdUrl).asBitmap()
+                    .skipMemoryCache(true)
+                    .diskCacheStrategy(DiskCacheStrategy.RESULT)
+                    .into(w, h).get();
 
-        Bitmap processed;
+            Bitmap processed;
 
-        if (isPano(original)) {
-            if (isEvieLauncher()) {
-                processed = toSquareBitmapCanvas(original);
+            if (isPano(original)) {
+                if (isEvieLauncher()) {
+                    processed = toSquareBitmapCanvas(original);
+                } else {
+                    processed = scaleBitmap(original, "autofill", manager);
+                }
             } else {
-                processed = scaleBitmap(original, "autofill", manager);
+                processed = original;
             }
-        } else {
-            processed = original;
-        }
 
-        manager.setBitmap(processed);
-        original.recycle();
+            manager.setBitmap(processed);
+            original.recycle();
+        }
     }
 
     private boolean isEvieLauncher() {
@@ -213,27 +214,23 @@ public class WallpaperChangeService extends GcmTaskService {
         switch (taskParams.getTag()) {
             case TAG_TASK_DAILY:
                 lastRan = sharedPreferences.getString("last_ran", "");
-                todayRetrieved = sharedPreferences.getBoolean("today_retrieved", false);
 
                 // Already up-to-date or no image available
-                if (lastRan.equals(getLatestImageDate()) && todayRetrieved) {
+                if (lastRan.equals(getLatestImageDate())) {
                     return GcmNetworkManager.RESULT_SUCCESS;
                 }
 
                 getImageData();
-
                 return GcmNetworkManager.RESULT_SUCCESS;
             case TAG_TASK_ONEOFF:
                 lastRan = sharedPreferences.getString("last_ran", "");
-                todayRetrieved = sharedPreferences.getBoolean("today_retrieved", false);
 
                 // Already up-to-date or no image available
-                if (lastRan.equals(getLatestImageDate()) && todayRetrieved) {
+                if (lastRan.equals(getLatestImageDate())) {
                     return GcmNetworkManager.RESULT_SUCCESS;
                 }
 
                 getImageData();
-
                 return GcmNetworkManager.RESULT_SUCCESS;
             default:
                 return GcmNetworkManager.RESULT_FAILURE;
