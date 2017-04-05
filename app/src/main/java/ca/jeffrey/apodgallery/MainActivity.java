@@ -259,8 +259,14 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             refreshWidgets();
             switch (checkAppStart()) {
                 case NORMAL:
-                    initializeListeners();
-                    getImageData(date);
+                    if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        initializeListeners();
+                        getImageData(date);
+                    } else {
+                        dialog = ProgressDialog.show(this, getString(R.string.dialog_ciphers_title),
+                                getString(R.string.dialog_ciphers_body), true);
+                        ProviderInstaller.installIfNeededAsync(this, this);
+                    }
                     break;
                 case FIRST_TIME_VERSION:
                     displayMinorChangesDialog();
