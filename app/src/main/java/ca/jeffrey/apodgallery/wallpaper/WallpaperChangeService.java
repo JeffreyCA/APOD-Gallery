@@ -125,8 +125,7 @@ public class WallpaperChangeService extends GcmTaskService {
         original.recycle();
     }
 
-
-    boolean isEvieLauncher() {
+    private boolean isEvieLauncher() {
         final String EVIE_PACKAGE_NAME = "is.shortcut";
 
         PackageManager localPackageManager = getPackageManager();
@@ -153,6 +152,7 @@ public class WallpaperChangeService extends GcmTaskService {
         double factor = 1.0;
         double width = 0;
         double height = 0;
+
         // If statement to decide, based on the options, how to position the Bitmap as the wallpaper
         if (setWallAspect.equals("height")) { // keep height of Bitmap, may result in black bars
             factor = heightDh / heightBm * 1;

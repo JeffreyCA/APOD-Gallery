@@ -292,7 +292,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
     @Override
     public void onProviderInstalled() {
-        Log.i("Installed", "f");
         dialog.dismiss();
         initializeListeners();
         getImageData(date);
@@ -301,7 +300,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     @Override
     public void onProviderInstallFailed(int errorCode, Intent intent) {
         dialog.dismiss();
-        Log.i("Failed", "f");
+
         if (GooglePlayServicesUtil.isUserRecoverableError(errorCode)) {
             // Recoverable error. Show a dialog prompting the user to
             // install/update/enable Google Play services.
@@ -669,7 +668,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
-        // Log.i("DOC", "OffsetY" + description.getDocumentLayoutParams().getOffsetY());
         Glide.clear(imageView);
         progressBar.setVisibility(View.VISIBLE);
         getImageData(date);
