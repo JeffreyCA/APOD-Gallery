@@ -33,6 +33,12 @@
 # rxjava
 -dontwarn rx.**
 
+# okhttp3
 -dontwarn okhttp3.**
 -dontwarn okio.**
+-keepclassmembers class * implements javax.net.ssl.SSLSocketFactory {
+    private final javax.net.ssl.SSLSocketFactory delegate;
+}
 -keepattributes EnclosingMethod
+
+
