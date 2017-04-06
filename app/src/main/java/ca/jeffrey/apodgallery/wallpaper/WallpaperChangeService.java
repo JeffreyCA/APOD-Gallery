@@ -31,7 +31,7 @@ import java.util.concurrent.ExecutionException;
 public class WallpaperChangeService extends GcmTaskService {
     public static final String TAG_TASK_DAILY = "tag_task_daily";
     public static final String TAG_TASK_ONEOFF = "tag_oneoff";
-
+    SharedPreferences sharedPreferences;
     private String today;
     private DatabaseReference database;
 
@@ -66,18 +66,22 @@ public class WallpaperChangeService extends GcmTaskService {
                 final String sdUrl = dataSnapshot.child("sdurl").getValue().toString();
                 final String hdUrl = dataSnapshot.child("hdurl").getValue().toString();
 
-                Runnable runnable = new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            setImageData(sdUrl, hdUrl);
-                            Log.i("APOD Wallpaper", "Set");
-                        } catch (Exception e) {
-                            FirebaseCrash.report(e);
+                Log.i("sdUrl", sdUrl);
+
+                if (!sdUrl.equals(sharedPreferences.getString("last_url", ""))) {
+                    Runnable runnable = new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                setImageData(sdUrl, hdUrl);
+                                Log.i("APOD Wallpaper", "Set");
+                            } catch (Exception e) {
+                                FirebaseCrash.report(e);
+                            }
                         }
-                    }
-                };
-                AsyncTask.execute(runnable);
+                    };
+                    AsyncTask.execute(runnable);
+                }
             }
 
             @Override
@@ -89,41 +93,31 @@ public class WallpaperChangeService extends GcmTaskService {
 
 
     private void setImageData(String sdUrl, String hdUrl) throws IOException, ExecutionException, InterruptedException {
-        SharedPreferences sharedPreferences = PreferenceManager
-                .getDefaultSharedPreferences(WallpaperChangeService.this);
+        sharedPreferences.edit().putString("last_url", sdUrl).apply();
 
         final WallpaperManager manager = WallpaperManager.getInstance(this);
         final int w = manager.getDesiredMinimumWidth();
         final int h = manager.getDesiredMinimumHeight();
 
-        if (!sdUrl.equals(sharedPreferences.getString("last_url", ""))) {
-            sharedPreferences.edit().putString("last_ran", today).apply();
-            sharedPreferences.edit().putString("last_url", sdUrl).apply();
+        Bitmap original = Glide.with(this).load(sdUrl).asBitmap()
+                .skipMemoryCache(true)
+                .diskCacheStrategy(DiskCacheStrategy.RESULT)
+                .into(w, h).get();
 
-            // Log.i("DesiredMinimumWidth: ", String.valueOf(w));
-            // Log.i("DesiredMinimumHeight: ", String.valueOf(h));
-            // Log.i("URL: ", sdUrl);
+        Bitmap processed;
 
-            Bitmap original = Glide.with(this).load(sdUrl).asBitmap()
-                    .skipMemoryCache(true)
-                    .diskCacheStrategy(DiskCacheStrategy.RESULT)
-                    .into(w, h).get();
-
-            Bitmap processed;
-
-            if (isPano(original)) {
-                if (isEvieLauncher()) {
-                    processed = toSquareBitmapCanvas(original);
-                } else {
-                    processed = scaleBitmap(original, "autofill", manager);
-                }
+        if (isPano(original)) {
+            if (isEvieLauncher()) {
+                processed = toSquareBitmapCanvas(original);
             } else {
-                processed = original;
+                processed = scaleBitmap(original, "autofill", manager);
             }
-
-            manager.setBitmap(processed);
-            original.recycle();
+        } else {
+            processed = original;
         }
+
+        manager.setBitmap(processed);
+        original.recycle();
     }
 
     private boolean isEvieLauncher() {
@@ -200,36 +194,41 @@ public class WallpaperChangeService extends GcmTaskService {
         return dstBmp;
     }
 
+    private String getLatestUrl(final boolean hd) {
+        final String[] url = new String[1];
+
+        database.addListenerForSingleValueEvent(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (hd) {
+                    url[0] = dataSnapshot.child("hdurl").getValue().toString();
+                } else {
+                    url[0] = dataSnapshot.child("sdurl").getValue().toString();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                FirebaseCrash.log(databaseError.toString());
+                url[0] = "";
+            }
+        });
+
+        return url[0];
+    }
+
     @Override
     public int onRunTask(TaskParams taskParams) {
-        SharedPreferences sharedPreferences = PreferenceManager
-                .getDefaultSharedPreferences(this);
-
         today = new SimpleDateFormat("y-MM-dd").format(new Date());
         database = FirebaseDatabase.getInstance().getReference();
-
-        String lastRan;
-        boolean todayRetrieved;
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(WallpaperChangeService.this);
 
         switch (taskParams.getTag()) {
             case TAG_TASK_DAILY:
-                lastRan = sharedPreferences.getString("last_ran", "");
-
-                // Already up-to-date or no image available
-                if (lastRan.equals(getLatestImageDate())) {
-                    return GcmNetworkManager.RESULT_SUCCESS;
-                }
-
                 getImageData();
                 return GcmNetworkManager.RESULT_SUCCESS;
             case TAG_TASK_ONEOFF:
-                lastRan = sharedPreferences.getString("last_ran", "");
-
-                // Already up-to-date or no image available
-                if (lastRan.equals(getLatestImageDate())) {
-                    return GcmNetworkManager.RESULT_SUCCESS;
-                }
-
                 getImageData();
                 return GcmNetworkManager.RESULT_SUCCESS;
             default:

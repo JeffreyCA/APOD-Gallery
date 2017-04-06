@@ -242,6 +242,15 @@ public class SettingsActivity extends Activity implements SharedPreferences
             final int PERIOD = 3600 * 8;
             final int FLEX = 3600 * 2;
 
+            OneoffTask immediateTask = new OneoffTask.Builder()
+                    .setService(WallpaperChangeService.class)
+                    .setTag(WallpaperChangeService.TAG_TASK_ONEOFF)
+                    .setExecutionWindow(0, 5)
+                    .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
+                    .build();
+
+            gcmNetworkManager.schedule(immediateTask);
+
             PeriodicTask task = new PeriodicTask.Builder()
                     .setTag(WallpaperChangeService.TAG_TASK_DAILY)
                     .setService(WallpaperChangeService.class)
@@ -251,16 +260,8 @@ public class SettingsActivity extends Activity implements SharedPreferences
                     .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)  // not needed, default
                     .setUpdateCurrent(true) // not needed, you know this is 1st time
                     .build();
+
             gcmNetworkManager.schedule(task);
-
-            OneoffTask immediateTask = new OneoffTask.Builder()
-                    .setService(WallpaperChangeService.class)
-                    .setTag(WallpaperChangeService.TAG_TASK_ONEOFF)
-                    .setExecutionWindow(0, 5)
-                    .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
-                    .build();
-
-            gcmNetworkManager.schedule(immediateTask);
 
             if (reset) {
                 Toast.makeText(getActivity(), R.string.toast_reset_task, Toast.LENGTH_SHORT).show();

@@ -55,6 +55,9 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GcmNetworkManager;
+import com.google.android.gms.gcm.OneoffTask;
+import com.google.android.gms.gcm.PeriodicTask;
+import com.google.android.gms.gcm.Task;
 import com.google.android.gms.security.ProviderInstaller;
 import com.google.firebase.crash.FirebaseCrash;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
@@ -86,6 +89,7 @@ import javax.net.ssl.SSLContext;
 
 import ca.jeffrey.apodgallery.text.AutoResizeTextView;
 import ca.jeffrey.apodgallery.text.TextViewEx;
+import ca.jeffrey.apodgallery.wallpaper.WallpaperChangeService;
 import ca.jeffrey.apodgallery.widget.WidgetProvider;
 import okhttp3.Cache;
 import okhttp3.CacheControl;
@@ -245,12 +249,18 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             }
         } else {
             refreshWidgets();
+
             switch (checkAppStart()) {
                 case NORMAL:
                     initializeListeners();
                     getImageData(date);
                     break;
                 case FIRST_TIME_VERSION:
+                    // Remove obsolete preference keys
+                    sharedPref.edit().remove("non_image").apply();
+                    sharedPref.edit().remove("today_retrieved").apply();
+                    sharedPref.edit().remove("last_ran").apply();
+
                     displayMinorChangesDialog();
 
                     if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -261,6 +271,12 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                                 getString(R.string.dialog_ciphers_body), true);
                         ProviderInstaller.installIfNeededAsync(this, this);
                     }
+
+                    // Restart daily wallpaper changer
+                    if (sharedPref.getBoolean("pref_daily_wallpaper", false)) {
+                        refreshTasks();
+                    }
+
                     break;
                 case FIRST_TIME:
                     displayMajorChangesDialog();
@@ -386,6 +402,37 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             startActivity(new Intent(Intent.ACTION_VIEW,
                     Uri.parse("http://play.google.com/store/apps/details?id=" + getPackageName())));
         }
+    }
+
+    private void refreshTasks() {
+        GcmNetworkManager gcmNetworkManager = GcmNetworkManager.getInstance(this);
+        gcmNetworkManager.cancelAllTasks(WallpaperChangeService.class);
+
+        final int PERIOD = 3600 * 8;
+        final int FLEX = 3600 * 2;
+
+        OneoffTask immediateTask = new OneoffTask.Builder()
+                .setService(WallpaperChangeService.class)
+                .setTag(WallpaperChangeService.TAG_TASK_ONEOFF)
+                .setExecutionWindow(0, 5)
+                .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
+                .build();
+
+        gcmNetworkManager.schedule(immediateTask);
+
+        PeriodicTask task = new PeriodicTask.Builder()
+                .setTag(WallpaperChangeService.TAG_TASK_DAILY)
+                .setService(WallpaperChangeService.class)
+                .setPeriod(PERIOD)
+                .setFlex(FLEX)
+                .setPersisted(true)
+                .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)  // not needed, default
+                .setUpdateCurrent(true) // not needed, you know this is 1st time
+                .build();
+
+        gcmNetworkManager.schedule(task);
+
+        Toast.makeText(this, R.string.toast_reset_task, Toast.LENGTH_SHORT).show();
     }
 
     private void refreshWidgets() {
