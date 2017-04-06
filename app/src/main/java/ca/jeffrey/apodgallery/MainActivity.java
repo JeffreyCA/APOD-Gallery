@@ -405,7 +405,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     }
 
     private void refreshTasks() {
-        GcmNetworkManager gcmNetworkManager = GcmNetworkManager.getInstance(this);
+        gcmNetworkManager = GcmNetworkManager.getInstance(this);
         gcmNetworkManager.cancelAllTasks(WallpaperChangeService.class);
 
         final int PERIOD = 3600 * 8;
@@ -452,7 +452,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         builder.setTitle(getString(R.string.dialog_whats_new_title) + BuildConfig.VERSION_NAME)
-                .setMessage(R.string.change_2_0_4)
+                .setMessage(R.string.change_2_0_5)
                 .setNegativeButton(R.string.label_review, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -474,7 +474,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         builder.setTitle(getString(R.string.dialog_whats_new_title) + BuildConfig.VERSION_NAME)
-                .setMessage(R.string.change_2_0_4)
+                .setMessage(R.string.change_2_0_5)
                 .setPositiveButton(R.string.label_dismiss, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

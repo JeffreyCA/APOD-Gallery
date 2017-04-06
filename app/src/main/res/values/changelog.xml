@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="change_2_0_5">
+        <b>Changes</b>\n
+        - Automatically restart daily wallpaper changer (if enabled) after each app update\n\n
+        <b>Fixes</b>\n
+        - Wallpaper was not changing for some users, should be working now!\n
+    </string>
     <string name="change_2_0_4">
         <b>Fixes</b>\n
         - Fix SSL bug where older devices (pre-Lollipop) could not retrieve images from NASA\'s servers\n
