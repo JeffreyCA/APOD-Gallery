@@ -127,6 +127,8 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         final String IMAGE_DIRECTORY = sharedPreferences.getString(SettingsActivity.TAG_PREF_LOCATION,
                 Environment.getExternalStorageDirectory().getPath() + "/APOD/");
 
+        FirebaseCrash.log(IMAGE_DIRECTORY);
+
         final String EXT = ".jpg";
 
         if (mWidgetItems.size() > position) {

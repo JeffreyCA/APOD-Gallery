@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
@@ -107,7 +108,7 @@ public class SettingsActivity extends Activity implements SharedPreferences
             case TAG_PREF_LOCATION:
                 String directory = saveDirectory.getText();
                 if (directory.length() == 0) {
-                    directory = "/sdcard/APOD/";
+                    directory = Environment.getExternalStorageDirectory().getPath() + "/APOD/";
                 } else if (directory.charAt(directory.length() - 1) != '/') {
                     directory += '/';
                 }
