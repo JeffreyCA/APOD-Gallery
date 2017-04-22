@@ -452,7 +452,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         builder.setTitle(getString(R.string.dialog_whats_new_title) + BuildConfig.VERSION_NAME)
-                .setMessage(R.string.change_2_0_5)
+                .setMessage(R.string.change_2_0_6)
                 .setNegativeButton(R.string.label_review, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -474,7 +474,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         builder.setTitle(getString(R.string.dialog_whats_new_title) + BuildConfig.VERSION_NAME)
-                .setMessage(R.string.change_2_0_5)
+                .setMessage(R.string.change_2_0_6)
                 .setPositiveButton(R.string.label_dismiss, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

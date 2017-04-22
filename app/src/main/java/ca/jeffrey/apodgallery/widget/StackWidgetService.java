@@ -58,7 +58,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
         // Get save location from preferences
         String directory_path = sharedPreferences.getString(SettingsActivity.TAG_PREF_LOCATION,
-                Environment.getExternalStorageDirectory().getPath() + "/APOD");
+                Environment.getExternalStorageDirectory().getPath() + "/APOD/");
 
         File directory = new File(directory_path);
         directory.mkdirs();
@@ -84,7 +84,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
                 .getDefaultSharedPreferences(mContext);
         // Get save location from preferences
         String directory_path = sharedPreferences.getString(SettingsActivity.TAG_PREF_LOCATION,
-                Environment.getExternalStorageDirectory().getPath() + "/APOD");
+                Environment.getExternalStorageDirectory().getPath() + "/APOD/");
 
         // Replace with preferences value
         File file = new File(directory_path);
@@ -125,7 +125,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
                 .getDefaultSharedPreferences(mContext);
         // Get save location from preferences
         final String IMAGE_DIRECTORY = sharedPreferences.getString(SettingsActivity.TAG_PREF_LOCATION,
-                Environment.getExternalStorageDirectory().getPath() + "/APOD");
+                Environment.getExternalStorageDirectory().getPath() + "/APOD/");
 
         final String EXT = ".jpg";
 
