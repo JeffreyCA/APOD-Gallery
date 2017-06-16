@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="change_2_0_7">
+        <b>Improvements</b>\n
+        - Updated support libraries\n
+    </string>
     <string name="change_2_0_6">
         <b>Fixes</b>\n
         - Fix app widget where pictures were not being retrieved properly\n
