@@ -25,6 +25,7 @@
         sothree:umanoOverlay="true"
         sothree:umanoPanelHeight="92dp"
         sothree:umanoParallaxOffset="118dp"
+        sothree:umanoScrollableView="@+id/description_scroll"
         sothree:umanoShadowHeight="0dp">
 
         <!-- MAIN CONTENT -->
@@ -132,7 +133,8 @@
             android:layout_height="match_parent"
             android:background="@color/transparentPrimary"
             android:clickable="true"
-            android:focusable="false"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
             android:orientation="vertical">
 
             <!-- layout_height controls the height of entire TextView -->
@@ -154,22 +156,21 @@
                 android:id="@+id/description_scroll"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:scrollbars="vertical"
-                android:fillViewport="true">
+                android:fillViewport="true"
+                android:scrollbars="vertical">
 
                 <ca.jeffrey.apodgallery.text.TextViewEx
                     android:id="@+id/description"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:focusable="true"
-                    android:textColor="@color/colorWhite"
-                    android:textSize="18sp"
-                    android:paddingTop="16dp"
+                    android:lineSpacingMultiplier="1.5"
                     android:paddingLeft="16dp"
                     android:paddingRight="16dp"
-                    android:lineSpacingMultiplier="1.5"/>
+                    android:paddingTop="16dp"
+                    android:textColor="@color/colorWhite"
+                    android:textSize="18sp" />
             </ScrollView>
-
     </LinearLayout>
 
 </com.sothree.slidinguppanel.SlidingUpPanelLayout>

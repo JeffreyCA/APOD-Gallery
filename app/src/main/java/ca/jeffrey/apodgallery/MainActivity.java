@@ -1065,7 +1065,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 DEFAULT_IMAGE_DIRECTORY);
 
         // Load image with Glide as bitmap
-        Glide.with(MainActivity.this).load(imgUrl).asBitmap().diskCacheStrategy(DiskCacheStrategy.SOURCE)
+        Glide.with(this).load(imgUrl).asBitmap().diskCacheStrategy(DiskCacheStrategy.SOURCE)
                 .into(new SimpleTarget<Bitmap>() {
 
                     @Override
@@ -1211,7 +1211,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 imgUrl = sdUrl;
             }
 
-            Glide.with(MainActivity.this).load(sdUrl) // Load from URL
+            Glide.with(this).load(sdUrl) // Load from URL
                     .diskCacheStrategy(DiskCacheStrategy.SOURCE) // Or .RESULT
                     //.skipMemoryCache(true) // Use disk cache only
                     .listener(new RequestListener<String, GlideDrawable>() {
@@ -1299,7 +1299,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         description.setText(explanation, true);
 
         if (mediaType.equals(IMAGE_TYPE)) {
-            Glide.with(MainActivity.this).load(sdUrl) // Load from URL
+            Glide.with(this).load(sdUrl) // Load from URL
                     .diskCacheStrategy(DiskCacheStrategy.SOURCE) // Or .RESULT
                     // .skipMemoryCache(true) // Use disk cache only
                     .listener(new RequestListener<String, GlideDrawable>() {
