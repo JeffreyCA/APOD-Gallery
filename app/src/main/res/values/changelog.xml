@@ -1,8 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="change_latest">
+        <b>Changes</b>\n
+        - Improve compatibility for older devices\n
+        - Add clearer error messages\n
+        - Change default save directory to use device-specific external storage path\n
+        <b>Fixes</b>\n
+        - Fix crash when tapping widget\n
+    </string>
     <string name="change_2_0_7">
         <b>Improvements</b>\n
-        - Updated support libraries\n
+        - Update support libraries\n
     </string>
     <string name="change_2_0_6">
         <b>Fixes</b>\n

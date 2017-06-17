@@ -53,7 +53,8 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
-import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.gcm.OneoffTask;
 import com.google.android.gms.gcm.PeriodicTask;
@@ -117,9 +118,9 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
      */
     private static final String LAST_APP_VERSION = "last_app_version";
     private final String DATE_PICKER_TAG = "date_picker";
+    private final String PREF_SAVE_LOCATION = "pref_save_location";
     private final String DEFAULT_IMAGE_DIRECTORY = Environment.getExternalStorageDirectory()
-            .getPath() +
-            File.separator + "APOD";
+            .getPath() + File.separator + "APOD" + File.separator;
     private final String IMAGE_EXT = ".jpg";
 
     // First available APOD date
@@ -260,6 +261,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                     sharedPref.edit().remove("non_image").apply();
                     sharedPref.edit().remove("today_retrieved").apply();
                     sharedPref.edit().remove("last_ran").apply();
+                    sharedPref.edit().putString(PREF_SAVE_LOCATION, DEFAULT_IMAGE_DIRECTORY).apply();
 
                     displayMinorChangesDialog();
 
@@ -280,6 +282,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                     break;
                 case FIRST_TIME:
                     displayMajorChangesDialog();
+                    sharedPref.edit().putString(PREF_SAVE_LOCATION, DEFAULT_IMAGE_DIRECTORY).apply();
 
                     if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         initializeListeners();
@@ -289,6 +292,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                                 getString(R.string.dialog_ciphers_body), true);
                         ProviderInstaller.installIfNeededAsync(this, this);
                     }
+
                     break;
                 default:
                     if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -303,7 +307,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             }
         }
         // Set image
-
     } // End onCreate method
 
     @Override
@@ -317,21 +320,15 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     public void onProviderInstallFailed(int errorCode, Intent intent) {
         dialog.dismiss();
 
-        if (GooglePlayServicesUtil.isUserRecoverableError(errorCode)) {
-            // Recoverable error. Show a dialog prompting the user to
-            // install/update/enable Google Play services.
-            GooglePlayServicesUtil.showErrorDialogFragment(
-                    errorCode,
-                    this,
-                    ERROR_DIALOG_REQUEST_CODE,
-                    new DialogInterface.OnCancelListener() {
-                        @Override
-                        public void onCancel(DialogInterface dialog) {
-                            displayGoogleServicesDialog();
-                        }
-                    });
-        } else {
-            displayGoogleServicesDialog();
+        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+        int resultCode = apiAvailability.isGooglePlayServicesAvailable(this);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (apiAvailability.isUserResolvableError(resultCode)) {
+                apiAvailability.getErrorDialog(this, resultCode, 9000).show();
+                onProviderInstalled();
+            } else {
+                displayGoogleServicesDialog();
+            }
         }
     }
 
@@ -452,7 +449,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         builder.setTitle(getString(R.string.dialog_whats_new_title) + BuildConfig.VERSION_NAME)
-                .setMessage(R.string.change_2_0_7)
+                .setMessage(R.string.change_latest)
                 .setNegativeButton(R.string.label_review, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -474,12 +471,12 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         builder.setTitle(getString(R.string.dialog_whats_new_title) + BuildConfig.VERSION_NAME)
-                .setMessage(R.string.change_2_0_7)
+                .setMessage(R.string.change_latest)
                 .setPositiveButton(R.string.label_dismiss, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
-                        displayWallpaperFeaturesDialog();
+                        // displayWallpaperFeaturesDialog();
                     }
                 });
 
@@ -524,7 +521,11 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 .setPositiveButton(R.string.label_retry, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        // Whatever...
+                        try {
+                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.google.android.gms")));
+                        } catch (ActivityNotFoundException e) {
+                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.google.android.gms")));
+                        }
                     }
                 }).show();
     }
@@ -1073,6 +1074,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                             glideAnimation) {
                         boolean writeDirectory;
                         File imageDirectory = new File(IMAGE_DIRECTORY);
+                        Log.i("LOC", IMAGE_DIRECTORY);
 
                         // Make image directory if it does not exist
                         if (imageDirectory.exists()) {
@@ -1085,8 +1087,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                             String filename = DATE + IMAGE_EXT;
                             File image = new File(imageDirectory, filename);
 
-                            String message = getString(R.string.toast_save_image) +
-                                    IMAGE_DIRECTORY + filename;
+                            String message = getString(R.string.toast_save_image) + IMAGE_DIRECTORY + filename;
 
                             // Encode the file as a JPG image.
                             FileOutputStream outStream;

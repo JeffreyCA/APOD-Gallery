@@ -32,6 +32,8 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
     final static String TAG_MAX_IMAGES = "pref_max_images";
     final static int DEFAULT_COUNT = 10;
+    final String DEFAULT_IMAGE_DIRECTORY = Environment.getExternalStorageDirectory()
+            .getPath() + File.separator + "APOD" + File.separator;
     private int mCount;
     private List<WidgetItem> mWidgetItems = new ArrayList<>();
     private Context mContext;
@@ -58,7 +60,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
         // Get save location from preferences
         String directory_path = sharedPreferences.getString(SettingsActivity.TAG_PREF_LOCATION,
-                Environment.getExternalStorageDirectory().getPath() + "/APOD/");
+                DEFAULT_IMAGE_DIRECTORY);
 
         File directory = new File(directory_path);
         directory.mkdirs();
@@ -84,7 +86,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
                 .getDefaultSharedPreferences(mContext);
         // Get save location from preferences
         String directory_path = sharedPreferences.getString(SettingsActivity.TAG_PREF_LOCATION,
-                Environment.getExternalStorageDirectory().getPath() + "/APOD/");
+                DEFAULT_IMAGE_DIRECTORY);
 
         // Replace with preferences value
         File file = new File(directory_path);
@@ -125,7 +127,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
                 .getDefaultSharedPreferences(mContext);
         // Get save location from preferences
         final String IMAGE_DIRECTORY = sharedPreferences.getString(SettingsActivity.TAG_PREF_LOCATION,
-                Environment.getExternalStorageDirectory().getPath() + "/APOD/");
+                DEFAULT_IMAGE_DIRECTORY);
 
         FirebaseCrash.log(IMAGE_DIRECTORY);
 

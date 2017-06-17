@@ -37,7 +37,6 @@
         android:key="category_storage"
         android:title="@string/pref_storage">
         <EditTextPreference
-            android:defaultValue="@string/default_storage_location"
             android:key="pref_save_location"
             android:title="@string/pref_save_location"/>
 

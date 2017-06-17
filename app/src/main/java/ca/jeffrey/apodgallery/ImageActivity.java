@@ -86,9 +86,10 @@ public class ImageActivity extends Activity {
             uri = Uri.fromFile(image);
         }
 
-        intent.setDataAndType(uri, "image/jpeg");
-        intent.putExtra("mimeType", "image/jpeg");
-        this.startActivity(Intent.createChooser(intent, getString(R.string
+        intent.setDataAndType(uri, "image/*");
+        intent.putExtra("mimeType", "image/*");
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        startActivity(Intent.createChooser(intent, getString(R.string
                 .title_intent_wallpaper)));
     }
 }
