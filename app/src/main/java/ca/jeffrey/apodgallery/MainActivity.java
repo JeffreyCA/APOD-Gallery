@@ -261,7 +261,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                     sharedPref.edit().remove("non_image").apply();
                     sharedPref.edit().remove("today_retrieved").apply();
                     sharedPref.edit().remove("last_ran").apply();
-                    sharedPref.edit().putString(PREF_SAVE_LOCATION, DEFAULT_IMAGE_DIRECTORY).apply();
+                    // sharedPref.edit().putString(PREF_SAVE_LOCATION, DEFAULT_IMAGE_DIRECTORY).apply();
 
                     displayMinorChangesDialog();
 

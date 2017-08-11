@@ -2,6 +2,10 @@
 <resources>
     <string name="change_latest">
         <b>Changes</b>\n
+        - Update support libraries\n
+    </string>
+    <string name="change_2_0_8">
+        <b>Changes</b>\n
         - Improve compatibility for older devices\n
         - Add clearer error messages\n
         - Change default save directory to use device-specific external storage path\n
