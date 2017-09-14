@@ -180,7 +180,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         }
 
         // Initialize toolbar
-        Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar myToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(myToolbar);
 
         if (myToolbar != null) {
@@ -204,20 +204,20 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         client = getNewHttpClient();
 
         // Initiate image views
-        imageView = (ImageView) findViewById(R.id.image);
-        tomorrow = (ImageView) findViewById(R.id.right_chevron);
-        yesterday = (ImageView) findViewById(R.id.left_chevron);
+        imageView = findViewById(R.id.image);
+        tomorrow = findViewById(R.id.right_chevron);
+        yesterday = findViewById(R.id.left_chevron);
 
         // Other views
-        dateText = (TextView) findViewById(R.id.date);
-        description = (TextViewEx) findViewById(R.id.description);
-        descriptionScroll = (ScrollView) findViewById(R.id.description_scroll);
-        fab = (FloatingActionButton) findViewById(R.id.fab);
-        mainView = (RelativeLayout) findViewById(R.id.main_view);
-        dateNav = (RelativeLayout) findViewById(R.id.date_nav);
-        progressBar = (ProgressBar) findViewById(R.id.progress);
-        slidingPanel = (SlidingUpPanelLayout) findViewById(R.id.sliding_panel_layout);
-        titleText = (AutoResizeTextView) findViewById(R.id.title);
+        dateText = findViewById(R.id.date);
+        description = findViewById(R.id.description);
+        descriptionScroll = findViewById(R.id.description_scroll);
+        fab = findViewById(R.id.fab);
+        mainView = findViewById(R.id.main_view);
+        dateNav = findViewById(R.id.date_nav);
+        progressBar = findViewById(R.id.progress);
+        slidingPanel = findViewById(R.id.sliding_panel_layout);
+        titleText = findViewById(R.id.title);
 
         tooEarly = false;
 
@@ -701,7 +701,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     @Override
     public void onBackPressed() {
         // Sliding up panel listener
-        slidingPanel = (SlidingUpPanelLayout) findViewById(R.id.sliding_panel_layout);
+        slidingPanel = findViewById(R.id.sliding_panel_layout);
 
         if (slidingPanel != null && (slidingPanel.getPanelState() == SlidingUpPanelLayout
                 .PanelState.EXPANDED || slidingPanel.getPanelState() == SlidingUpPanelLayout
@@ -817,7 +817,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         switch (requestCode) {
             case SAVE_PERMISSION:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     saveImage();
                     return;
                 } else {
@@ -826,7 +826,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 }
                 break;
             case SHARE_PERMISSION:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     shareImage();
                     return;
                 } else {
@@ -835,7 +835,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 }
                 break;
             case WALLPAPER_PERMISSION:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     setAsWallpaper();
                     return;
                 } else {

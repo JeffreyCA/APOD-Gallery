@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="change_latest">
+        <b>Fixes</b>\n
+        - Fix rare crash during permissions request dialog\n\n
+        <b>Changes</b>\n
+        - Add Android O support\n\n
+        Please report any bugs you encounter.\n
+    </string>
+    <string name="change_2_0_9">
         <b>Changes</b>\n
         - Update support libraries\n
     </string>
