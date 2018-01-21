@@ -30,7 +30,9 @@
             </intent-filter>
         </service>
 
-        <receiver android:enabled="true" android:name=".OnBootReceiver"
+        <receiver
+            android:name=".OnBootReceiver"
+            android:enabled="true"
             android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
 
             <intent-filter>
@@ -54,7 +56,15 @@
                 android:resource="@xml/widget_provider" />
         </receiver>
 
-        <!-- app widget configuration activity in manifest -->
+        <activity
+            android:name=".widget.WidgetConfigActivity"
+            android:exported="true"
+            android:label="@string/title_activity_widget_config"
+            android:theme="@style/AppTheme">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
 
         <provider
             android:name="android.support.v4.content.FileProvider"
@@ -85,10 +95,6 @@
         <activity
             android:name=".CreditsActivity"
             android:label="@string/title_activity_credits" />
-        <activity
-            android:name=".widget.WidgetConfigActivity"
-            android:label="@string/title_activity_widget_config"
-            android:theme="@style/AppTheme" />
     </application>
 
 </manifest>

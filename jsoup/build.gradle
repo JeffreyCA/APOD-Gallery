@@ -1,2 +1,2 @@
 configurations.maybeCreate("default")
-artifacts.add("default", file('jsoup-1.10.3.jar'))
+artifacts.add("default", file('jsoup-1.11.2.jar'))
