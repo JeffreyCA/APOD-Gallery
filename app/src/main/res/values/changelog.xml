@@ -2,6 +2,13 @@
 <resources>
     <string name="change_latest">
         <b>Fixes</b>\n
+        - Fix problems adding widgets on Android 4.x devices\n\n
+        <b>Updates</b>\n
+        - Update Android libraries (improved compatibility)\n\n
+        APOD Gallery is no longer in active development. You will see fewer updates, however I will continue to fix any bugs or crashes that arise. Thank you!\n
+    </string>
+    <string name="change_2_0_10">
+        <b>Fixes</b>\n
         - Fix rare crash during permissions request dialog\n\n
         <b>Changes</b>\n
         - Add Android O support\n\n
