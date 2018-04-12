@@ -23,15 +23,11 @@ import android.widget.Toast;
 
 import com.anupcowkur.reservoir.Reservoir;
 import com.bumptech.glide.Glide;
-import com.google.android.gms.gcm.GcmNetworkManager;
-import com.google.android.gms.gcm.OneoffTask;
-import com.google.android.gms.gcm.PeriodicTask;
-import com.google.android.gms.gcm.Task;
 
 import java.io.File;
 import java.io.IOException;
 
-import ca.jeffrey.apodgallery.wallpaper.WallpaperChangeService;
+import ca.jeffrey.apodgallery.wallpaper.WallpaperChangeManager;
 
 public class SettingsActivity extends Activity implements SharedPreferences
         .OnSharedPreferenceChangeListener {
@@ -161,6 +157,8 @@ public class SettingsActivity extends Activity implements SharedPreferences
     }
 
     public static class PrefsFragment extends PreferenceFragment {
+        private WallpaperChangeManager wallpaperChangeManager;
+
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -170,6 +168,8 @@ public class SettingsActivity extends Activity implements SharedPreferences
             // Set app version number
             PreferenceScreen appVersion = (PreferenceScreen) findPreference(TAG_PREF_VERSION);
             appVersion.setSummary(BuildConfig.VERSION_NAME);
+
+            wallpaperChangeManager = new WallpaperChangeManager(getActivity());
 
             SwitchPreference wallpaperToggle = (SwitchPreference) findPreference(TAG_PREF_WALLPAPER);
             Preference clearCache = findPreference(TAG_PREF_CACHE);
@@ -236,33 +236,14 @@ public class SettingsActivity extends Activity implements SharedPreferences
             });
         }
 
+        private void cancelAllTasks() {
+            wallpaperChangeManager.cancelAll();
+            Toast.makeText(getActivity(), R.string.toast_stop_task, Toast.LENGTH_SHORT).show();
+        }
+
         private void startTask(boolean reset) {
-            GcmNetworkManager gcmNetworkManager = GcmNetworkManager.getInstance(getActivity());
-            gcmNetworkManager.cancelAllTasks(WallpaperChangeService.class);
-
-            final int PERIOD = 3600 * 8;
-            final int FLEX = 3600 * 2;
-
-            OneoffTask immediateTask = new OneoffTask.Builder()
-                    .setService(WallpaperChangeService.class)
-                    .setTag(WallpaperChangeService.TAG_TASK_ONEOFF)
-                    .setExecutionWindow(0, 5)
-                    .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
-                    .build();
-
-            gcmNetworkManager.schedule(immediateTask);
-
-            PeriodicTask task = new PeriodicTask.Builder()
-                    .setTag(WallpaperChangeService.TAG_TASK_DAILY)
-                    .setService(WallpaperChangeService.class)
-                    .setPeriod(PERIOD)
-                    .setFlex(FLEX)
-                    .setPersisted(true)
-                    .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)  // not needed, default
-                    .setUpdateCurrent(true) // not needed, you know this is 1st time
-                    .build();
-
-            gcmNetworkManager.schedule(task);
+            wallpaperChangeManager.cancelAll();
+            wallpaperChangeManager.scheduleImmediateAndRecurring();
 
             if (reset) {
                 Toast.makeText(getActivity(), R.string.toast_reset_task, Toast.LENGTH_SHORT).show();
@@ -285,12 +266,6 @@ public class SettingsActivity extends Activity implements SharedPreferences
                     });
 
             builder.create().show();
-        }
-
-        private void cancelAllTasks() {
-            GcmNetworkManager gcmNetworkManager = GcmNetworkManager.getInstance(getActivity());
-            gcmNetworkManager.cancelAllTasks(WallpaperChangeService.class);
-            Toast.makeText(getActivity(), R.string.toast_stop_task, Toast.LENGTH_SHORT).show();
         }
 
         /**

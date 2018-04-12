@@ -53,12 +53,10 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
+import com.firebase.jobdispatcher.FirebaseJobDispatcher;
+import com.firebase.jobdispatcher.GooglePlayDriver;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.gcm.GcmNetworkManager;
-import com.google.android.gms.gcm.OneoffTask;
-import com.google.android.gms.gcm.PeriodicTask;
-import com.google.android.gms.gcm.Task;
 import com.google.android.gms.security.ProviderInstaller;
 import com.google.firebase.crash.FirebaseCrash;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
@@ -90,7 +88,7 @@ import javax.net.ssl.SSLContext;
 
 import ca.jeffrey.apodgallery.text.AutoResizeTextView;
 import ca.jeffrey.apodgallery.text.TextViewEx;
-import ca.jeffrey.apodgallery.wallpaper.WallpaperChangeService;
+import ca.jeffrey.apodgallery.wallpaper.WallpaperChangeManager;
 import ca.jeffrey.apodgallery.widget.WidgetProvider;
 import okhttp3.Cache;
 import okhttp3.CacheControl;
@@ -133,7 +131,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     private final float SLIDING_ANCHOR_POINT = 0.42f;
     private final int ERROR_DIALOG_REQUEST_CODE = 1;
     ProgressDialog dialog;
-    private GcmNetworkManager gcmNetworkManager;
+    //private GcmNetworkManager gcmNetworkManager;
+    private FirebaseJobDispatcher dispatcher;
     private OkHttpClient client;
     // Member variables
     private boolean tooEarly;
@@ -187,7 +186,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             myToolbar.showOverflowMenu();
         }
 
-        gcmNetworkManager = GcmNetworkManager.getInstance(this);
+        dispatcher = new FirebaseJobDispatcher(new GooglePlayDriver(this));
+        // gcmNetworkManager = GcmNetworkManager.getInstance(this);
 
         // Initialize preferences
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
@@ -402,32 +402,9 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     }
 
     private void refreshTasks() {
-        gcmNetworkManager = GcmNetworkManager.getInstance(this);
-        gcmNetworkManager.cancelAllTasks(WallpaperChangeService.class);
-
-        final int PERIOD = 3600 * 8;
-        final int FLEX = 3600 * 2;
-
-        OneoffTask immediateTask = new OneoffTask.Builder()
-                .setService(WallpaperChangeService.class)
-                .setTag(WallpaperChangeService.TAG_TASK_ONEOFF)
-                .setExecutionWindow(0, 5)
-                .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
-                .build();
-
-        gcmNetworkManager.schedule(immediateTask);
-
-        PeriodicTask task = new PeriodicTask.Builder()
-                .setTag(WallpaperChangeService.TAG_TASK_DAILY)
-                .setService(WallpaperChangeService.class)
-                .setPeriod(PERIOD)
-                .setFlex(FLEX)
-                .setPersisted(true)
-                .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)  // not needed, default
-                .setUpdateCurrent(true) // not needed, you know this is 1st time
-                .build();
-
-        gcmNetworkManager.schedule(task);
+        WallpaperChangeManager wallpaperChangeManager = new WallpaperChangeManager(this);
+        wallpaperChangeManager.cancelAll();
+        wallpaperChangeManager.scheduleImmediateAndRecurring();
 
         Toast.makeText(this, R.string.toast_reset_task, Toast.LENGTH_SHORT).show();
     }
