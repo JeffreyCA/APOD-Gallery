@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="change_latest">
+        <b>Updates</b>\n
+        - Update libraries\n
+        - Improve daily wallpaper changer\n
+    </string>
+    <string name="change_2_0_11">
         <b>Fixes</b>\n
         - Fix problems adding widgets on Android 4.x devices\n\n
         <b>Updates</b>\n
