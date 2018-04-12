@@ -24,7 +24,6 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.ExecutionException;
 
@@ -215,8 +214,6 @@ public class WallpaperChangeService extends JobService {
 
     @Override
     public boolean onStartJob(JobParameters job) {
-        Log.d("CURRENT_TIME", Calendar.getInstance().getTime().toString());
-
         today = new SimpleDateFormat("y-MM-dd").format(new Date());
         database = FirebaseDatabase.getInstance().getReference();
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(WallpaperChangeService.this);

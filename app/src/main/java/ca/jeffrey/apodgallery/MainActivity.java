@@ -53,8 +53,6 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
-import com.firebase.jobdispatcher.FirebaseJobDispatcher;
-import com.firebase.jobdispatcher.GooglePlayDriver;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.security.ProviderInstaller;
@@ -131,8 +129,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     private final float SLIDING_ANCHOR_POINT = 0.42f;
     private final int ERROR_DIALOG_REQUEST_CODE = 1;
     ProgressDialog dialog;
-    //private GcmNetworkManager gcmNetworkManager;
-    private FirebaseJobDispatcher dispatcher;
     private OkHttpClient client;
     // Member variables
     private boolean tooEarly;
@@ -185,9 +181,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         if (myToolbar != null) {
             myToolbar.showOverflowMenu();
         }
-
-        dispatcher = new FirebaseJobDispatcher(new GooglePlayDriver(this));
-        // gcmNetworkManager = GcmNetworkManager.getInstance(this);
 
         // Initialize preferences
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
