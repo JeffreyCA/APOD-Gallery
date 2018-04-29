@@ -8,10 +8,10 @@ repositories {
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:27.0.2'
-    compile 'com.android.support:support-annotations:27.0.2'
-    compile 'com.android.support:recyclerview-v7:27.0.2'
-    compile 'com.nineoldandroids:library:2.4.0'
+    implementation 'com.android.support:support-v4:27.1.1'
+    implementation 'com.android.support:support-annotations:27.1.1'
+    implementation 'com.android.support:recyclerview-v7:27.1.1'
+    implementation 'com.nineoldandroids:library:2.4.0'
 }
 
 android {

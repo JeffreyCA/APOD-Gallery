@@ -13,9 +13,8 @@ import android.util.Log;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.google.android.gms.gcm.GcmNetworkManager;
-import com.google.android.gms.gcm.GcmTaskService;
-import com.google.android.gms.gcm.TaskParams;
+import com.firebase.jobdispatcher.JobParameters;
+import com.firebase.jobdispatcher.JobService;
 import com.google.firebase.crash.FirebaseCrash;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -28,7 +27,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.ExecutionException;
 
-public class WallpaperChangeService extends GcmTaskService {
+public class WallpaperChangeService extends JobService {
     public static final String TAG_TASK_DAILY = "tag_task_daily";
     public static final String TAG_TASK_ONEOFF = "tag_oneoff";
     SharedPreferences sharedPreferences;
@@ -52,11 +51,6 @@ public class WallpaperChangeService extends GcmTaskService {
         });
 
         return date[0];
-    }
-
-    @Override
-    public void onInitializeTasks() {
-        super.onInitializeTasks();
     }
 
     private void getImageData() {
@@ -219,20 +213,23 @@ public class WallpaperChangeService extends GcmTaskService {
     }
 
     @Override
-    public int onRunTask(TaskParams taskParams) {
+    public boolean onStartJob(JobParameters job) {
         today = new SimpleDateFormat("y-MM-dd").format(new Date());
         database = FirebaseDatabase.getInstance().getReference();
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(WallpaperChangeService.this);
 
-        switch (taskParams.getTag()) {
+        switch (job.getTag()) {
             case TAG_TASK_DAILY:
                 getImageData();
-                return GcmNetworkManager.RESULT_SUCCESS;
             case TAG_TASK_ONEOFF:
                 getImageData();
-                return GcmNetworkManager.RESULT_SUCCESS;
-            default:
-                return GcmNetworkManager.RESULT_FAILURE;
         }
+
+        return false;
+    }
+
+    @Override
+    public boolean onStopJob(JobParameters job) {
+        return false;
     }
 }

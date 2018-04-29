@@ -6,12 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import com.google.android.gms.gcm.GcmNetworkManager;
-import com.google.android.gms.gcm.OneoffTask;
-import com.google.android.gms.gcm.PeriodicTask;
-import com.google.android.gms.gcm.Task;
-
-import ca.jeffrey.apodgallery.wallpaper.WallpaperChangeService;
+import ca.jeffrey.apodgallery.wallpaper.WallpaperChangeManager;
 
 public class OnBootReceiver extends BroadcastReceiver {
     @Override
@@ -20,43 +15,11 @@ public class OnBootReceiver extends BroadcastReceiver {
                 .getDefaultSharedPreferences(context);
 
         boolean wallpaperEnabled = sharedPreferences.getBoolean("pref_daily_wallpaper", false);
-        clearAllTasks(context);
+        WallpaperChangeManager wallpaperChangeManager = new WallpaperChangeManager(context);
+        wallpaperChangeManager.cancelAll();
 
         if (wallpaperEnabled && Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
-            setPeriodicTask(context);
+            wallpaperChangeManager.scheduleImmediateAndRecurring();
         }
-    }
-
-    private void setPeriodicTask(Context context) {
-        final int PERIOD = 3600 * 8;
-        final int FLEX = 3600 * 2;
-
-        GcmNetworkManager gcmNetworkManager = GcmNetworkManager.getInstance(context);
-
-        PeriodicTask task = new PeriodicTask.Builder()
-                .setTag(WallpaperChangeService.TAG_TASK_DAILY)
-                .setService(WallpaperChangeService.class)
-                .setPeriod(PERIOD)
-                .setFlex(FLEX)
-                .setPersisted(true)
-                .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)  // not needed, default
-                .setUpdateCurrent(true) // not needed, you know this is 1st time
-                .build();
-        gcmNetworkManager.schedule(task);
-
-        OneoffTask immediateTask = new OneoffTask.Builder()
-                .setService(WallpaperChangeService.class)
-                .setTag(WallpaperChangeService.TAG_TASK_ONEOFF)
-                .setExecutionWindow(0, 5)
-                .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
-                .build();
-
-        gcmNetworkManager.schedule(immediateTask);
-    }
-
-    private void clearAllTasks(Context context) {
-        GcmNetworkManager
-                .getInstance(context)
-                .cancelAllTasks(WallpaperChangeService.class);
     }
 }
