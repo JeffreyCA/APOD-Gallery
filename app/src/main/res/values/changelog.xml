@@ -3,6 +3,7 @@
     <string name="change_latest">
         <b>Fixes</b>\n
         - Fix crashes when viewing certain non-image content\n
+        - Prevent multiple dialogs from showing\n
     </string>
     <string name="change_2_0_12">
         <b>Updates</b>\n

@@ -132,6 +132,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     private OkHttpClient client;
     // Member variables
     private boolean tooEarly;
+    private boolean isDialogShowing = false;
     private String date;
     private String today;
     private String imgUrl;
@@ -1561,7 +1562,24 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             }
         });
 
-        builder.create().show();
+        AlertDialog alert = builder.create();
+        alert.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialog) {
+                isDialogShowing = true;
+            }
+        });
+
+        alert.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                isDialogShowing = false;
+            }
+        });
+
+        if (!isDialogShowing) {
+            alert.show();
+        }
     }
 
     /**
