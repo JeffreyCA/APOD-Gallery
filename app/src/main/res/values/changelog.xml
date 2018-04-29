@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="change_latest">
+        <b>Fixes</b>\n
+        - Fix crashes when viewing certain non-image content\n
+    </string>
+    <string name="change_2_0_12">
         <b>Updates</b>\n
         - Update libraries\n
         - Improve daily wallpaper changer\n

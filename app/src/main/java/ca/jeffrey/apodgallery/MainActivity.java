@@ -1545,7 +1545,12 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 dialog.dismiss();
                 // Open Link in browser
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-                startActivity(browserIntent);
+                PackageManager packageManager = getPackageManager();
+                if (browserIntent.resolveActivity(packageManager) != null) {
+                    startActivity(browserIntent);
+                } else {
+                    openLink();
+                }
             }
         });
 
