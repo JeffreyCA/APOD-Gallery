@@ -132,7 +132,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     private OkHttpClient client;
     // Member variables
     private boolean tooEarly;
-    private boolean isDialogShowing = false;
+    private boolean isWhatsNewDialogShowing = false;
+    private boolean isExternDialogShowing = false;
     private String date;
     private String today;
     private String imgUrl;
@@ -261,7 +262,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
                     if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         initializeListeners();
-                        getImageData(date);
+                        // getImageData(date);
                     } else {
                         dialog = ProgressDialog.show(this, getString(R.string.dialog_ciphers_title),
                                 getString(R.string.dialog_ciphers_body), true);
@@ -280,7 +281,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
                     if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         initializeListeners();
-                        getImageData(date);
+                        // getImageData(date);
                     } else {
                         dialog = ProgressDialog.show(this, getString(R.string.dialog_ciphers_title),
                                 getString(R.string.dialog_ciphers_body), true);
@@ -417,6 +418,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     }
 
     private void displayMinorChangesDialog() {
+        isWhatsNewDialogShowing = true;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         builder.setTitle(getString(R.string.dialog_whats_new_title) + BuildConfig.VERSION_NAME)
@@ -424,13 +426,17 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 .setNegativeButton(R.string.label_review, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        isWhatsNewDialogShowing = false;
                         openGooglePlay();
+                        getImageData(date);
                     }
                 })
                 .setPositiveButton(R.string.label_dismiss, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        isWhatsNewDialogShowing = false;
                         dialog.dismiss();
+                        getImageData(date);
                     }
                 });
 
@@ -439,6 +445,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     }
 
     private void displayMajorChangesDialog() {
+        isWhatsNewDialogShowing = true;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         builder.setTitle(getString(R.string.dialog_whats_new_title) + BuildConfig.VERSION_NAME)
@@ -446,6 +453,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 .setPositiveButton(R.string.label_dismiss, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        isWhatsNewDialogShowing = false;
                         dialog.dismiss();
                         // displayWallpaperFeaturesDialog();
                     }
@@ -686,6 +694,10 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
+        
+        if (isWhatsNewDialogShowing) {
+            return;
+        }
 
         Glide.clear(imageView);
         progressBar.setVisibility(View.VISIBLE);
@@ -1566,18 +1578,18 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         alert.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(DialogInterface dialog) {
-                isDialogShowing = true;
+                isExternDialogShowing = true;
             }
         });
 
         alert.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialog) {
-                isDialogShowing = false;
+                isExternDialogShowing = false;
             }
         });
 
-        if (!isDialogShowing) {
+        if (!isExternDialogShowing) {
             alert.show();
         }
     }

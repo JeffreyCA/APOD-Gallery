@@ -4,6 +4,7 @@
         <b>Fixes</b>\n
         - Fix crashes when viewing certain non-image content\n
         - Prevent multiple dialogs from showing\n
+        - Prevent other dialogs from showing on top of "What's New" dialog
     </string>
     <string name="change_2_0_12">
         <b>Updates</b>\n
