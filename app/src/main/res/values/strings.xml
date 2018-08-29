@@ -1,7 +1,7 @@
 <resources>
     <string name="action_no">NO</string>
     <string name="action_yes">YES</string>
-    <string name="api_key">***REMOVED***</string>
+    <string name="api_key">DEMO_KEY</string>
     <string name="app_name">APOD Gallery</string>
 
     <string name="desc_image">Featured image</string>

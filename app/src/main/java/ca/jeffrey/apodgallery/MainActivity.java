@@ -100,9 +100,9 @@ import okhttp3.Response;
 import okhttp3.TlsVersion;
 
 public class MainActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener, ProviderInstaller.ProviderInstallListener {
-
     // NASA API key
-    public static final String API_KEY = "***REMOVED***";
+    private static String API_KEY = "DEMO_KEY";
+
     // Permission codes
     private static final int SAVE_PERMISSION = 100;
     private static final int SHARE_PERMISSION = 101;
@@ -187,6 +187,9 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         // Initialize preferences
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+
+        // Initialize API key
+        API_KEY = getString(R.string.api_key);
 
         // Initialize Reservoir cache
         try {
