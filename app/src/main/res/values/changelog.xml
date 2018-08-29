@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="change_latest">
+        <b>Updates</b>\n
+        - Update crash logging tool\n
+        - Improvements to first-time launch\n
+        - Improvements to wallpaper changer
+    </string>
+    <string name="change_2_0_13">
         <b>Fixes</b>\n
         - Fix crashes when viewing certain non-image content\n
         - Prevent multiple dialogs from showing\n
