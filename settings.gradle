@@ -1,2 +1,2 @@
-include ':app', ':jsoup'
+include ':app'
 include ':library'

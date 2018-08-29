@@ -53,10 +53,10 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
+import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.security.ProviderInstaller;
-import com.google.firebase.crash.FirebaseCrash;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 
@@ -281,7 +281,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
                     if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         initializeListeners();
-                        // getImageData(date);
+                        getImageData(date);
                     } else {
                         dialog = ProgressDialog.show(this, getString(R.string.dialog_ciphers_title),
                                 getString(R.string.dialog_ciphers_body), true);
@@ -532,8 +532,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 try {
                     currentDate = dateToCalendar(EXPANDED_FORMAT.parse(date));
                 } catch (ParseException e) {
-                    FirebaseCrash.report(e);
-                    FirebaseCrash.log(date);
+                    Crashlytics.logException(e);
                 }
 
                 DatePickerDialog dpd = DatePickerDialog.newInstance(MainActivity.this,
@@ -900,8 +899,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
             return EXPANDED_FORMAT.format(calendar.getTime());
         } catch (ParseException e) {
-            FirebaseCrash.report(e);
-            FirebaseCrash.log(date);
+            Crashlytics.logException(e);
         }
         return null;
     }
@@ -921,7 +919,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
             return EXPANDED_FORMAT.format(calendar.getTime());
         } catch (ParseException e) {
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
         }
         return null;
     }
@@ -967,7 +965,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         try {
             return NUMERICAL_FORMAT.format(EXPANDED_FORMAT.parse(date));
         } catch (ParseException e) {
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
         }
 
         return "";
@@ -986,7 +984,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             shortDate = SHORT_FORMAT.format(EXPANDED_FORMAT.parse(date));
             return BASE_URL + shortDate + ".html";
         } catch (ParseException e) {
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
         }
 
         return "";
@@ -1421,7 +1419,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                                 parseHtml();
                             }
                         } catch (ParseException pe) {
-                            FirebaseCrash.report(pe);
+                            Crashlytics.logException(pe);
                         }
 
                         // Error handling
@@ -1624,8 +1622,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
         @Override
         protected Boolean doInBackground(String... url) {
-            FirebaseCrash.log("Date: " + date);
-
             final String EXPLANATION_HEADER = "Explanation:";
             final String YT_BASE_URL = "https://www.youtube.com/watch?v=";
             final String VM_BASE_URL = "https://vimeo.com/";

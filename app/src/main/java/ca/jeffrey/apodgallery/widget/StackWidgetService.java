@@ -12,7 +12,7 @@ import android.preference.PreferenceManager;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
-import com.google.firebase.crash.FirebaseCrash;
+import com.crashlytics.android.Crashlytics;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -106,7 +106,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
         }
     }
     public void onDestroy() {
@@ -129,7 +129,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         final String IMAGE_DIRECTORY = sharedPreferences.getString(SettingsActivity.TAG_PREF_LOCATION,
                 DEFAULT_IMAGE_DIRECTORY);
 
-        FirebaseCrash.log(IMAGE_DIRECTORY);
+        Crashlytics.log(IMAGE_DIRECTORY);
 
         final String EXT = ".jpg";
 
@@ -141,7 +141,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
                 Bitmap b = BitmapFactory.decodeStream(new FileInputStream(f));
                 rv.setImageViewBitmap(R.id.widget_image, b);
             } catch (Exception e) {
-                FirebaseCrash.report(e);
+                Crashlytics.logException(e);
             }
         }
 
@@ -165,7 +165,7 @@ class StackRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
         try {
             Thread.sleep(500);
         } catch (InterruptedException e) {
-            FirebaseCrash.report(e);
+            Crashlytics.logException(e);
         }
         // Return the remote views object.
         return rv;

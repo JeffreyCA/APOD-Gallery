@@ -13,9 +13,9 @@ import android.util.Log;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.crashlytics.android.Crashlytics;
 import com.firebase.jobdispatcher.JobParameters;
 import com.firebase.jobdispatcher.JobService;
-import com.google.firebase.crash.FirebaseCrash;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -46,7 +46,7 @@ public class WallpaperChangeService extends JobService {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                FirebaseCrash.log(databaseError.toString());
+                Crashlytics.logException(databaseError.toException());
             }
         });
 
@@ -70,7 +70,7 @@ public class WallpaperChangeService extends JobService {
                                 setImageData(sdUrl, hdUrl);
                                 Log.i("APOD Wallpaper", "Set");
                             } catch (Exception e) {
-                                FirebaseCrash.report(e);
+                                Crashlytics.logException(e);
                             }
                         }
                     };
@@ -80,7 +80,7 @@ public class WallpaperChangeService extends JobService {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                FirebaseCrash.log(databaseError.toString());
+                Crashlytics.logException(databaseError.toException());
             }
         });
     }
@@ -204,7 +204,7 @@ public class WallpaperChangeService extends JobService {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                FirebaseCrash.log(databaseError.toString());
+                Crashlytics.logException(databaseError.toException());
                 url[0] = "";
             }
         });
