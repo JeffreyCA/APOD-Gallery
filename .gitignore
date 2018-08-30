@@ -1,3 +1,5 @@
+.DS_Store
+
 # Built application files
 *.apk
 *.ap_
@@ -16,6 +18,7 @@ out/
 # Gradle files
 .gradle/
 build/
+app/build/
 
 # Gradle configuration file
 gradle.properties
@@ -37,10 +40,13 @@ captures/
 
 # Intellij
 *.iml
-.idea/workspace.xml
-.idea/libraries
+.idea/*
 
 # Keystore files
 *.jks
+keystore.properties
 
-/app/build.gradle
+# Other
+app/AndroidManifest.xml
+app/google-services.json
+projectFilesBackup/
