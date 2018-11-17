@@ -11,9 +11,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
-import android.support.v4.view.MotionEventCompat;
-import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -25,6 +22,10 @@ import android.view.animation.Interpolator;
 
 import com.nineoldandroids.view.animation.AnimatorProxy;
 import com.sothree.slidinguppanel.library.R;
+
+import androidx.annotation.NonNull;
+import androidx.core.view.MotionEventCompat;
+import androidx.core.view.ViewCompat;
 
 public class SlidingUpPanelLayout extends ViewGroup {
 
@@ -1261,7 +1262,7 @@ public class SlidingUpPanelLayout extends ViewGroup {
     @Override
     protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
         boolean result;
-        final int save = canvas.save(Canvas.CLIP_SAVE_FLAG);
+        final int save = canvas.save();
 
         if (mSlideableView != child) { // if main view
             // Clip against the slider; no sense drawing what will immediately be covered,

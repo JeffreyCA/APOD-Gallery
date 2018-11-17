@@ -2,14 +2,15 @@ package com.sothree.slidinguppanel;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.sothree.slidinguppanel.library.R;
+
+import androidx.core.view.GravityCompat;
+import androidx.core.view.ViewCompat;
 
 /**
  * Created by ThomasR on 06.01.2015.

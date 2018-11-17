@@ -34,7 +34,7 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <android.support.v7.widget.Toolbar
+            <androidx.appcompat.widget.Toolbar
                 xmlns:android="http://schemas.android.com/apk/res/android"
                 xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:id="@+id/toolbar"
@@ -43,8 +43,7 @@
                 android:background="?attr/colorPrimaryDark"
                 android:minHeight="?attr/actionBarSize"
                 android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-                app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
-            </android.support.v7.widget.Toolbar>
+                app:popupTheme="@style/ThemeOverlay.AppCompat.Light"></androidx.appcompat.widget.Toolbar>
 
             <RelativeLayout
                 android:id="@+id/main_view"
@@ -175,7 +174,7 @@
 
 </com.sothree.slidinguppanel.SlidingUpPanelLayout>
 
-<android.support.design.widget.FloatingActionButton
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
     android:id="@+id/fab"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"

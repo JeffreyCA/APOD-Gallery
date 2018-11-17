@@ -14,8 +14,6 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.preference.SwitchPreference;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -27,6 +25,8 @@ import com.bumptech.glide.Glide;
 import java.io.File;
 import java.io.IOException;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
 import ca.jeffrey.apodgallery.wallpaper.WallpaperChangeManager;
 
 public class SettingsActivity extends Activity implements SharedPreferences

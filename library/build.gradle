@@ -8,15 +8,15 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.android.support:support-v4:27.1.1'
-    implementation 'com.android.support:support-annotations:27.1.1'
-    implementation 'com.android.support:recyclerview-v7:27.1.1'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.annotation:annotation:1.0.0'
+    implementation 'androidx.recyclerview:recyclerview:1.0.0'
     implementation 'com.nineoldandroids:library:2.4.0'
 }
 
 android {
-    compileSdkVersion 27
-    buildToolsVersion '28.0.2'
+    compileSdkVersion 28
+    buildToolsVersion '28.0.3'
     lintOptions {
         abortOnError false
     }
@@ -28,6 +28,9 @@ android {
             res.srcDirs = ['res']
             assets.srcDirs = ['assets']
         }
+    }
+    defaultConfig {
+        minSdkVersion 14
     }
 }
 

@@ -23,13 +23,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.FileProvider;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Menu;
@@ -57,6 +50,7 @@ import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.security.ProviderInstaller;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 
@@ -84,6 +78,12 @@ import java.util.regex.Pattern;
 
 import javax.net.ssl.SSLContext;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import ca.jeffrey.apodgallery.text.AutoResizeTextView;
 import ca.jeffrey.apodgallery.text.TextViewEx;
 import ca.jeffrey.apodgallery.wallpaper.WallpaperChangeManager;
@@ -545,7 +545,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                 dpd.setMinDate(MIN_DATE);
                 dpd.setMaxDate(today);
                 dpd.vibrate(false);
-                dpd.show(getFragmentManager(), DATE_PICKER_TAG);
+                dpd.show(getSupportFragmentManager(), DATE_PICKER_TAG);
             }
         });
 

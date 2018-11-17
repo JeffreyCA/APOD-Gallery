@@ -13,7 +13,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
-import android.support.v4.content.FileProvider;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -22,6 +21,7 @@ import com.bumptech.glide.request.target.SimpleTarget;
 
 import java.io.File;
 
+import androidx.core.content.FileProvider;
 import ca.jeffrey.apodgallery.image.TouchImageView;
 
 public class ImageActivity extends Activity {
@@ -44,7 +44,7 @@ public class ImageActivity extends Activity {
         final boolean setWallpaper = extras.getBoolean("wallpaper");
 
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        final TouchImageView imageView = (TouchImageView) findViewById(R.id.zoom_image);
+        final TouchImageView imageView = findViewById(R.id.zoom_image);
         // Set max zoom
         imageView.setMaxZoom(MAX_ZOOM);
 

@@ -4,10 +4,11 @@ import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
+
+import androidx.appcompat.widget.Toolbar;
 
 public class CreditsActivity extends Activity {
     @Override
