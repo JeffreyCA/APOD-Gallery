@@ -19,12 +19,12 @@
         android:layout_height="match_parent"
         android:background="@android:color/black"
         android:gravity="bottom"
-        sothree:umanoDragView="@id/title"
         sothree:umanoFadeColor="@android:color/transparent"
         sothree:umanoInitialState="collapsed"
         sothree:umanoOverlay="true"
         sothree:umanoPanelHeight="92dp"
         sothree:umanoParallaxOffset="118dp"
+        sothree:umanoDragView="@+id/title"
         sothree:umanoScrollableView="@+id/description_scroll"
         sothree:umanoShadowHeight="0dp">
 
@@ -43,7 +43,7 @@
                 android:background="?attr/colorPrimaryDark"
                 android:minHeight="?attr/actionBarSize"
                 android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-                app:popupTheme="@style/ThemeOverlay.AppCompat.Light"></androidx.appcompat.widget.Toolbar>
+                app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
             <RelativeLayout
                 android:id="@+id/main_view"
@@ -131,9 +131,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/transparentPrimary"
-            android:clickable="true"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
             android:orientation="vertical">
 
             <!-- layout_height controls the height of entire TextView -->
@@ -162,7 +159,6 @@
                     android:id="@+id/description"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:focusable="true"
                     android:lineSpacingMultiplier="1.5"
                     android:paddingLeft="16dp"
                     android:paddingRight="16dp"

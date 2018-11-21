@@ -551,7 +551,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
         // Sliding up panel listener
         slidingPanel.setAnchorPoint(SLIDING_ANCHOR_POINT);
-        slidingPanel.setScrollableView(description);
         slidingPanel.setPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
             // Hide FAB while expanded
             @Override
