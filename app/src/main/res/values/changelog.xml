@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="change_latest">
+        <b>Changes</b>\n
+        - Improve scrolling through description text\n
+        - Improve compatibility with Android P
+    </string>
+    <string name="change_2_0_14">
         <b>Updates</b>\n
         - Update crash logging tool\n
         - Improvements to first-time launch\n
