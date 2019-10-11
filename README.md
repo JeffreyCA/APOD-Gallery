@@ -2,7 +2,7 @@
 
 # APOD Gallery
 
-[APOD Gallery](https://play.google.com/store/apps/details?id=ca.jeffrey.apodgallery&hl=en) is an Android app that lets you explore the cosmos with NASA's Astronomy Picture of the Day (APOD) service. NASA publishes an new image or video everyday related to astronomy for APOD, along with comprehensive documentation about the featured image. Using APOD Gallery you can learn more about the universe we live through the beautiful views of our outer space.
+[APOD Gallery](https://play.google.com/store/apps/details?id=ca.jeffrey.apodgallery&hl=en) is an Android app that lets you explore the cosmos with NASA's Astronomy Picture of the Day (APOD) service. NASA publishes a new image or video everyday related to astronomy for APOD, along with comprehensive documentation about the featured image. Using APOD Gallery you can learn more about the universe we live in through beautiful views of our outer space.
 
 ## Features
 * Compatible with Android 4.1 and up
